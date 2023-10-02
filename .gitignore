@@ -1,0 +1,15 @@
+#除外フォルダ
+.vs/
+asset/
+data/
+x64/
+
+#除外ファイル
+*.dll
+*.sln
+*.proj
+*filters
+*.user
+*.vcxproj
+
+#Codeフォルダとshaderフォルダ内のみGitで管理したい
