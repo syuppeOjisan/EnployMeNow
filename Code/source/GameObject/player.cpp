@@ -20,7 +20,8 @@ using namespace DirectX::SimpleMath;
 
 void Player::Init()
 {
-	AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso"); //20230909-02
+	//AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso");
+	AddComponent<Shader>()->Load("shader\\vertexLightingVS.cso", "shader\\vertexLightingPS.cso");
 	m_Model = AddComponent<AnimationModel>();
 	
 	m_Model->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
@@ -116,16 +117,20 @@ void Player::Update()
 	}
 
 	// マウスでプレイヤーの視点移動
-	float sensitivity = 0.01f;
-	Vector2 mousePos = Input::GetMouseMove();
-	m_Rotation.y += mousePos.x * sensitivity;
+	// プレイヤーのモデルそのものを動かしている
+	{
+		float sensitivity = 0.01f;
+		Vector2 mousePos = Input::GetMouseMove();
+		m_Rotation.y += mousePos.x * sensitivity;
 
-	// ピクセル単位から度数法に変換して Pitch を制約
-	float degreesPerPixel = 1.0f; // 仮の値、適切な値に調整
-	m_Rotation.x += mousePos.y * sensitivity * degreesPerPixel;
+		// ピクセル単位から度数法に変換して Pitch を制約
+		float degreesPerPixel = 1.0f; // 仮の値、適切な値に調整
+		m_Rotation.x += mousePos.y * sensitivity * degreesPerPixel;
 
-	// 上下方向の制約を適用
-	m_Rotation.x = max(-90.0f, min(90.0f, m_Rotation.x));
+		// 上下方向の制約を適用
+		m_Rotation.x = max(-90.0f, min(90.0f, m_Rotation.x));
+	}
+
 
 
 	//重力

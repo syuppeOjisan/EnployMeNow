@@ -4,7 +4,7 @@
 #include "Base/gameObject.h"
 
 class Camera : public GameObject{
-private:
+protected:
 
 	DirectX::SimpleMath::Vector3	m_Target{};
 	DirectX::SimpleMath::Matrix		m_ViewMatrix{};

@@ -6,6 +6,7 @@
 #include "System/utility.h"
 
 #include "GameObject/camera.h"
+#include "GameObject/PlayerCamera.h"
 #include "GameObject/field.h"
 #include "GameObject/player.h"
 #include "GameObject/box.h"
@@ -28,17 +29,6 @@
 #include "Component/shader.h"
 #include "Component/audio.h"
 
-
-
-
-
-
-
-
-
-
-
-
 using namespace DirectX::SimpleMath;
 
 // ゲーム初期処理
@@ -47,7 +37,6 @@ void Game::Init()
 	Bullet::Load();
 	Explosion::Load();
 
-	AddGameObject<Camera>(0);
 	AddGameObject<Sky>(1);
 	AddGameObject<Field>(1);
 	AddGameObject<Player>(1);
@@ -58,6 +47,12 @@ void Game::Init()
 	AddGameObject<Enemy>(1)->SetPosition(Vector3(5.0f, 0.0f, 5.0f));
 	AddGameObject<Enemy>(1)->SetPosition(Vector3(10.0f, 0.0f, 5.0f));
 	AddGameObject<Enemy>(1)->SetPosition(Vector3(15.0f, 0.0f, 5.0f));
+
+	// チェック完了
+	{
+		PlayerCamera* pcamera = AddGameObject<PlayerCamera>(0);
+		pcamera->SetTarget(GetGameObject<Player>());
+	}
 
 	// チェック完了
 	{
