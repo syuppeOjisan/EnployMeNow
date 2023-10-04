@@ -41,6 +41,9 @@ void PlayerCamera::Update()
 		backVec = Vector3::Transform(backVec, mxRotOffset);
 
 		// TODO:なんかいい感じにカメラが動かないから治す
+		// カメラを移動したあとに勝手に初期位置に戻る
+		// カメラが回転する中心が固定されているからおかしい（プレイヤーの少し前を注視点にせず、プレイヤーそのものを注視点にすれば解決するけどどうにかしたい）
+		// 
 		// 上で作ったオフセット付きの後ろ向きベクトルにマウスの移動を加える
 		// カメラをマウスで移動させる
 		Matrix mxMouseRotationY = Matrix::CreateRotationY(DirectX::XMConvertToRadians(Input::GetMouseMove().x));

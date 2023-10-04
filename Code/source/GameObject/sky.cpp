@@ -27,6 +27,7 @@ void Sky::Update()
 {
 
 	Scene* scene = Manager::GetScene();
+	//TODO:GetGameObject<PlayerCamera>()ではカメラの変更に柔軟じゃないので直す？　必要かどうかはわからない
 	Camera* camera = scene->GetGameObject<PlayerCamera>();
 
 	Vector3 cameraPosition = camera->GetPosition();

@@ -136,6 +136,7 @@ void Explosion::Draw()
 
 
 	// カメラのビューマトリクス取得
+	//TODO:GetGameObject<PlayerCamera>()ではカメラの変更に柔軟じゃないので直す？　必要かどうかはわからない
 	Scene* scene = Manager::GetScene();
 	Camera* camera = scene->GetGameObject<PlayerCamera>();
 	Matrix view = camera->GetViewMatrix();
