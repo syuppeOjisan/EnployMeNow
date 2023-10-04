@@ -28,28 +28,26 @@ void PlayerCamera::Update()
 {
 	if (m_pTargetObject)
 	{
-		// 操作キャラの前向きベクトルを取得
-		Vector3 forwordVec = m_pTargetObject->GetForward();
 		// 前向きベクトルを反転させ、後ろ向きベクトルにする
-		Vector3 backVec;
-		backVec.x = -forwordVec.x;
-		backVec.y = -forwordVec.y;
-		backVec.z = -forwordVec.z;
+		Vector3 backVec = -m_pTargetObject->GetForward();
 
 		// カメラ位置を真後ろから20度回転させる
-		Matrix mxRotOffset = Matrix::CreateRotationY(DirectX::XMConvertToRadians(20.0f));
-		backVec = Vector3::Transform(backVec, mxRotOffset);
+		//Matrix mxRotOffset = Matrix::CreateRotationY(DirectX::XMConvertToRadians(20.0f));
+		//backVec = Vector3::Transform(backVec, mxRotOffset);
 
 		// TODO:なんかいい感じにカメラが動かないから治す
 		// カメラを移動したあとに勝手に初期位置に戻る
-		// カメラが回転する中心が固定されているからおかしい（プレイヤーの少し前を注視点にせず、プレイヤーそのものを注視点にすれば解決するけどどうにかしたい）
-		// 
+		// カメラが回転する中心が固定されているからおかしい?
+		
+		// マウスの数値を表示
+		std::cout << "MouseMove X[" << Input::GetMouseMove().x << "] Y[" << Input::GetMouseMove().y << "]" << std::endl;
+
 		// 上で作ったオフセット付きの後ろ向きベクトルにマウスの移動を加える
 		// カメラをマウスで移動させる
 		Matrix mxMouseRotationY = Matrix::CreateRotationY(DirectX::XMConvertToRadians(Input::GetMouseMove().x));
-		Matrix mxMouseRotationZ = Matrix::CreateRotationY(DirectX::XMConvertToRadians(Input::GetMouseMove().y));
+		Matrix mxMouseRotationX = Matrix::CreateRotationX(DirectX::XMConvertToRadians(Input::GetMouseMove().y));
 		backVec = Vector3::Transform(backVec, mxMouseRotationY);
-		backVec = Vector3::Transform(backVec, mxMouseRotationZ);
+		backVec = Vector3::Transform(backVec, mxMouseRotationX);
 
 		// 作成した後ろ向きベクトル上にカメラを設置
 		Vector3 CamPos;
@@ -60,10 +58,10 @@ void PlayerCamera::Update()
 		CamPos.z = TargetPos.z + backVec.z * CamDistance;
 
 		// 緩やかカメラ処理
-		//float blendFactor = 0.97f; // 平均化の重み
-		//CamPos.x = m_LastCamPos.x * blendFactor + CamPos.x * (1.0f - blendFactor);
-		//CamPos.y = m_LastCamPos.y * blendFactor + CamPos.y * (1.0f - blendFactor);
-		//CamPos.z = m_LastCamPos.z * blendFactor + CamPos.z * (1.0f - blendFactor);
+		float blendFactor = 0.97f; // 平均化の重み
+		CamPos.x = m_LastCamPos.x * blendFactor + CamPos.x * (1.0f - blendFactor);
+		CamPos.y = m_LastCamPos.y * blendFactor + CamPos.y * (1.0f - blendFactor);
+		CamPos.z = m_LastCamPos.z * blendFactor + CamPos.z * (1.0f - blendFactor);
 
 		// カメラ位置を設定
 		this->SetPosition(CamPos);
@@ -71,9 +69,9 @@ void PlayerCamera::Update()
 		
 		// カメラの注視点を設定
 		Vector3 CamFocus;
-		CamFocus.x = TargetPos.x + forwordVec.x;
-		CamFocus.y = TargetPos.y + forwordVec.y;
-		CamFocus.z = TargetPos.z + forwordVec.z;
+		CamFocus.x = TargetPos.x;
+		CamFocus.y = TargetPos.y;
+		CamFocus.z = TargetPos.z;
 		this->m_Target = CamFocus;
 	}
 	else
