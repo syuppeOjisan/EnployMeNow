@@ -13,7 +13,7 @@
 #include "GameObject/box.h"
 #include "GameObject/bullet.h"
 #include "GameObject/goal.h"
-#include "GameObject/camera.h"
+#include "GameObject/PlayerCamera.h"
 
 
 using namespace DirectX::SimpleMath;
@@ -58,7 +58,7 @@ void Player::Update()
 	Vector3 oldPosition = m_Position;
 
 	Scene* nowscene = Manager::GetScene();
-	Camera* cameraobj = nowscene->GetGameObject<Camera>();
+	Camera* cameraobj = nowscene->GetGameObject<PlayerCamera>();
 
 	Matrix viewmtx = cameraobj->GetViewMatrix();
 	Vector3 ZAxis = Vector3(viewmtx._13, 0.0f, viewmtx._33);
@@ -118,18 +118,18 @@ void Player::Update()
 
 	// マウスでプレイヤーの視点移動
 	// プレイヤーのモデルそのものを動かしている
-	{
-		float sensitivity = 0.01f;
-		Vector2 mousePos = Input::GetMouseMove();
-		m_Rotation.y += mousePos.x * sensitivity;
+	//{
+	//	float sensitivity = 0.01f;
+	//	Vector2 mousePos = Input::GetMouseMove();
+	//	m_Rotation.y += mousePos.x * sensitivity;
 
-		// ピクセル単位から度数法に変換して Pitch を制約
-		float degreesPerPixel = 1.0f; // 仮の値、適切な値に調整
-		m_Rotation.x += mousePos.y * sensitivity * degreesPerPixel;
+	//	// ピクセル単位から度数法に変換して Pitch を制約
+	//	float degreesPerPixel = 1.0f; // 仮の値、適切な値に調整
+	//	m_Rotation.x += mousePos.y * sensitivity * degreesPerPixel;
 
-		// 上下方向の制約を適用
-		m_Rotation.x = max(-90.0f, min(90.0f, m_Rotation.x));
-	}
+	//	// 上下方向の制約を適用
+	//	m_Rotation.x = max(-90.0f, min(90.0f, m_Rotation.x));
+	//}
 
 
 

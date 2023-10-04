@@ -4,7 +4,7 @@
 #include "System/renderer.h"
 #include "Scene/Base/scene.h"
 #include "GameObject/explosion.h"
-#include "GameObject/camera.h"
+#include "GameObject/PlayerCamera.h"
 #include "Component/shader.h"
 
 
@@ -137,7 +137,7 @@ void Explosion::Draw()
 
 	// カメラのビューマトリクス取得
 	Scene* scene = Manager::GetScene();
-	Camera* camera = scene->GetGameObject<Camera>();
+	Camera* camera = scene->GetGameObject<PlayerCamera>();
 	Matrix view = camera->GetViewMatrix();
 
 	// ビューの逆行列

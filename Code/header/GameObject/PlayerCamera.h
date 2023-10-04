@@ -1,7 +1,5 @@
 #pragma once
 
-// TODO:プレイヤーカメラの位置と注視点がどちらも同じ値になるのでバグって実行できないから治す
-
 #include "camera.h"
 #include <SimpleMath.h>
 using namespace DirectX::SimpleMath;
@@ -11,7 +9,7 @@ class PlayerCamera : public Camera
 public:
 	PlayerCamera(GameObject *_pTarget);
 	PlayerCamera() {};
-	~PlayerCamera(void) {};
+	~PlayerCamera(void) {m_Position = Vector3(0.0f, 10.0f, -50.0f); m_Target = Vector3(0.0f, 0.0f, 0.0f);};
 	
 	void Init()override;
 	void Update()override;
@@ -21,7 +19,7 @@ public:
 
 private:
 	// 追従するゲームオブジェクト
-	GameObject* m_pTarget;
+	GameObject* m_pTargetObject;
 
 	// 前回フレームでのカメラ位置
 	Vector3 m_LastCamPos;

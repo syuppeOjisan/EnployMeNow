@@ -6,7 +6,7 @@
 #include "Component/modelRenderer.h"
 #include "Component/shader.h"
 #include "GameObject/sky.h"
-#include "GameObject/camera.h"
+#include "GameObject/PlayerCamera.h"
 
 
 
@@ -27,7 +27,7 @@ void Sky::Update()
 {
 
 	Scene* scene = Manager::GetScene();
-	Camera* camera = scene->GetGameObject<Camera>();
+	Camera* camera = scene->GetGameObject<PlayerCamera>();
 
 	Vector3 cameraPosition = camera->GetPosition();
 	m_Position = cameraPosition;
