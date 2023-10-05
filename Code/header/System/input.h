@@ -25,6 +25,7 @@ private:
 
 	static POINT	m_NowMousePos;			// マウスポインタの位置 - 今
 	static POINT	m_OldMousePos;			// マウスポインタの位置	- １フレーム前
+	static bool		m_isMouseMove;			// マウスが移動しているかどうか
 
 	static bool m_CursorTrap;				// マウスカーソルをウィンドウ内に閉じ込めるかどうか
 	
@@ -43,6 +44,8 @@ public:
 	static POINT GetNowMoucePosClient();				// マウスの現在位置を返す - クライアント座標
 	static DirectX::SimpleMath::Vector2 GetMouseMove();	// マウスの移動度を返す
 	static void SetCursorTrap(bool trap);
+	static void SetisMouceMove(bool _isMove) { m_isMouseMove = _isMove; } //　マウスが移動しているかどうかを格納
+	static bool GetisMouceMove(void) { return m_isMouseMove; }
 
 
 };

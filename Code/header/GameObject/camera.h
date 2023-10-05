@@ -12,7 +12,7 @@ protected:
 public:
 	void Init();
 	void Uninit();
-	void Update();
+	virtual void Update();
 	void Draw();
 	DirectX::SimpleMath::Matrix GetViewMatrix() 
 	{ 

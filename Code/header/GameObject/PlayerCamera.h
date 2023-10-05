@@ -21,6 +21,10 @@ private:
 	// 追従するゲームオブジェクト
 	GameObject* m_pTargetObject;
 
+	// プレイヤーの後ろ向きベクトル
+	Vector3 m_BackVec;
 	// 前回フレームでのカメラ位置
 	Vector3 m_LastCamPos;
+	// マウス感度
+	float m_MouseSensitivity;
 };

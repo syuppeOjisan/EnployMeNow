@@ -8,6 +8,7 @@ BYTE Input::m_KeyState[256];
 
 POINT Input::m_NowMousePos;
 POINT Input::m_OldMousePos;
+bool  Input::m_isMouseMove;
 
 bool Input::m_CursorTrap;
 

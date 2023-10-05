@@ -7,6 +7,7 @@
 #include "System/fpscontrol.h"
 #include "System/renderer.h"
 #include "System/manager.h"
+#include "System/Input.h"
 
 //-----------------------------------------------------------------------------
 // Constant Values.
@@ -206,8 +207,12 @@ LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
             { PostQuitMessage(0); }
             break;
 
+        case WM_MOUSEMOVE:
+        { Input::SetisMouceMove(true); }
+        break;
+
         default:
-            { /* DO_NOTHING */ }
+        { Input::SetisMouceMove(false); }
             break;
     }
 
