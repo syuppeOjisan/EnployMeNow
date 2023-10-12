@@ -42,18 +42,25 @@ void Game::Init()
 	AddGameObject<Player>(1);
 	AddGameObject<Score>(3);
 
-	// 敵追加
-	AddGameObject<Enemy>(1)->SetPosition(Vector3(0.0f, 0.0f, 5.0f));
-	AddGameObject<Enemy>(1)->SetPosition(Vector3(5.0f, 0.0f, 5.0f));
-	AddGameObject<Enemy>(1)->SetPosition(Vector3(10.0f, 0.0f, 5.0f));
-	AddGameObject<Enemy>(1)->SetPosition(Vector3(15.0f, 0.0f, 5.0f));
+	//// 敵追加
+	//AddGameObject<Enemy>(1)->SetPosition(Vector3(0.0f, 0.0f, 5.0f));
+	//AddGameObject<Enemy>(1)->SetPosition(Vector3(5.0f, 0.0f, 5.0f));
+	//AddGameObject<Enemy>(1)->SetPosition(Vector3(10.0f, 0.0f, 5.0f));
+	//AddGameObject<Enemy>(1)->SetPosition(Vector3(15.0f, 0.0f, 5.0f));
+
+	//// 味方追加
+	//AddGameObject<Battery>(1)->SetPosition(Vector3(20.0f, 0.0f, 5.0f));
 
 	// チェック完了
 	{
-		PlayerCamera* pcamera = AddGameObject<PlayerCamera>(0);
-		pcamera->SetTarget(GetGameObject<Player>());
+		// カメラを生成しゲームシーンに追加、プレイヤーをターゲットに指定
+		PlayerCamera* pCamera = AddGameObject<PlayerCamera>(0);
+		pCamera->SetTarget(GetGameObject<Player>());
+		// プレイヤーにもカメラの情報を渡す
+		GetGameObject<Player>()->SetCamera(pCamera);
 	}
 
+	// TODO:マテリアルの色を変えて、弾が当たって意味があるブロックなのかをわかるようにしたい
 	// チェック完了
 	{
 		Box* box = AddGameObject<Box>(1);
@@ -73,31 +80,30 @@ void Game::Init()
 	// チェック完了
 	{
 		Box* box = AddGameObject<Box>(1);
-		box->SetPosition(Vector3(-11.0f, 0.0f, 11.0f));
+		box->SetPosition(Vector3(11.0f, 0.0f, 10.0f));
 		box->SetScale(Vector3(1.0f, 1.0f, 1.0f));
 		box->AddComponent<Object_SizeChange>();
 	}
 
-	// チェック完了
-	{
-		Cylinder* cylinder = AddGameObject<Cylinder>(1);
-		cylinder->SetPosition(Vector3(-11.0f, 0.0f, 20.0f));
-		cylinder->SetScale(Vector3(3.0f, 6.0f, 3.0f));
-	}
+	//// チェック完了
+	//{
+	//	Cylinder* cylinder = AddGameObject<Cylinder>(1);
+	//	cylinder->SetPosition(Vector3(-11.0f, 0.0f, 20.0f));
+	//	cylinder->SetScale(Vector3(3.0f, 6.0f, 3.0f));
+	//}
+
+	//// チェック完了
+	//{
+	//	Cylinder* cylinder = AddGameObject<Cylinder>(1);
+	//	cylinder->SetPosition(Vector3(11.0f, 0.0f, 20.0f));
+	//	cylinder->SetScale(Vector3(3.0f, 6.0f, 3.0f));
+	//}
 
 	// チェック完了
 	{
 		Box* box = AddGameObject<Box>(1);
-		box->SetPosition(Vector3(0.0f, 0.0f, 20.0f));
-		box->SetScale(Vector3(1.0f, 1.0f, 1.0f));
-		box->AddComponent<Object_SizeChange>();
-	}
-
-	// チェック完了
-	{
-		Cylinder* cylinder = AddGameObject<Cylinder>(1);
-		cylinder->SetPosition(Vector3(11.0f, 0.0f, 20.0f));
-		cylinder->SetScale(Vector3(3.0f, 6.0f, 3.0f));
+		box->SetPosition(Vector3(11.0f, 0.0f, 20.0f));
+		box->SetScale(Vector3(2.0f, 3.0f, 2.0f));
 	}
 
 	// チェック完了
@@ -125,8 +131,6 @@ void Game::Init()
 		fireAmmo->AddComponent<Shader>()->Load("shader\\unlitTextureVS.cso", "shader\\unlitTexturePS.cso");
 		fireAmmo->AddComponent<Sprite>()->Init(50.0f, 500.0f, 150, 195, "asset\\texture\\fireAmmo.png");
 	}
-
-	AddGameObject<Battery>(1)->SetPosition(Vector3(20.0f, 0.0f, 5.0f));
 
 	// 画面遷移オブジェクトを登録
 	m_Transition = AddGameObject<Transition>(3);

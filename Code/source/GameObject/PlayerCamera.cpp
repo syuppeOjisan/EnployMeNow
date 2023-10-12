@@ -45,12 +45,12 @@ void PlayerCamera::Update()
 		}
 
 		// TODO:カメラにも当たり判定を付けたい
-		// カメラのオフセット位置の調整もするべし
+		// TODO:カメラから見た正面をプレイヤーの正面とする
 
 		// 作成した後ろ向きベクトル上にカメラを設置
 		Vector3 CamPos;
 		Vector3 TargetPos = m_pTargetObject->GetPosition();
-		float CamDistance = 10.0f; // キャラとカメラの距離
+		float CamDistance = 13.0f; // キャラとカメラの距離
 		CamPos.x = TargetPos.x + m_BackVec.x * CamDistance;
 		CamPos.y = TargetPos.y + m_BackVec.y * CamDistance + 5.0f;
 		CamPos.z = TargetPos.z + m_BackVec.z * CamDistance;
@@ -82,4 +82,15 @@ void PlayerCamera::SetTarget(GameObject* _pTarget)
 	// ターゲット指定
 	m_pTargetObject = _pTarget;
 	m_BackVec = -m_pTargetObject->GetForward();
+}
+
+Vector3 PlayerCamera::GetCameraFrontVec()
+{
+	Vector3 camPos = this->GetPosition();
+	Vector3 playerPos = m_pTargetObject->GetPosition();
+
+	Vector3 camFrontVec = playerPos - camPos;
+	camFrontVec.Normalize();
+
+	return camFrontVec;
 }

@@ -60,8 +60,8 @@ void Object_SizeChange::Update()
 
 void Object_SizeChange::SizeIncrease()
 {
-	// サイズが本来の2倍になるまで大きくする
-	if (m_GameObject->GetScale().x < 5.0f)
+	// サイズが本来の3倍になるまで大きくする
+	if (m_GameObject->GetScale().x < 3.0f)
 	{
 		m_GameObject->SetScale((m_GameObject->GetScale() += changeSpeed));
 	}

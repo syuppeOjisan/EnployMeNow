@@ -28,6 +28,10 @@ void Player::Init()
 	m_Model->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
 	m_Model->LoadAnimation("asset\\model\\Player_Walk.fbx", "Run");
 
+	//m_Model->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
+	//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Idle");
+	//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Run");
+
 //	m_Model->Load("asset\\model\\Akai2.fbx");									// animation ok
 //	m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Idle");
 //	m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Run");
@@ -48,7 +52,7 @@ void Player::Init()
 	AddComponent<Shadow>()->SetSize(1.5f);
 
 	m_SE = AddComponent<Audio>();
-	m_SE->Load("asset\\audio\\wan.wav");
+	m_SE->Load("asset\\audio\\bassdrum.wav");
 
 	m_Scale = Vector3(0.02f, 0.02f, 0.02f);
 }
@@ -76,21 +80,23 @@ void Player::Update()
 
 	// 前方ベクトルを取得
 //	Vector3 forward = GetForward();
-	Vector3 forward = ZAxis;
+	Vector3 forward = m_pCamera->GetCameraFrontVec();
 
 	if (Input::GetKeyPress('W'))
 	{
-		m_Position += forward * 0.1f;
+		forward.y = 0;
+		m_Position += forward * 0.3f;
 	}
 	if (Input::GetKeyPress('S'))
 	{
-		m_Position -= forward * 0.1f;
+		forward.y = 0;
+		m_Position -= forward * 0.3f;
 	}
 
 	//ジャンプ
 	if (Input::GetKeyTrigger(VK_SPACE))
 	{
-		m_Velocity.y = 0.35f;
+		m_Velocity.y = 0.4f;
 	}
 
 	// 弾のモード変更
@@ -104,13 +110,17 @@ void Player::Update()
 		m_bulletMode = SIZE_DOWN;
 	}
 
+	// TODO:弾を見ている方向に撃つ
+	// 一応できた
 	//弾発射
 	if (Input::GetKeyTrigger('K'))
 	{
+		forward.y += 0.2f;
+		forward.Normalize();
 		Scene* scene = Manager::GetScene();
 		Bullet* bullet = scene->AddGameObject<Bullet>(2);
-		bullet->SetPosition(m_Position + Vector3(0.0f, 1.0f, 0.0f));
-		bullet->SetVelocity(forward * 0.5f);
+		bullet->SetPosition(m_Position + Vector3(0.0f,2.0f,0.0f));
+		bullet->SetVelocity(forward);
 		bullet->SetBulletMode(m_bulletMode);
 
 		m_SE->Play();
@@ -240,6 +250,7 @@ void Player::Update()
 			if (sts)
 			{
 				goal->SetDestroy();
+
 			}
 		}
 	}
@@ -275,6 +286,11 @@ void Player::Update()
 void Player::PreDraw()
 {
 	m_Model->Update("Idle", m_Frame, "Run", m_Frame, m_BlendRate);
+}
+
+void Player::SetCamera(PlayerCamera* _camera)
+{
+	this->m_pCamera = _camera;
 }
 
 BULLET_MODE Player::GetBulletMode()

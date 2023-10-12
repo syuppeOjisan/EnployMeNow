@@ -13,12 +13,12 @@ enum BULLET_MODE
 
 class Player : public GameObject
 {
-
+	// TODO:SEを配列で連想配列で管理したい
 private:
-
 	DirectX::SimpleMath::Vector3		m_Velocity{};
 	class	Audio*						m_SE{};
 	class	AnimationModel*				m_Model;
+	class	PlayerCamera*				m_pCamera;
 	BULLET_MODE							m_bulletMode;	// 現在装備中の弾のモード
 	float	m_BlendRate;
 	int		m_Frame;
@@ -29,6 +29,8 @@ public:
 	void Init() override;
 	void Update() override;
 	void PreDraw() override;
+
+	void SetCamera(PlayerCamera* _camera);
 
 	BULLET_MODE GetBulletMode();	// 今の弾のモードを取得
 };

@@ -7,16 +7,32 @@ using namespace DirectX::SimpleMath;
 class PlayerCamera : public Camera
 {
 public:
-	PlayerCamera(GameObject *_pTarget);
+	//-----------------------
+	// 初期化
+	//-----------------------
+	// コンストラクタ
+	PlayerCamera(GameObject *_pTarget);	
 	PlayerCamera() {};
+
+	// デストラクタ
 	~PlayerCamera(void) {m_Position = Vector3(0.0f, 10.0f, -50.0f); m_Target = Vector3(0.0f, 0.0f, 0.0f);};
 	
-	void Init()override;
-	void Update()override;
+	void Init()override;	// 初期化処理
+	void Update()override;	// 更新処理
+
+	//-----------------------
+	// アクセサ
+	//-----------------------
 
 	// ターゲット設定
 	void SetTarget(GameObject* _pTarget);
 
+	// カメラの前向き単位ベクトルを取得
+	Vector3 GetCameraFrontVec();
+
+	//-----------------------
+	// メンバ変数
+	//-----------------------
 private:
 	// 追従するゲームオブジェクト
 	GameObject* m_pTargetObject;
