@@ -14,7 +14,11 @@
 #include "GameObject/bullet.h"
 #include "GameObject/goal.h"
 #include "GameObject/PlayerCamera.h"
+#include "GameObject/Item_X.h"
+#include "GameObject/Item_Y.h"
+#include "GameObject/Item_Z.h"
 
+#include <iostream>
 
 using namespace DirectX::SimpleMath;
 
@@ -28,32 +32,44 @@ void Player::Init()
 	m_Model->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
 	m_Model->LoadAnimation("asset\\model\\Player_Walk.fbx", "Run");
 
-	//m_Model->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
-	//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Idle");
-	//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Run");
+	{
+		//m_Model->Load("asset\\model\\Player_Tpose.fbx");						// animation ok
+		//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Idle");
+		//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Run");
+		
+		//m_Model->Load("asset\\model\\Akai2.fbx");								// animation ok
+		//m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Idle");
+		//m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Run");
+		
+		//m_Model->Load("data\\model\\Walking\\Walking2.fbx");					// animation ok
+		//m_Model->LoadAnimation("data\\model\\Walking\\Walking2.fbx", "Idle");
+		//m_Model->LoadAnimation("data\\model\\Walking\\Walking2.fbx", "Run");
+		
+		//m_Model->Load("data\\model\\Walking\\Walking.fbx");					// animation ok
+		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.fbx", "Idle");
+		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.fbx", "Run");
+		
+		//m_Model->Load("data\\model\\Walking\\Walking.dae");					// animation ok
+		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.dae", "Idle");	// animation ok
+		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.dae", "Run");	// animation ok
+	}
 
-//	m_Model->Load("asset\\model\\Akai2.fbx");									// animation ok
-//	m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Idle");
-//	m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Run");
-
-//	m_Model->Load("data\\model\\Walking\\Walking2.fbx");						// animation ok
-//	m_Model->LoadAnimation("data\\model\\Walking\\Walking2.fbx", "Idle");
-//	m_Model->LoadAnimation("data\\model\\Walking\\Walking2.fbx", "Run");
-
-//	m_Model->Load("data\\model\\Walking\\Walking.fbx");							// animation ok
-//	m_Model->LoadAnimation("data\\model\\Walking\\Walking.fbx", "Idle");
-//	m_Model->LoadAnimation("data\\model\\Walking\\Walking.fbx", "Run");
-
-//	m_Model->Load("data\\model\\Walking\\Walking.dae");							// animation ok
-//	m_Model->LoadAnimation("data\\model\\Walking\\Walking.dae", "Idle");		// animation ok
-//	m_Model->LoadAnimation("data\\model\\Walking\\Walking.dae", "Run");			// animation ok
-	
 
 	AddComponent<Shadow>()->SetSize(1.5f);
 
-	m_SE = AddComponent<Audio>();
-	m_SE->Load("asset\\audio\\bassdrum.wav");
+	m_BulletEquip = NONE;
 
+	// SE読み込み
+	m_SEList["Fire"] = AddComponent<Audio>();
+	m_SEList["Fire"]->Load("asset\\audio\\SE\\bulletFire.wav");
+
+	m_SEList["Goal"] = AddComponent<Audio>();
+	m_SEList["Goal"]->Load("asset\\audio\\SE\\goal.wav");
+
+	m_SEList["Get"] = AddComponent<Audio>();
+	m_SEList["Get"]->Load("asset\\audio\\SE\\itemGet.wav");
+
+	// サイズ調整
 	m_Scale = Vector3(0.02f, 0.02f, 0.02f);
 }
 
@@ -71,11 +87,11 @@ void Player::Update()
 	// 左右に回転
 	if (Input::GetKeyPress('A'))
 	{
-		m_Position -= XAxis * 0.05f;
+		m_Position -= XAxis * 0.3f;
 	}
 	if (Input::GetKeyPress('D'))
 	{
-		m_Position += XAxis * 0.05f;
+		m_Position += XAxis * 0.3f;
 	}
 
 	// 前方ベクトルを取得
@@ -102,12 +118,12 @@ void Player::Update()
 	// 弾のモード変更
 	if (Input::GetKeyTrigger('1'))
 	{
-		m_bulletMode = SIZE_UP;
+		m_BulletMode = SIZE_UP;
 	}
 
 	if (Input::GetKeyTrigger('2'))
 	{
-		m_bulletMode = SIZE_DOWN;
+		m_BulletMode = SIZE_DOWN;
 	}
 
 	// TODO:弾を見ている方向に撃つ
@@ -121,26 +137,11 @@ void Player::Update()
 		Bullet* bullet = scene->AddGameObject<Bullet>(2);
 		bullet->SetPosition(m_Position + Vector3(0.0f,2.0f,0.0f));
 		bullet->SetVelocity(forward);
-		bullet->SetBulletMode(m_bulletMode);
+		bullet->SetBulletMode(m_BulletMode);
+		bullet->SetBulletKind(m_BulletEquip);
 
-		m_SE->Play();
+		m_SEList["Fire"]->Play();
 	}
-
-	// マウスでプレイヤーの視点移動
-	// プレイヤーのモデルそのものを動かしている
-	//{
-	//	float sensitivity = 0.01f;
-	//	Vector2 mousePos = Input::GetMouseMove();
-	//	m_Rotation.y += mousePos.x * sensitivity;
-
-	//	// ピクセル単位から度数法に変換して Pitch を制約
-	//	float degreesPerPixel = 1.0f; // 仮の値、適切な値に調整
-	//	m_Rotation.x += mousePos.y * sensitivity * degreesPerPixel;
-
-	//	// 上下方向の制約を適用
-	//	m_Rotation.x = max(-90.0f, min(90.0f, m_Rotation.x));
-	//}
-
 
 
 	//重力
@@ -154,9 +155,20 @@ void Player::Update()
 
 	//接地
 	float groundHeight = 0.0f;
+	//if (GetPosition().y <= groundHeight)
+	//{
+	//	m_isLanding = true;
+	//}
+	//else
+	//{
+	//	m_isLanding = false;
+	//}
 
 	// 現在シーンを取得
 	Scene* scene = Manager::GetScene();
+
+	// TODO:当たり判定をいい感じに変える
+	// せめてゲームシーン内で判定を行いたい
 
 	// cylinderとの当たり判定
 	{
@@ -223,6 +235,94 @@ void Player::Update()
 		}
 	}
 
+	// アイテムとの当たり判定
+	{
+		// アイテムXのとの当たり判定
+		{
+			std::vector<Item_X*> itemXList = scene->GetGameObjects<Item_X>();
+			for (const auto& itemObj : itemXList) {
+				// アイテムXとの当たり判定データ作成 
+				Vector3 position = itemObj->GetPosition();
+				Vector3 scale = itemObj->GetScale();
+
+				if (position.x - scale.x - 0.5f < m_Position.x && m_Position.x < position.x + scale.x + 0.5f &&
+					position.z - scale.z - 0.5f < m_Position.z && m_Position.z < position.z + scale.z + 0.5f)
+				{
+					if (m_Position.y < position.y + scale.y * 2.0f - 0.5f)
+					{
+						m_BulletEquip = BULLET_KIND::CHANGE_X_AXSIS;
+						if (!m_isSEplay_X)
+						{
+							m_SEList["Get"]->Play();
+							m_isSEplay_X = true;
+						}
+					}
+				}
+				else
+				{
+					m_isSEplay_X = false;
+				}
+			}
+		}
+
+		// アイテムYのとの当たり判定
+		{
+			std::vector<Item_Y*> itemXList = scene->GetGameObjects<Item_Y>();
+			for (const auto& itemObj : itemXList) {
+				// アイテムXとの当たり判定データ作成 
+				Vector3 position = itemObj->GetPosition();
+				Vector3 scale = itemObj->GetScale();
+
+				if (position.x - scale.x - 0.5f < m_Position.x && m_Position.x < position.x + scale.x + 0.5f &&
+					position.z - scale.z - 0.5f < m_Position.z && m_Position.z < position.z + scale.z + 0.5f)
+				{
+					if (m_Position.y < position.y + scale.y * 2.0f - 0.5f)
+					{
+						m_BulletEquip = BULLET_KIND::CHANGE_Y_AXSIS;
+						if (!m_isSEplay_Y)
+						{
+							m_SEList["Get"]->Play();
+							m_isSEplay_Y = true;
+						}
+					}
+				}
+				else
+				{
+					m_isSEplay_Y = false;
+				}
+			}
+		}
+
+		// アイテムZのとの当たり判定
+		{
+			std::vector<Item_Z*> itemXList = scene->GetGameObjects<Item_Z>();
+			for (const auto& itemObj : itemXList) {
+				// アイテムXとの当たり判定データ作成 
+				Vector3 position = itemObj->GetPosition();
+				Vector3 scale = itemObj->GetScale();
+
+				if (position.x - scale.x - 0.5f < m_Position.x && m_Position.x < position.x + scale.x + 0.5f &&
+					position.z - scale.z - 0.5f < m_Position.z && m_Position.z < position.z + scale.z + 0.5f)
+				{
+					if (m_Position.y < position.y + scale.y * 2.0f - 0.5f)
+					{
+						m_BulletEquip = BULLET_KIND::CHANGE_Z_AXSIS;
+						if (!m_isSEplay_Z)
+						{
+							m_SEList["Get"]->Play();
+							m_isSEplay_Z = true;
+						}
+					}
+				}
+				else
+				{
+					m_isSEplay_Z = false;
+				}
+			}
+		}
+
+	}
+
 	// 位置が０以下なら地面位置にセットする
 	if (m_Position.y < groundHeight && m_Velocity.y < 0.0f)
 	{
@@ -249,8 +349,8 @@ void Player::Update()
 
 			if (sts)
 			{
+				m_SEList["Goal"]->Play();
 				goal->SetDestroy();
-
 			}
 		}
 	}
@@ -280,6 +380,8 @@ void Player::Update()
 
 	m_Frame++;
 
+
+	std::cout << "PayerPos X[" << GetPosition().x << "]Y[" << GetPosition().y << "]Z[" << GetPosition().z << "]" << std::endl;
 }
 
 
@@ -295,6 +397,6 @@ void Player::SetCamera(PlayerCamera* _camera)
 
 BULLET_MODE Player::GetBulletMode()
 {
-	return m_bulletMode;
+	return m_BulletMode;
 }
 

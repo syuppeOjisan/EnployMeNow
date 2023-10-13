@@ -3,7 +3,7 @@
 #include "System/input.h"
 
 #include "Scene/title.h"
-#include "Scene/game.h"
+#include "Scene/Stage01.h"
 
 #include "Component/shader.h"
 #include "Component/sprite.h"
@@ -14,7 +14,7 @@ void Title::Init()
 {
 	GameObject* titleLogo = AddGameObject<GameObject>(3);			// 3はレイヤ番号
 	titleLogo->AddComponent<Shader>()->Load("shader\\unlitTextureVS.cso", "shader\\unlitTexturePS.cso");
-	titleLogo->AddComponent<Sprite>()->Init(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, "asset\\texture\\title.jpg");
+	titleLogo->AddComponent<Sprite>()->Init(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, "asset\\texture\\Title.png");
 
 	m_Transition = AddGameObject<Transition>(3);					// 3はレイヤ番号
 	m_Transition->FadeIn();
@@ -34,6 +34,6 @@ void Title::Update()
 	// 画面遷移が終了してるか？
 	if (m_Transition->GetState() == Transition::State::Finish)
 	{
-		Manager::SetScene<Game>();
+		Manager::SetScene<Stage01>();
 	}
 }

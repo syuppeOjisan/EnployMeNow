@@ -46,6 +46,7 @@ void PlayerCamera::Update()
 
 		// TODO:カメラにも当たり判定を付けたい
 		// TODO:カメラから見た正面をプレイヤーの正面とする
+		// プレイヤーを移動キー押したらカメラが向いている方向に回転させたい
 
 		// 作成した後ろ向きベクトル上にカメラを設置
 		Vector3 CamPos;
@@ -67,7 +68,7 @@ void PlayerCamera::Update()
 		this->m_Target = CamFocus;
 
 		// マウスの数値を表示
-		std::cout << "m_BackVec X[" << m_BackVec.x << "] Y[" << m_BackVec.y << "]" << "Z[" << m_BackVec.z << "]" << std::endl;
+		//std::cout << "m_BackVec X[" << m_BackVec.x << "] Y[" << m_BackVec.y << "]" << "Z[" << m_BackVec.z << "]" << std::endl;
 	}
 	else
 	{

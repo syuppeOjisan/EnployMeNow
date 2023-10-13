@@ -12,17 +12,14 @@
 #include "GameObject/box.h"
 #include "GameObject/cylinder.h"
 #include "GameObject/bullet.h"
-#include "GameObject/enemy.h"
-#include "GameObject/battery.h"
 #include "GameObject/score.h"
-#include "GameObject/explosion.h"
 #include "GameObject/transition.h"
 #include "GameObject/goal.h"
 #include "GameObject/sky.h"
 #include "GameObject/Polygon2D.h"
 
 #include "Scene/result.h"
-#include "Scene/game.h"
+#include "Scene/Stage02.h"
 
 #include "Component/Object_SizeChange.h"
 #include "Component/sprite.h"
@@ -32,24 +29,14 @@
 using namespace DirectX::SimpleMath;
 
 // ゲーム初期処理
-void Game::Init()
+void Stage02::Init()
 {
 	Bullet::Load();
-	Explosion::Load();
 
 	AddGameObject<Sky>(1);
 	AddGameObject<Field>(1);
 	AddGameObject<Player>(1);
 	AddGameObject<Score>(3);
-
-	//// 敵追加
-	//AddGameObject<Enemy>(1)->SetPosition(Vector3(0.0f, 0.0f, 5.0f));
-	//AddGameObject<Enemy>(1)->SetPosition(Vector3(5.0f, 0.0f, 5.0f));
-	//AddGameObject<Enemy>(1)->SetPosition(Vector3(10.0f, 0.0f, 5.0f));
-	//AddGameObject<Enemy>(1)->SetPosition(Vector3(15.0f, 0.0f, 5.0f));
-
-	//// 味方追加
-	//AddGameObject<Battery>(1)->SetPosition(Vector3(20.0f, 0.0f, 5.0f));
 
 	// チェック完了
 	{
@@ -60,6 +47,7 @@ void Game::Init()
 		GetGameObject<Player>()->SetCamera(pCamera);
 	}
 
+	// TODO:いい感じのステージを作る
 	// チェック完了
 	{
 		Box* box = AddGameObject<Box>(1);
@@ -73,8 +61,7 @@ void Game::Init()
 		Box* box = AddGameObject<Box>(1);
 		box->SetPosition(Vector3(-11.0f, 0.0f, 5.0f));
 		box->SetScale(Vector3(1.0f, 1.0f, 1.0f));
-		box->AddComponent<Object_SizeChange>();
-	}
+		box->AddComponent<Object_SizeChange>();	}
 
 	// チェック完了
 	{
@@ -83,20 +70,6 @@ void Game::Init()
 		box->SetScale(Vector3(1.0f, 1.0f, 1.0f));
 		box->AddComponent<Object_SizeChange>();
 	}
-
-	//// チェック完了
-	//{
-	//	Cylinder* cylinder = AddGameObject<Cylinder>(1);
-	//	cylinder->SetPosition(Vector3(-11.0f, 0.0f, 20.0f));
-	//	cylinder->SetScale(Vector3(3.0f, 6.0f, 3.0f));
-	//}
-
-	//// チェック完了
-	//{
-	//	Cylinder* cylinder = AddGameObject<Cylinder>(1);
-	//	cylinder->SetPosition(Vector3(11.0f, 0.0f, 20.0f));
-	//	cylinder->SetScale(Vector3(3.0f, 6.0f, 3.0f));
-	//}
 
 	// チェック完了
 	{
@@ -136,23 +109,14 @@ void Game::Init()
 	m_Transition->FadeIn();
 }
 
-// ゲーム終了処理
-void Game::Uninit()
+void Stage02::Uninit()
 {
+
 }
 
 // ゲーム更新処理
-void Game::Update()
+void Stage02::Update()
 {
-	// フェードインが終了しているか？	
-//	if (m_Transition->GetState() == Transition::State::Stop) {
-//		if (Input::GetKeyTrigger(VK_RETURN))
-//		{
-//			m_Transition->FadeOut();
-//		}
-//	}
-
-
 	// プレイヤーが撃つ弾のモード変更
 	// UIを変更
 	if (GetGameObject<Player>()->GetBulletMode() == SIZE_UP)

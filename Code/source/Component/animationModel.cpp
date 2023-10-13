@@ -361,10 +361,10 @@ void AnimationModel::Update(const char* AnimationName1, int Frame1, const char* 
 
 			int f;
 
-			f = Frame1 % nodeAnim->mNumRotationKeys;//ŠÈˆÕŽÀ‘•
+			f = Frame2 % nodeAnim->mNumRotationKeys;//ŠÈˆÕŽÀ‘•
 			aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
 
-			f = Frame1 % nodeAnim->mNumPositionKeys;//ŠÈˆÕŽÀ‘•
+			f = Frame2 % nodeAnim->mNumPositionKeys;//ŠÈˆÕŽÀ‘•
 			aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
 
 			bone->BlendPosTo = pos;
