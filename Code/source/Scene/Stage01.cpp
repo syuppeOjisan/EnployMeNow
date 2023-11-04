@@ -4,6 +4,7 @@
 #include "System/input.h"
 #include "System/manager.h"
 #include "System/utility.h"
+#include "imgui_impl_dx11.h"
 
 #include "GameObject/camera.h"
 #include "GameObject/PlayerCamera.h"
@@ -247,4 +248,12 @@ void Stage01::Update()
 	{
 		Manager::SetScene<Stage02>();
 	}
+
+	// GUIèoÇµÇ‹Ç∑
+	bool showGUI = true;
+	ImGui::SetNextWindowSize(ImVec2(320, 100), ImGuiCond(ImGuiCond_Once));
+	ImGui::Begin("PlayerInfo", &showGUI);
+	ImGui::Text("YOOOOOOOO");
+	ImGui::Text("IM_THE_TOP_G");
+	ImGui::End();
 }

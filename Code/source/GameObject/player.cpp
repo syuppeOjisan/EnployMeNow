@@ -87,7 +87,7 @@ void Player::Update()
 	// 左右に回転
 	if (Input::GetKeyPress('A'))
 	{
-		m_Position -= XAxis * 0.3f;
+		m_Position -= XAxis * 0.4f;
 	}
 	if (Input::GetKeyPress('D'))
 	{
@@ -95,7 +95,6 @@ void Player::Update()
 	}
 
 	// 前方ベクトルを取得
-//	Vector3 forward = GetForward();
 	Vector3 forward = m_pCamera->GetCameraFrontVec();
 
 	if (Input::GetKeyPress('W'))
@@ -112,7 +111,7 @@ void Player::Update()
 	//ジャンプ
 	if (Input::GetKeyTrigger(VK_SPACE))
 	{
-		m_Velocity.y = 0.4f;
+		m_Velocity.y = 0.2f;
 	}
 
 	// 弾のモード変更
@@ -125,6 +124,7 @@ void Player::Update()
 	{
 		m_BulletMode = SIZE_DOWN;
 	}
+
 
 	// TODO:弾を見ている方向に撃つ
 	// 一応できた
@@ -155,14 +155,14 @@ void Player::Update()
 
 	//接地
 	float groundHeight = 0.0f;
-	//if (GetPosition().y <= groundHeight)
-	//{
-	//	m_isLanding = true;
-	//}
-	//else
-	//{
-	//	m_isLanding = false;
-	//}
+	if (GetPosition().y <= groundHeight)
+	{
+		m_isLanding = true;
+	}
+	else
+	{
+		m_isLanding = false;
+	}
 
 	// 現在シーンを取得
 	Scene* scene = Manager::GetScene();
@@ -224,6 +224,7 @@ void Player::Update()
 			{
 				if (m_Position.y < position.y + scale.y * 2.0f - 0.5f)
 				{
+					m_isLanding = true;
 					m_Position.x = oldPosition.x;
 					m_Position.z = oldPosition.z;
 				}
@@ -231,6 +232,10 @@ void Player::Update()
 				{
 					groundHeight = position.y + scale.y * 2.0f;
 				}
+			}
+			else
+			{
+				m_isLanding = false;
 			}
 		}
 	}
@@ -240,50 +245,58 @@ void Player::Update()
 		// アイテムXのとの当たり判定
 		{
 			std::vector<Item_X*> itemXList = scene->GetGameObjects<Item_X>();
-			for (const auto& itemObj : itemXList) {
-				// アイテムXとの当たり判定データ作成 
+			for (const auto& itemObj : itemXList)
+			{
 				Vector3 position = itemObj->GetPosition();
 				Vector3 scale = itemObj->GetScale();
 
-				if (position.x - scale.x - 0.5f < m_Position.x && m_Position.x < position.x + scale.x + 0.5f &&
-					position.z - scale.z - 0.5f < m_Position.z && m_Position.z < position.z + scale.z + 0.5f)
+				AABB aabbBox;
+				AABB aabbPlayer;
+
+				aabbBox = SetAABB(position, fabs(2.0f * scale.x), fabs(2.0f * scale.y), fabs(2.0f * scale.z));
+				aabbPlayer = SetAABB(m_Position, fabs(1.0f * m_Scale.x), fabs(1.0f * m_Scale.y), fabs(1.0f * m_Scale.z));
+
+				bool sts = CollisionAABB(aabbBox, aabbPlayer);
+
+				if (sts)
 				{
-					if (m_Position.y < position.y + scale.y * 2.0f - 0.5f)
+					m_BulletEquip = BULLET_KIND::CHANGE_X_AXSIS;
+					if (m_isSEplay_Z)
 					{
-						m_BulletEquip = BULLET_KIND::CHANGE_X_AXSIS;
-						if (!m_isSEplay_X)
-						{
-							m_SEList["Get"]->Play();
-							m_isSEplay_X = true;
-						}
+						m_SEList["Get"]->Play();
+						m_isSEplay_Z = true;
 					}
 				}
 				else
 				{
-					m_isSEplay_X = false;
+					m_isSEplay_Z = false;
 				}
 			}
 		}
 
 		// アイテムYのとの当たり判定
 		{
-			std::vector<Item_Y*> itemXList = scene->GetGameObjects<Item_Y>();
-			for (const auto& itemObj : itemXList) {
-				// アイテムXとの当たり判定データ作成 
+			std::vector<Item_Y*> itemYList = scene->GetGameObjects<Item_Y>();
+			for (const auto& itemObj : itemYList)
+			{
 				Vector3 position = itemObj->GetPosition();
 				Vector3 scale = itemObj->GetScale();
 
-				if (position.x - scale.x - 0.5f < m_Position.x && m_Position.x < position.x + scale.x + 0.5f &&
-					position.z - scale.z - 0.5f < m_Position.z && m_Position.z < position.z + scale.z + 0.5f)
+				AABB aabbBox;
+				AABB aabbPlayer;
+
+				aabbBox = SetAABB(position, fabs(2.0f * scale.x), fabs(2.0f * scale.y), fabs(2.0f * scale.z));
+				aabbPlayer = SetAABB(m_Position, fabs(1.0f * m_Scale.x), fabs(1.0f * m_Scale.y), fabs(1.0f * m_Scale.z));
+
+				bool sts = CollisionAABB(aabbBox, aabbPlayer);
+
+				if (sts)
 				{
-					if (m_Position.y < position.y + scale.y * 2.0f - 0.5f)
+					m_BulletEquip = BULLET_KIND::CHANGE_Y_AXSIS;
+					if (m_isSEplay_Z)
 					{
-						m_BulletEquip = BULLET_KIND::CHANGE_Y_AXSIS;
-						if (!m_isSEplay_Y)
-						{
-							m_SEList["Get"]->Play();
-							m_isSEplay_Y = true;
-						}
+						m_SEList["Get"]->Play();
+						m_isSEplay_Y = true;
 					}
 				}
 				else
@@ -295,23 +308,27 @@ void Player::Update()
 
 		// アイテムZのとの当たり判定
 		{
-			std::vector<Item_Z*> itemXList = scene->GetGameObjects<Item_Z>();
-			for (const auto& itemObj : itemXList) {
-				// アイテムXとの当たり判定データ作成 
+			std::vector<Item_Z*> itemZList = scene->GetGameObjects<Item_Z>();
+			for (const auto& itemObj : itemZList)
+			{
 				Vector3 position = itemObj->GetPosition();
 				Vector3 scale = itemObj->GetScale();
 
-				if (position.x - scale.x - 0.5f < m_Position.x && m_Position.x < position.x + scale.x + 0.5f &&
-					position.z - scale.z - 0.5f < m_Position.z && m_Position.z < position.z + scale.z + 0.5f)
+				AABB aabbBox;
+				AABB aabbPlayer;
+
+				aabbBox = SetAABB(position, fabs(2.0f * scale.x), fabs(2.0f * scale.y), fabs(2.0f * scale.z));
+				aabbPlayer = SetAABB(m_Position, fabs(1.0f * m_Scale.x), fabs(1.0f * m_Scale.y), fabs(1.0f * m_Scale.z));
+
+				bool sts = CollisionAABB(aabbBox, aabbPlayer);
+
+				if (sts)
 				{
-					if (m_Position.y < position.y + scale.y * 2.0f - 0.5f)
+					m_BulletEquip = BULLET_KIND::CHANGE_Z_AXSIS;
+					if (m_isSEplay_Z)
 					{
-						m_BulletEquip = BULLET_KIND::CHANGE_Z_AXSIS;
-						if (!m_isSEplay_Z)
-						{
-							m_SEList["Get"]->Play();
-							m_isSEplay_Z = true;
-						}
+						m_SEList["Get"]->Play();
+						m_isSEplay_Z = true;
 					}
 				}
 				else
@@ -320,7 +337,6 @@ void Player::Update()
 				}
 			}
 		}
-
 	}
 
 	// 位置が０以下なら地面位置にセットする

@@ -4,6 +4,7 @@
 
 #include "Scene/title.h"
 #include "Scene/Stage01.h"
+#include "Scene/Stage02.h"
 
 #include "Component/shader.h"
 #include "Component/sprite.h"

@@ -65,7 +65,7 @@ void Object_ScaleX::Update()
 void Object_ScaleX::SizeIncrease()
 {
 	// サイズが本来の3倍になるまで大きくする
-	if (m_GameObject->GetScale().x < 3.0f)
+	if (m_GameObject->GetScale().x < 5.0f)
 	{
 		m_GameObject->SetScale((m_GameObject->GetScale() += Vector3(m_ChangeSpeed,0,0)));
 	}

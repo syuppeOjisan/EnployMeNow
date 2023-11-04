@@ -19,5 +19,7 @@ int wmain(int argc, wchar_t** argv, wchar_t** evnp)
     Application app(SCREEN_WIDTH, SCREEN_HEIGHT);
     app.Run();
 
+    
+
     return 0;
 }

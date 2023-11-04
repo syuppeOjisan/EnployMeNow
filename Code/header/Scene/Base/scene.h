@@ -46,7 +46,6 @@ public:
 
 	void UpdateBase()
 	{
-
 		for (auto& objectList : m_GameObject)
 		{
 			for (GameObject* object : objectList)//”ÍˆÍforƒ‹[ƒv
