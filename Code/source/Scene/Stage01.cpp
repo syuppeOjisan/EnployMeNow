@@ -4,7 +4,6 @@
 #include "System/input.h"
 #include "System/manager.h"
 #include "System/utility.h"
-#include "imgui_impl_dx11.h"
 
 #include "GameObject/camera.h"
 #include "GameObject/PlayerCamera.h"
@@ -24,6 +23,7 @@
 #include "GameObject/Item_X.h"
 #include "GameObject/Item_Y.h"
 #include "GameObject/Item_Z.h"
+#include "GameObject/grandpa.h"
 
 #include "Scene/Stage01.h"
 #include "Scene/Stage02.h"
@@ -48,6 +48,9 @@ void Stage01::Init()
 	AddGameObject<Field>(1);
 	Player* player = AddGameObject<Player>(1);
 	player->SetPosition(Vector3(0, 0, -20));
+
+	grandpa* grand = AddGameObject<grandpa>(1);
+	grand->SetPosition(Vector3(0, 0, -25));
 
 	// チェック完了
 	{
@@ -249,11 +252,7 @@ void Stage01::Update()
 		Manager::SetScene<Stage02>();
 	}
 
+	//TODO:この中で当たり判定を行う
+
 	// GUI出します
-	bool showGUI = true;
-	ImGui::SetNextWindowSize(ImVec2(320, 100), ImGuiCond(ImGuiCond_Once));
-	ImGui::Begin("PlayerInfo", &showGUI);
-	ImGui::Text("YOOOOOOOO");
-	ImGui::Text("IM_THE_TOP_G");
-	ImGui::End();
 }

@@ -43,7 +43,10 @@ class AnimationModel : public Component
 {
 private:
 	const aiScene* m_AiScene = nullptr;
-	std::unordered_map<std::string, const aiScene*> m_Animation;
+	std::unordered_map<std::string, const aiScene*> m_Animation;	// アニメーションデータ格納用配列
+	const char* m_NowAnimation;		// 今再生中のアニメーション
+	const char* m_PrevAnimation;	// 前回再生中のアニメーション
+	bool m_isAnimBlendOver;			// アニメーションブレンドが終了したか
 
 	ID3D11Buffer**	m_VertexBuffer;
 	ID3D11Buffer**	m_IndexBuffer;
@@ -65,5 +68,9 @@ public:
 	void LoadAnimation( const char *FileName, const char *Name );
 	void Uninit() override;
 	void Update(const char *AnimationName1, int Frame1, const char *AnimationName2, int Frame2, float BlendRate);
+	void Update(int Frame1, int Frame2, float BlendRate);
 	void Draw() override;
+
+	void SetFirstAnimation(const char* _firstAnimation);
+	bool SetNextAnimation(const char* _nextAnimation);
 };

@@ -20,8 +20,9 @@ enum UNIVERSUL_INPUT_CODE
 class Input
 {
 private:
-	static BYTE m_OldKeyState[256];
-	static BYTE m_KeyState[256];
+	static const int KEYCOUNT = 256;
+	static BYTE m_OldKeyState[KEYCOUNT];
+	static BYTE m_KeyState[KEYCOUNT];
 
 	static POINT	m_NowMousePos;			// マウスポインタの位置 - 今
 	static POINT	m_OldMousePos;			// マウスポインタの位置	- １フレーム前
@@ -36,9 +37,13 @@ public:
 	static void Init(HWND hWnd);
 	static void Uninit();
 	static void Update();
-
-	static bool GetKeyPress( BYTE KeyCode );
+	
+	// キーの押下状態を返す
+	static bool GetKeyPress( BYTE KeyCode );	
+	// キーの押下状態（トリガー）を返す
 	static bool GetKeyTrigger( BYTE KeyCode );
+	// キーが離されたかどうかを返す
+	static bool GetKeyReleased( BYTE KeyCode );
 
 	static POINT GetNowMoucePos();						// マウスの現在位置を返す - スクリーン座標
 	static POINT GetNowMoucePosClient();				// マウスの現在位置を返す - クライアント座標

@@ -6,7 +6,6 @@
 #include	"Scene/game.h"
 #include	"Scene/title.h"
 #include	"Component/audio.h"
-#include	"imgui_impl_dx11.h"
 
 // シーンマネージャ内メンバ変数の実体
 Scene* Manager::m_Scene{};					// 現在シーン

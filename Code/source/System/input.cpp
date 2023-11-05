@@ -2,9 +2,9 @@
 #include "System/main.h"
 #include "System/input.h"
 
-
-BYTE Input::m_OldKeyState[256];
-BYTE Input::m_KeyState[256];
+const int Input::KEYCOUNT;
+BYTE Input::m_OldKeyState[KEYCOUNT];
+BYTE Input::m_KeyState[KEYCOUNT];
 
 POINT Input::m_NowMousePos;
 POINT Input::m_OldMousePos;
@@ -32,9 +32,8 @@ void Input::Uninit()
 
 void Input::Update()
 {
-	memcpy( m_OldKeyState, m_KeyState, 256 );
-
-	GetKeyboardState( m_KeyState );
+	memcpy( m_OldKeyState, m_KeyState, 256 );	// 1フレーム前のキー状態を転記して保存
+	GetKeyboardState( m_KeyState );				// 新しいキー状態を取得
 
 	m_OldMousePos = m_NowMousePos;	// １フレーム前のマウス位置を保存
 	GetCursorPos(&m_NowMousePos);	// 現在のマウス位置を取得/保存
@@ -75,6 +74,11 @@ bool Input::GetKeyPress(BYTE KeyCode)
 bool Input::GetKeyTrigger(BYTE KeyCode)
 {
 	return ((m_KeyState[KeyCode] & 0x80) && !(m_OldKeyState[KeyCode] & 0x80));
+}
+
+bool Input::GetKeyReleased(BYTE KeyCode)
+{
+	return (!(m_KeyState[KeyCode] & 0x80) && (m_OldKeyState[KeyCode] & 0x80));
 }
 
 POINT Input::GetNowMoucePos()

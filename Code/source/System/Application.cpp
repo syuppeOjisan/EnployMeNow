@@ -8,7 +8,6 @@
 #include "System/renderer.h"
 #include "System/manager.h"
 #include "System/Input.h"
-#include "imgui_impl_dx11.h"
 
 //-----------------------------------------------------------------------------
 // Constant Values.
@@ -183,8 +182,6 @@ void Application::MainLoop()
 
             // デルタタイムを計算
             delta_time = fpsrate.CalcDelta();
-            ImGui_ImplDX11_NewFrame();
-            ImGui::NewFrame();
             Manager::Update(delta_time);        // ゲーム更新
             Manager::Draw(delta_time);		    // ゲーム描画
 

@@ -2,7 +2,6 @@
 #include "System/main.h"
 #include "System/Application.h"
 #include "System/renderer.h"
-#include "imgui_impl_dx11.h"
 
 
 using namespace DirectX::SimpleMath;
@@ -247,10 +246,10 @@ void Renderer::Init(Application* ap)
 	SetMaterial(material);
 
 	// imgui‰Šú‰»
-	if (!ImGui_ImplDX11_Init(m_Device, m_DeviceContext))
-	{
-		assert(0 && "ImGui‰Šú‰»¸”s");
-	}
+	//if (!ImGui_ImplDX11_Init(m_Device, m_DeviceContext))
+	//{
+	//	assert(0 && "ImGui‰Šú‰»¸”s");
+	//}
 }
 
 
@@ -271,7 +270,7 @@ void Renderer::Uninit()
 	m_DeviceContext->Release();
 	m_Device->Release();
 
-	ImGui_ImplDX11_Shutdown();
+	//ImGui_ImplDX11_Shutdown();
 }
 
 
@@ -288,7 +287,7 @@ void Renderer::Begin()
 
 void Renderer::End()
 {
-	ImGui::Render();
+	//ImGui::Render();
 	m_SwapChain->Present( 1, 0 );
 }
 
