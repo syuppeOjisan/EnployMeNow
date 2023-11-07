@@ -7,6 +7,9 @@
 #include	"Scene/title.h"
 #include	"Component/audio.h"
 
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
+
 // シーンマネージャ内メンバ変数の実体
 Scene* Manager::m_Scene{};					// 現在シーン
 
@@ -57,7 +60,14 @@ void Manager::Draw(uint64_t d)
 {
 	Renderer::Begin();
 
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
 	m_Scene->DrawBase();
+
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	Renderer::End();
 }

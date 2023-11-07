@@ -1,8 +1,10 @@
 #include <io.h>
+#include <cassert>
 #include "System/main.h"
 #include "System/Application.h"
 #include "System/renderer.h"
-
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
 
 using namespace DirectX::SimpleMath;
 
@@ -98,7 +100,6 @@ void Renderer::Init(Application* ap)
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Flags = 0;
 	m_Device->CreateDepthStencilView(depthStencile, &depthStencilViewDesc, &m_DepthStencilView);
-	depthStencile->Release();
 
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
@@ -115,7 +116,6 @@ void Renderer::Init(Application* ap)
 	m_DeviceContext->RSSetViewports( 1, &viewport );
 
 
-
 	// ラスタライザステート設定
 	D3D11_RASTERIZER_DESC rasterizerDesc{};
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID; 
@@ -129,8 +129,6 @@ void Renderer::Init(Application* ap)
 	m_Device->CreateRasterizerState( &rasterizerDesc, &rs );
 
 	m_DeviceContext->RSSetState( rs );
-
-
 
 
 	// ブレンドステート設定
@@ -156,8 +154,6 @@ void Renderer::Init(Application* ap)
 
 
 
-
-
 	// デプスステンシルステート設定
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = TRUE;
@@ -174,8 +170,7 @@ void Renderer::Init(Application* ap)
 	m_DeviceContext->OMSetDepthStencilState( m_DepthStateEnable, NULL );
 
 
-
-
+	
 	// サンプラーステート設定
 	D3D11_SAMPLER_DESC samplerDesc{};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -246,10 +241,23 @@ void Renderer::Init(Application* ap)
 	SetMaterial(material);
 
 	// imgui初期化
-	//if (!ImGui_ImplDX11_Init(m_Device, m_DeviceContext))
-	//{
-	//	assert(0 && "ImGui初期化失敗");
-	//}
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // キーボード操作を有効にする
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // ゲームパッドによる操作を有効にする
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
+
+	if (!ImGui_ImplWin32_Init(ap->GetWindow()))
+	{
+		assert(0 && "ImGui - Win32初期化失敗");
+	}
+
+	if (!ImGui_ImplDX11_Init(m_Device, m_DeviceContext))
+	{
+		assert(0 && "ImGui - DX11初期化失敗");
+	}
+
 }
 
 
@@ -270,7 +278,10 @@ void Renderer::Uninit()
 	m_DeviceContext->Release();
 	m_Device->Release();
 
-	//ImGui_ImplDX11_Shutdown();
+	// ImGui終了処理
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 
@@ -287,7 +298,6 @@ void Renderer::Begin()
 
 void Renderer::End()
 {
-	//ImGui::Render();
 	m_SwapChain->Present( 1, 0 );
 }
 

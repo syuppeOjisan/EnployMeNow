@@ -11,6 +11,8 @@
 
 #include "GameObject/transition.h"
 
+#include "imgui.h"
+
 void Title::Init()
 {
 	GameObject* titleLogo = AddGameObject<GameObject>(3);			// 3‚ÍƒŒƒCƒ„”Ô†
@@ -24,7 +26,7 @@ void Title::Init()
 
 void Title::Update()
 {
-	// 
+	//  ‰æ–Ê‘JˆÚ
 	if (m_Transition->GetState() == Transition::State::Stop) {
 		if (Input::GetKeyTrigger(VK_RETURN))
 		{
@@ -37,4 +39,14 @@ void Title::Update()
 	{
 		Manager::SetScene<Stage01>();
 	}
+}
+
+void Title::Draw()
+{
+	ImGui::ShowDemoWindow();
+
+	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::End();
 }
