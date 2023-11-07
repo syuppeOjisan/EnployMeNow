@@ -246,7 +246,6 @@ void Renderer::Init(Application* ap)
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // キーボード操作を有効にする
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // ゲームパッドによる操作を有効にする
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
 
 	if (!ImGui_ImplWin32_Init(ap->GetWindow()))
 	{

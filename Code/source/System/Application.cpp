@@ -12,6 +12,7 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 
+
 //-----------------------------------------------------------------------------
 // Constant Values.
 //-----------------------------------------------------------------------------
@@ -198,11 +199,20 @@ void Application::MainLoop()
 
 }
 
+
+// Forward declare message handler from imgui_impl_win32.cpp
+// 前方定義
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 //-----------------------------------------------------------------------------
 //      ウィンドウプロシージャです.
 //-----------------------------------------------------------------------------
 LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wp, lp))
+        return true;
+
     switch(msg)
     {
         case WM_DESTROY:
