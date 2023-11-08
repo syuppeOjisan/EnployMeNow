@@ -21,6 +21,8 @@ public:
 	virtual void Update() {}
 	virtual void Draw() {}
 
+	virtual void HitCheck(){}	// 当たり判定実行用仮想関数
+
 	void InitBase()
 	{
 		Init();
@@ -44,13 +46,13 @@ public:
 		ModelRenderer::UnloadAll();		// モデルを全てアンロード
 	}
 
-	void UpdateBase()
+	void UpdateBase(uint64_t _deltaTime)
 	{
 		for (auto& objectList : m_GameObject)
 		{
 			for (GameObject* object : objectList)//範囲forループ
 			{
-				object->UpdateBase();			// オブジェクトの更新処理
+				object->UpdateBase(_deltaTime);			// オブジェクトの更新処理
 			}
 
 			objectList.remove_if([](GameObject* object) {return object->Destroy(); });

@@ -152,48 +152,6 @@ void Stage02::Uninit()
 // ゲーム更新処理
 void Stage02::Update()
 {
-	// プレイヤーが撃つ弾のモード変更
-	// UIを変更
-	if (GetGameObject<Player>()->GetBulletMode() == SIZE_UP)
-	{
-		GetGameObjects<GameObject>()[0]->GetComponent<Sprite>()->SetActive(true);
-		GetGameObjects<GameObject>()[1]->GetComponent<Sprite>()->SetActive(false);
-	}
-	else if (GetGameObject<Player>()->GetBulletMode() == SIZE_DOWN)
-	{
-		GetGameObjects<GameObject>()[0]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[1]->GetComponent<Sprite>()->SetActive(true);
-	}
-	
-	// UI切り替え
-	switch (GetGameObject<Player>()->GetBulletKind())
-	{
-	case CHANGE_X_AXSIS:
-		GetGameObjects<GameObject>()[4]->GetComponent<Sprite>()->SetActive(true);
-		GetGameObjects<GameObject>()[5]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[6]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[7]->GetComponent<Sprite>()->SetActive(false);
-		break;
-	case CHANGE_Y_AXSIS:
-		GetGameObjects<GameObject>()[4]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[5]->GetComponent<Sprite>()->SetActive(true);
-		GetGameObjects<GameObject>()[6]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[7]->GetComponent<Sprite>()->SetActive(false);
-		break;
-	case CHANGE_Z_AXSIS:
-		GetGameObjects<GameObject>()[4]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[5]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[6]->GetComponent<Sprite>()->SetActive(true);
-		GetGameObjects<GameObject>()[7]->GetComponent<Sprite>()->SetActive(false);
-		break;
-	case NONE:
-		GetGameObjects<GameObject>()[4]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[5]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[6]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[7]->GetComponent<Sprite>()->SetActive(true);
-		break;
-	}
-
 	// ゴールしていないのであれば
 	if (!m_Goal)
 	{

@@ -11,7 +11,8 @@
 #include "imgui_impl_win32.h"
 
 // シーンマネージャ内メンバ変数の実体
-Scene* Manager::m_Scene{};					// 現在シーン
+Scene* Manager::m_Scene{};		// 現在シーン
+bool Manager::m_IsLoop;			// ループフラグ
 
 void Manager::Init(Application* ap, HWND hWnd)
 {
@@ -29,6 +30,9 @@ void Manager::Init(Application* ap, HWND hWnd)
 
 	// Titleを初期シーンに登録
 	SetScene<Title>();
+
+	// ループフラグ初期化
+	m_IsLoop = true;
 }
 
 void Manager::Uninit()
@@ -49,11 +53,11 @@ void Manager::Uninit()
 	timeEndPeriod(1);
 }
 
-void Manager::Update(uint64_t d)
+void Manager::Update(uint64_t _deltaTime)
 {
 	Input::Update();
 
-	m_Scene->UpdateBase();
+	m_Scene->UpdateBase(_deltaTime);
 }
 
 void Manager::Draw(uint64_t d)

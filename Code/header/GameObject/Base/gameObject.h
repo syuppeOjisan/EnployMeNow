@@ -10,24 +10,13 @@
 
 class GameObject
 {
-
-protected:
-	bool		m_Destroy = false;
-
-	DirectX::SimpleMath::Vector3	m_Position = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
-	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
-	DirectX::SimpleMath::Vector3	m_Scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
-
-	std::list<Component*> m_Component;
-
-	std::list<GameObject*> m_ChildGameObject;
-
 public:
 	GameObject() {}//コンストラクタ
 	virtual ~GameObject() {}//デストラクタ（仮想関数）
 
 
 	DirectX::SimpleMath::Vector3 GetPosition() { return m_Position; }
+	DirectX::SimpleMath::Vector3* GetPositionAdress() { return &m_Position; }
 	DirectX::SimpleMath::Vector3 GetRotation() { return m_Rotation; }
 	DirectX::SimpleMath::Vector3 GetScale() { return m_Scale; }
 	void SetPosition(DirectX::SimpleMath::Vector3 Position) { m_Position = Position; }
@@ -135,14 +124,18 @@ public:
 		m_Component.clear();//リストのクリア
 	}
 
-	void UpdateBase()
+	void UpdateBase(uint64_t _deltaTime)
 	{
-
+		// デルタタイムを更新
+		this->m_DeltaTime = _deltaTime;
+		
+		// コンポーネントを更新
 		for (Component* component : m_Component)
 		{
 			component->Update();
 		}
 
+		// 更新処理
 		Update();
 	}
 
@@ -172,4 +165,16 @@ public:
 
 		Draw();
 	}
+
+protected:
+	bool		m_Destroy = false;
+	uint64_t	m_DeltaTime;
+
+	DirectX::SimpleMath::Vector3	m_Position = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
+	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
+	DirectX::SimpleMath::Vector3	m_Scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
+
+	std::list<Component*> m_Component;
+
+	std::list<GameObject*> m_ChildGameObject;
 };

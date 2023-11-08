@@ -20,14 +20,20 @@
 #include "GameObject/goal.h"
 #include "GameObject/sky.h"
 #include "GameObject/Polygon2D.h"
+#include "GameObject/grandpa.h"
 
 #include "Scene/result.h"
 #include "Scene/game.h"
+#include "Scene/Stage01.h"
+#include "Scene/Stage02.h"
+
 
 #include "Component/Object_SizeChange.h"
 #include "Component/sprite.h"
 #include "Component/shader.h"
 #include "Component/audio.h"
+
+#include "imgui.h"
 
 using namespace DirectX::SimpleMath;
 
@@ -41,6 +47,7 @@ void Game::Init()
 	AddGameObject<Field>(1);
 	AddGameObject<Player>(1);
 	AddGameObject<Score>(3);
+	AddGameObject<grandpa>(1);
 
 	//// 敵追加
 	//AddGameObject<Enemy>(1)->SetPosition(Vector3(0.0f, 0.0f, 5.0f));
@@ -58,6 +65,12 @@ void Game::Init()
 		pCamera->SetTarget(GetGameObject<Player>());
 		// プレイヤーにもカメラの情報を渡す
 		GetGameObject<Player>()->SetCamera(pCamera);
+	}
+
+	// チェック完了
+	{
+		grandpa* pGrandpa = GetGameObject<grandpa>();
+		pGrandpa->SetPosition(Vector3(0, 0, 0));
 	}
 
 	// チェック完了
@@ -114,14 +127,6 @@ void Game::Init()
 
 	// UI用画像設定
 	{
-		GameObject* sizeUp = AddGameObject<GameObject>(3);
-		sizeUp->AddComponent<Shader>()->Load("shader\\unlitTextureVS.cso", "shader\\unlitTexturePS.cso");
-		sizeUp->AddComponent<Sprite>()->Init(25.0f, 50.0f, 300, 100, "asset\\texture\\sizeUp.png");
-
-		GameObject* sizeDown = AddGameObject<GameObject>(3);
-		sizeDown->AddComponent<Shader>()->Load("shader\\unlitTextureVS.cso", "shader\\unlitTexturePS.cso");
-		sizeDown->AddComponent<Sprite>()->Init(25.0f, 50.0f, 300, 100, "asset\\texture\\sizeDown.png");
-
 		GameObject* switchAmmo = AddGameObject<GameObject>(3);
 		switchAmmo->AddComponent<Shader>()->Load("shader\\unlitTextureVS.cso", "shader\\unlitTexturePS.cso");
 		switchAmmo->AddComponent<Sprite>()->Init(25.0f, 400.0f, 200, 100, "asset\\texture\\switchAmmo.png");
@@ -152,19 +157,7 @@ void Game::Update()
 //		}
 //	}
 
-
-	// プレイヤーが撃つ弾のモード変更
-	// UIを変更
-	if (GetGameObject<Player>()->GetBulletMode() == SIZE_UP)
-	{
-		GetGameObjects<GameObject>()[0]->GetComponent<Sprite>()->SetActive(true);
-		GetGameObjects<GameObject>()[1]->GetComponent<Sprite>()->SetActive(false);
-	}
-	else if (GetGameObject<Player>()->GetBulletMode() == SIZE_DOWN)
-	{
-		GetGameObjects<GameObject>()[0]->GetComponent<Sprite>()->SetActive(false);
-		GetGameObjects<GameObject>()[1]->GetComponent<Sprite>()->SetActive(true);
-	}
+	HitCheck();
 
 	// ゴールしていないのであれば
 	if (!m_Goal)
@@ -185,5 +178,153 @@ void Game::Update()
 	if (m_Transition->GetState() == Transition::State::Finish)
 	{
 		Manager::SetScene<Result>();
+	}
+}
+
+void Game::Draw()
+{
+	// GUI描画
+	{
+		// メニューバーをいい感じに表示
+		ImGui::BeginMainMenuBar();
+		ImGui::Text("%.1f |", ImGui::GetIO().Framerate);
+		if (ImGui::BeginMenu("Scene"))
+		{
+			if (ImGui::MenuItem("game"))
+			{
+				Manager::SetScene<Game>();
+			}
+			else if (ImGui::MenuItem("Stage01"))
+			{
+				Manager::SetScene<Stage01>();
+			}
+			else if (ImGui::MenuItem("Stage02"))
+			{
+				Manager::SetScene<Stage02>();
+			}
+
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Quit"))
+		{
+			Manager::EndApp();
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+
+
+		ImGui::Begin("CharactorInfos");
+
+		if (GetGameObject<Player>())
+		{
+			Player* pPlayer = GetGameObject<Player>();
+			float test = 3.0f;
+			if (ImGui::TreeNode("PlayerInfo"))
+			{
+				if (ImGui::TreeNode("Position"))
+				{
+					Vector3 playerPos = pPlayer->GetPosition();
+					ImGui::InputFloat("X:%f", &playerPos.x);
+					ImGui::InputFloat("Y:%f", &playerPos.y);
+					ImGui::InputFloat("Z:%f", &playerPos.z);
+					pPlayer->SetPosition(playerPos);
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Scale"))
+				{
+					ImGui::Text("X:%f", pPlayer->GetScale().x);
+					ImGui::Text("Y:%f", pPlayer->GetScale().y);
+					ImGui::Text("Z:%f", pPlayer->GetScale().z);
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Collision"))
+				{
+					ImGui::Text("MAX - X:%f", pPlayer->GetAABBCollision().max.x);
+					ImGui::Text("MAX - Y:%f", pPlayer->GetAABBCollision().max.y);
+					ImGui::Text("MAX - Z:%f", pPlayer->GetAABBCollision().max.z);
+					ImGui::Text("---------------------------------------------");
+					ImGui::Text("MIN - X:%f", pPlayer->GetAABBCollision().min.x);
+					ImGui::Text("MIN - Y:%f", pPlayer->GetAABBCollision().min.y);
+					ImGui::Text("MIN - Z:%f", pPlayer->GetAABBCollision().min.z);
+
+					ImGui::TreePop();
+				}
+
+
+				ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
+
+				ImGui::TreePop();
+			}
+		}
+
+		if (GetGameObject<grandpa>())
+		{
+			grandpa* pPlayer = GetGameObject<grandpa>();
+			float test = 3.0f;
+
+			if (ImGui::TreeNode("grandpaInfo"))
+			{
+				if (ImGui::TreeNode("Position"))
+				{
+					ImGui::Text("X:%f", pPlayer->GetPosition().x);
+					ImGui::Text("Y:%f", pPlayer->GetPosition().y);
+					ImGui::Text("Z:%f", pPlayer->GetPosition().z);
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Scale"))
+				{
+					ImGui::Text("X:%f", pPlayer->GetScale().x);
+					ImGui::Text("Y:%f", pPlayer->GetScale().y);
+					ImGui::Text("Z:%f", pPlayer->GetScale().z);
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Collision"))
+				{
+					ImGui::Text("MAX - X:%f", pPlayer->GetAABBCollision().max.x);
+					ImGui::Text("MAX - Y:%f", pPlayer->GetAABBCollision().max.y);
+					ImGui::Text("MAX - Z:%f", pPlayer->GetAABBCollision().max.z);
+					ImGui::Text("---------------------------------------------");
+					ImGui::Text("MIN - X:%f", pPlayer->GetAABBCollision().min.x);
+					ImGui::Text("MIN - Y:%f", pPlayer->GetAABBCollision().min.y);
+					ImGui::Text("MIN - Z:%f", pPlayer->GetAABBCollision().min.z);
+
+					ImGui::TreePop();
+				}
+
+				ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
+
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::End();
+	}
+
+}
+
+void Game::HitCheck()
+{
+	Player* pPlayer = GetGameObject<Player>();
+	grandpa* pGrandpa = GetGameObject<grandpa>();
+
+	// プレイヤーとグランパの当たり判定
+	if (CollisionAABB(pPlayer->GetAABBCollision(), pGrandpa->GetAABBCollision()))
+	{
+		pPlayer->SetIsHit(true);
+		pGrandpa->SetIsHit(true);
+		pGrandpa->GetModel()->SetNextAnimation("Die");
+	}
+	else
+	{
+		pPlayer->SetIsHit(false);
+		pGrandpa->SetIsHit(false);
+		pGrandpa->GetModel()->SetNextAnimation("Idle");
 	}
 }

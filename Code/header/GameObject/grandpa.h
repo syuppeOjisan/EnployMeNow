@@ -1,9 +1,7 @@
 #pragma once
-#include "Base/gameObject.h"
+#include "Base/CharacterBase.h"
 
-#include "Component/animationModel.h"
-
-class grandpa : public GameObject
+class grandpa : public CharacterBase
 {
 public:
 	void Init() override;
@@ -11,9 +9,5 @@ public:
 	void PreDraw() override;
 
 private:
-	class	AnimationModel* m_Model;	// モデルデータ
-
-	float	m_BlendRate;	// モーションブレンドレート
-	int		m_Frame;		// フレーム
 };
 

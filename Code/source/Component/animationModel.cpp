@@ -51,31 +51,6 @@ void AnimationModel::Draw()
 	}
 }
 
-void AnimationModel::SetFirstAnimation(const char* _firstAnimation)
-{
-	m_PrevAnimation = _firstAnimation;
-	m_NowAnimation = _firstAnimation;
-}
-
-bool AnimationModel::SetNextAnimation(const char* _nextAnimation)
-{
-	// 指定されたアニメーションがロードされているかをチェック
-	if (m_Animation.count(_nextAnimation) == 0)
-		return false;
-
-	if (!m_Animation[_nextAnimation]->HasAnimations())
-		return false;
-	
-	// 同じやつじゃないかを判定
-	//if (m_NowAnimation != m_PrevAnimation)
-	{
-		m_PrevAnimation = m_NowAnimation;
-		m_NowAnimation = _nextAnimation;
-	}
-
-	return true;
-}
-
 void AnimationModel::Load(const char* FileName)
 {
 	const std::string modelPath(FileName);
@@ -625,7 +600,6 @@ void AnimationModel::Update(int Frame1, int Frame2, float BlendRate)
 			bone->BlendRTo = rot;
 		}
 
-		//TODO: アニメーションブレンドが終了した時点のフラグを取りたい
 		// ブレンド
 		for (unsigned int c = 0; c < animation2->mNumChannels; c++)
 		{
@@ -798,6 +772,157 @@ void AnimationModel::Update(int Frame1, int Frame2, float BlendRate)
 
 }
 
+void AnimationModel::GPU_Update(const char* AnimationName1, int Frame1, const char* AnimationName2, int Frame2, float BlendRate)
+{
+	// アニメーションありか？
+	if (m_Animation.count(AnimationName1) == 0)
+		return;
+	if (m_Animation.count(AnimationName2) == 0)
+		return;
+
+	if (!m_Animation[AnimationName1]->HasAnimations())
+		return;
+	if (!m_Animation[AnimationName2]->HasAnimations())
+		return;
+
+	//アニメーションデータからボーンマトリクス算出
+	aiAnimation* animation1 = m_Animation[AnimationName1]->mAnimations[0];
+	aiAnimation* animation2 = m_Animation[AnimationName2]->mAnimations[0];
+
+
+	for (unsigned int c = 0; c < animation1->mNumChannels; c++)
+	{
+		aiNodeAnim* nodeAnim = animation1->mChannels[c];
+
+		BONE* bone = &m_Bone[nodeAnim->mNodeName.C_Str()];
+
+		int f;
+
+		f = Frame1 % nodeAnim->mNumRotationKeys;				//簡易実装
+		aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
+
+		f = Frame1 % nodeAnim->mNumPositionKeys;				//簡易実装
+		aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
+
+		bone->AnimationMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), rot, pos);
+	}
+
+	//再帰的にボーンマトリクスを更新
+//	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
+	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
+
+	UpdateBoneMatrix(m_AiScene->mRootNode, rootMatrix);
+
+	// 20230909 ボーンコンビネーション行列の配列を生成する
+	std::vector<aiMatrix4x4> bonecombmtxcontainer;					// 20230909
+	bonecombmtxcontainer.resize(m_Bone.size());						// 20230909
+	for (auto data : m_Bone) {										// 20230909
+		bonecombmtxcontainer[data.second.idx] = data.second.Matrix;	// 20230909
+	}																// 20230909
+
+	// 20230909 転置
+	for (auto& bcmtx : bonecombmtxcontainer)
+	{
+		// 転置する
+		bcmtx.Transpose();
+	}
+
+	// 20230909-02 定数バッファに反映させる
+	D3D11_MAPPED_SUBRESOURCE MappedResource;
+	CBBoneCombMatrx* pData = nullptr;
+
+	HRESULT hr = Renderer::GetDeviceContext()->Map(
+		m_BoneCombMtxCBuffer,
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&MappedResource);
+
+	if (SUCCEEDED(hr)) {
+		pData = (CBBoneCombMatrx*)MappedResource.pData;
+		memcpy(pData->BoneCombMtx,
+			bonecombmtxcontainer.data(),
+			sizeof(aiMatrix4x4) * bonecombmtxcontainer.size());
+		Renderer::GetDeviceContext()->Unmap(m_BoneCombMtxCBuffer, 0);
+	}
+
+}
+
+void AnimationModel::GPU_Update(int Frame1, int Frame2, float BlendRate)
+{
+	// アニメーションありか？
+	if (m_Animation.count(m_PrevAnimation) == 0)
+		return;
+	if (m_Animation.count(m_NowAnimation) == 0)
+		return;
+
+	if (!m_Animation[m_PrevAnimation]->HasAnimations())
+		return;
+	if (!m_Animation[m_NowAnimation]->HasAnimations())
+		return;
+
+	//アニメーションデータからボーンマトリクス算出
+	aiAnimation* animation1 = m_Animation[m_PrevAnimation]->mAnimations[0];
+	aiAnimation* animation2 = m_Animation[m_NowAnimation]->mAnimations[0];
+
+
+	for (unsigned int c = 0; c < animation1->mNumChannels; c++)
+	{
+		aiNodeAnim* nodeAnim = animation1->mChannels[c];
+
+		BONE* bone = &m_Bone[nodeAnim->mNodeName.C_Str()];
+
+		int f;
+
+		f = Frame1 % nodeAnim->mNumRotationKeys;				//簡易実装
+		aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
+
+		f = Frame1 % nodeAnim->mNumPositionKeys;				//簡易実装
+		aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
+
+		bone->AnimationMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), rot, pos);
+	}
+
+	//再帰的にボーンマトリクスを更新
+//	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
+	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
+
+	UpdateBoneMatrix(m_AiScene->mRootNode, rootMatrix);
+
+	// 20230909 ボーンコンビネーション行列の配列を生成する
+	std::vector<aiMatrix4x4> bonecombmtxcontainer;					// 20230909
+	bonecombmtxcontainer.resize(m_Bone.size());						// 20230909
+	for (auto data : m_Bone) {										// 20230909
+		bonecombmtxcontainer[data.second.idx] = data.second.Matrix;	// 20230909
+	}																// 20230909
+
+	// 20230909 転置
+	for (auto& bcmtx : bonecombmtxcontainer)
+	{
+		// 転置する
+		bcmtx.Transpose();
+	}
+
+	// 20230909-02 定数バッファに反映させる
+	D3D11_MAPPED_SUBRESOURCE MappedResource;
+	CBBoneCombMatrx* pData = nullptr;
+
+	HRESULT hr = Renderer::GetDeviceContext()->Map(
+		m_BoneCombMtxCBuffer,
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&MappedResource);
+
+	if (SUCCEEDED(hr)) {
+		pData = (CBBoneCombMatrx*)MappedResource.pData;
+		memcpy(pData->BoneCombMtx,
+			bonecombmtxcontainer.data(),
+			sizeof(aiMatrix4x4) * bonecombmtxcontainer.size());
+		Renderer::GetDeviceContext()->Unmap(m_BoneCombMtxCBuffer, 0);
+	}
+}
+
 void AnimationModel::UpdateBoneMatrix(aiNode* node, aiMatrix4x4 matrix)
 {
 	// 引数で渡されたノード名をキーとしてボーン情報を取得する
@@ -821,3 +946,27 @@ void AnimationModel::UpdateBoneMatrix(aiNode* node, aiMatrix4x4 matrix)
 	}
 }
 
+void AnimationModel::SetFirstAnimation(const char* _firstAnimation)
+{
+	m_PrevAnimation = _firstAnimation;
+	m_NowAnimation = _firstAnimation;
+}
+
+bool AnimationModel::SetNextAnimation(const char* _nextAnimation)
+{
+	// 指定されたアニメーションがロードされているかをチェック
+	if (m_Animation.count(_nextAnimation) == 0)
+		return false;
+
+	if (!m_Animation[_nextAnimation]->HasAnimations())
+		return false;
+
+	// 同じやつじゃないかを判定
+	if (m_NowAnimation != m_PrevAnimation)
+	{
+		m_PrevAnimation = m_NowAnimation;
+		m_NowAnimation = _nextAnimation;
+	}
+
+	return true;
+}

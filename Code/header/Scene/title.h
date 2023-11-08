@@ -1,15 +1,15 @@
 #pragma once
+#include <unordered_map>
 
 #include "Base/scene.h"
 
 class Title : public Scene
 {
-private:
-	class Transition* m_Transition{};
-
-
 public:
 	void Init() override;
 	void Update() override;
 	void Draw() override;
+
+private:
+	class Transition* m_Transition{};
 };

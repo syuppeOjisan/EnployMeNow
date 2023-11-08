@@ -47,6 +47,7 @@ private:
 	const char* m_NowAnimation;		// 今再生中のアニメーション
 	const char* m_PrevAnimation;	// 前回再生中のアニメーション
 	bool m_isAnimBlendOver;			// アニメーションブレンドが終了したか
+	float m_BlendRate;				// ブレンドレート
 
 	ID3D11Buffer**	m_VertexBuffer;
 	ID3D11Buffer**	m_IndexBuffer;
@@ -69,6 +70,8 @@ public:
 	void Uninit() override;
 	void Update(const char *AnimationName1, int Frame1, const char *AnimationName2, int Frame2, float BlendRate);
 	void Update(int Frame1, int Frame2, float BlendRate);
+	void GPU_Update(const char* AnimationName1, int Frame1, const char* m_NowAnimation, int Frame2, float BlendRate);
+	void GPU_Update(int Frame1, int Frame2, float BlendRate);
 	void Draw() override;
 
 	void SetFirstAnimation(const char* _firstAnimation);

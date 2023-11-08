@@ -16,32 +16,32 @@ std::unordered_map<std::string, MODEL*> ModelRenderer::m_ModelPool;
 
 void ModelRenderer::Draw()
 {
-
-	// 頂点バッファ設定
-	UINT stride = sizeof(VERTEX_3D);
-	UINT offset = 0;
-	Renderer::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_Model->VertexBuffer, &stride, &offset);
-
-	// インデックスバッファ設定
-	Renderer::GetDeviceContext()->IASetIndexBuffer(m_Model->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-	// プリミティブトポロジ設定
-	Renderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
-	for (unsigned int i = 0; i < m_Model->SubsetNum; i++)
 	{
-		// マテリアル設定
-		Renderer::SetMaterial(m_Model->SubsetArray[i].Material.Material);
+		// 頂点バッファ設定
+		UINT stride = sizeof(VERTEX_3D);
+		UINT offset = 0;
+		Renderer::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_Model->VertexBuffer, &stride, &offset);
 
-		// テクスチャ設定
-		if (m_Model->SubsetArray[i].Material.Texture)
-			Renderer::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Model->SubsetArray[i].Material.Texture);
+		// インデックスバッファ設定
+		Renderer::GetDeviceContext()->IASetIndexBuffer(m_Model->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-		// ポリゴン描画
-		Renderer::GetDeviceContext()->DrawIndexed(m_Model->SubsetArray[i].IndexNum, m_Model->SubsetArray[i].StartIndex, 0);
+		// プリミティブトポロジ設定
+		Renderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
+		for (unsigned int i = 0; i < m_Model->SubsetNum; i++)
+		{
+			// マテリアル設定
+			Renderer::SetMaterial(m_Model->SubsetArray[i].Material.Material);
+
+			// テクスチャ設定
+			if (m_Model->SubsetArray[i].Material.Texture)
+				Renderer::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Model->SubsetArray[i].Material.Texture);
+
+			// ポリゴン描画
+			Renderer::GetDeviceContext()->DrawIndexed(m_Model->SubsetArray[i].IndexNum, m_Model->SubsetArray[i].StartIndex, 0);
+		}
 	}
-
 }
 
 void ModelRenderer::Preload(const char* FileName)

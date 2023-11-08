@@ -277,7 +277,7 @@ bool CollisionAABB(AABB p1, AABB p2){
 }
 
 
-AABB SetAABB(Vector3 centerposition,float width ,int height,int depth) {
+AABB SetAABB(Vector3 centerposition,float width ,float height,float depth) {
 
 	AABB aabb{};
 

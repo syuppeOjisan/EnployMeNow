@@ -3,6 +3,7 @@
 #include "System/input.h"
 
 #include "Scene/title.h"
+#include "Scene/game.h"
 #include "Scene/Stage01.h"
 #include "Scene/Stage02.h"
 
@@ -43,10 +44,43 @@ void Title::Update()
 
 void Title::Draw()
 {
+	// GUI描画
+	{
+		// メニューバーをいい感じに表示
+		ImGui::BeginMainMenuBar();
+		ImGui::Text("%.1f |", ImGui::GetIO().Framerate);
+		if (ImGui::BeginMenu("Menu"))
+		{
+			if (ImGui::BeginMenu("ChangeScene"))
+			{
+				if (ImGui::MenuItem("game"))
+				{
+					Manager::SetScene<Game>();
+				}
+				else if (ImGui::MenuItem("Stage01"))
+				{
+					Manager::SetScene<Stage01>();
+				}
+				else if (ImGui::MenuItem("Stage02"))
+				{
+					Manager::SetScene<Stage02>();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Quit"))
+		{
+			Manager::EndApp();
+
+			ImGui::EndMenu();
+		}
+
+
+		ImGui::EndMainMenuBar();
+	}
+
 	ImGui::ShowDemoWindow();
-
-	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	ImGui::End();
 }

@@ -1,7 +1,6 @@
 #pragma once
-
-
 #include	<simplemath.h>
+
 
 // ‰~’Œ’è‹`
 struct BoundingCylinder {
@@ -35,7 +34,7 @@ bool CollisionSphere(BoundingSphere p1, BoundingSphere p2);
 bool CollisionAABB(AABB p1, AABB p2);
 
 // make AABB
-AABB SetAABB(DirectX::SimpleMath::Vector3 centerposition, float width, int height, int depth);
+AABB SetAABB(DirectX::SimpleMath::Vector3 centerposition, float width, float height, float depth);
 
 // ’¼ü‚Æ“_‚Ì‹——£‚ğ‹‚ß‚é
 float calcPointLineDist(

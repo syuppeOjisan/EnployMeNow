@@ -27,12 +27,18 @@ void Player::Init()
 	//AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso");
 	AddComponent<Shader>()->Load("shader\\vertexLightingVS.cso", "shader\\vertexLightingPS.cso");
 	m_Model = AddComponent<AnimationModel>();
+	//m_Model->Load("asset\\model\\Akai.fbx");									// animation ok
+	//m_Model->LoadAnimation("asset\\model\\Akai_Run.fbx", "Idle");
+	//m_Model->LoadAnimation("asset\\model\\Akai_Run.fbx", "Run");
 	
 	m_Model->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
 	m_Model->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
 	m_Model->LoadAnimation("asset\\model\\Player_Walk.fbx", "Run");
 	m_Model->LoadAnimation("asset\\model\\Player_Punching.fbx", "Punching");
 	m_Model->SetFirstAnimation("Idle");
+
+
+
 
 	{
 		//m_Model->Load("asset\\model\\Player_Tpose.fbx");						// animation ok
@@ -61,18 +67,11 @@ void Player::Init()
 
 	m_BulletEquip = NONE;
 
-	// SE読み込み
-	m_SEList["Fire"] = AddComponent<Audio>();
-	m_SEList["Fire"]->Load("asset\\audio\\SE\\bulletFire.wav");
-
-	m_SEList["Goal"] = AddComponent<Audio>();
-	m_SEList["Goal"]->Load("asset\\audio\\SE\\goal.wav");
-
-	m_SEList["Get"] = AddComponent<Audio>();
-	m_SEList["Get"]->Load("asset\\audio\\SE\\itemGet.wav");
-
 	// サイズ調整
 	m_Scale = Vector3(0.02f, 0.02f, 0.02f);
+
+	// 当たり判定設定
+	this->m_AABBCollision = SetAABB(this->m_Position, this->m_Scale.x, this->m_Scale.y, this->m_Scale.z);
 }
 
 void Player::Update()
@@ -141,8 +140,6 @@ void Player::Update()
 		bullet->SetVelocity(forward);
 		bullet->SetBulletMode(m_BulletMode);
 		bullet->SetBulletKind(m_BulletEquip);
-
-		m_SEList["Fire"]->Play();
 	}
 
 
@@ -165,6 +162,10 @@ void Player::Update()
 	{
 		m_isLanding = false;
 	}
+
+
+	// 当たり判定更新
+	this->m_AABBCollision = SetAABB(this->m_Position, 1, 1, 1);
 
 	// 現在シーンを取得
 	Scene* scene = Manager::GetScene();
@@ -263,15 +264,9 @@ void Player::Update()
 				if (sts)
 				{
 					m_BulletEquip = BULLET_KIND::CHANGE_X_AXSIS;
-					if (m_isSEplay_Z)
-					{
-						m_SEList["Get"]->Play();
-						m_isSEplay_Z = true;
-					}
 				}
 				else
 				{
-					m_isSEplay_Z = false;
 				}
 			}
 		}
@@ -295,15 +290,9 @@ void Player::Update()
 				if (sts)
 				{
 					m_BulletEquip = BULLET_KIND::CHANGE_Y_AXSIS;
-					if (m_isSEplay_Z)
-					{
-						m_SEList["Get"]->Play();
-						m_isSEplay_Y = true;
-					}
 				}
 				else
 				{
-					m_isSEplay_Y = false;
 				}
 			}
 		}
@@ -327,15 +316,6 @@ void Player::Update()
 				if (sts)
 				{
 					m_BulletEquip = BULLET_KIND::CHANGE_Z_AXSIS;
-					if (m_isSEplay_Z)
-					{
-						m_SEList["Get"]->Play();
-						m_isSEplay_Z = true;
-					}
-				}
-				else
-				{
-					m_isSEplay_Z = false;
 				}
 			}
 		}
@@ -367,15 +347,16 @@ void Player::Update()
 
 			if (sts)
 			{
-				m_SEList["Goal"]->Play();
 				goal->SetDestroy();
 			}
 		}
 	}
 
-
+	//TODO:ブレンドレートが初期化できてないからタイミングを見つける
+	//ブレンドレート自体をモデルの方に持たせてもいいかも
 	if (Input::GetKeyPress('W'))
 	{
+		if(Input::GetKeyTrigger('W')) { m_BlendRate = 0; }
 		m_Model->SetNextAnimation("Run");
 		m_BlendRate += 0.1f;
 		m_Frame++;
@@ -425,9 +406,3 @@ void Player::SetCamera(PlayerCamera* _camera)
 {
 	this->m_pCamera = _camera;
 }
-
-BULLET_MODE Player::GetBulletMode()
-{
-	return m_BulletMode;
-}
-

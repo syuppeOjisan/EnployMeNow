@@ -11,9 +11,9 @@ void Shader::Load(const char* VertexShader, const char* PixelShader)
 
 void Shader::Uninit()
 {
-	m_VertexLayout->Release();
-	m_VertexShader->Release();
-	m_PixelShader->Release();
+	if (m_VertexLayout){ m_VertexLayout->Release(); }
+	if (m_VertexShader){ m_VertexShader->Release(); }
+	if (m_PixelShader) { m_PixelShader->Release(); }
 }
 
 

@@ -49,16 +49,6 @@ struct MODEL
 
 class ModelRenderer : public Component
 {
-private:
-
-	static std::unordered_map<std::string, MODEL*> m_ModelPool;
-
-	static void LoadModel(const char* FileName, MODEL* Model);
-	static void LoadObj(const char* FileName, MODEL_OBJ* ModelObj);
-	static void LoadMaterial(const char* FileName, MODEL_MATERIAL** MaterialArray, unsigned int* MaterialNum);
-
-	MODEL* m_Model{};
-
 public:
 
 	static void Preload(const char* FileName);
@@ -70,4 +60,14 @@ public:
 	void Load(const char* FileName);
 
 	void Draw() override;
+
+private:
+
+	static std::unordered_map<std::string, MODEL*> m_ModelPool;
+
+	static void LoadModel(const char* FileName, MODEL* Model);
+	static void LoadObj(const char* FileName, MODEL_OBJ* ModelObj);
+	static void LoadMaterial(const char* FileName, MODEL_MATERIAL** MaterialArray, unsigned int* MaterialNum);
+
+	MODEL* m_Model{};
 };

@@ -10,12 +10,18 @@ class Manager
 {
 private:
 	static class Scene* m_Scene;
+	static bool m_IsLoop;
 
 public:
 	static void Init(Application* ap, HWND hWnd);
 	static void Uninit();
 	static void Update(uint64_t d);
 	static void Draw(uint64_t d);
+
+	//static void SetLoopFlag(bool _flg) { m_IsLoop = _flg; }
+	static bool GetLoopFlag(void) { return m_IsLoop; }
+
+	static void EndApp() { m_IsLoop = false; };
 
 	static class Scene* GetScene()
 	{

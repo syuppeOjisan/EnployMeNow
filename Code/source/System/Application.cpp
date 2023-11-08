@@ -174,14 +174,15 @@ void Application::MainLoop()
     Manager::Init(this, m_hWnd);
 
 
-    while(WM_QUIT != msg.message)
+    while(WM_QUIT != msg.message && Manager::GetLoopFlag())
     {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) == TRUE)
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        else {
+        else 
+        {
             uint64_t delta_time = 0;
 
             // デルタタイムを計算
