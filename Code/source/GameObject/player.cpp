@@ -356,7 +356,6 @@ void Player::Update()
 	//ブレンドレート自体をモデルの方に持たせてもいいかも
 	if (Input::GetKeyPress('W'))
 	{
-		if(Input::GetKeyTrigger('W')) { m_BlendRate = 0; }
 		m_Model->SetNextAnimation("Run");
 		m_BlendRate += 0.1f;
 		m_Frame++;
@@ -382,11 +381,6 @@ void Player::Update()
 		m_Frame++;
 	}
 
-	if (m_BlendRate > 1.0f)
-		m_BlendRate = 1.0f;
-	if (m_BlendRate < 0.0f)
-		m_BlendRate = 0.0f;
-
 
 	//std::cout << "PayerPos X[" << GetPosition().x << "]Y[" << GetPosition().y << "]Z[" << GetPosition().z << "]" << std::endl;
 
@@ -399,7 +393,7 @@ void Player::Update()
 
 void Player::PreDraw()
 {
-	m_Model->Update(m_Frame, m_Frame, m_BlendRate);
+	m_Model->Update(m_Frame);
 }
 
 void Player::SetCamera(PlayerCamera* _camera)

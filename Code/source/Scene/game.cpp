@@ -254,8 +254,15 @@ void Game::Draw()
 
 					ImGui::TreePop();
 				}
+				if (ImGui::TreeNode("AnimationName"))
+				{
+					ImGui::Text("NowAnimationName  :%s", pPlayer->GetModel()->GetNowAnimName(), pPlayer->GetModel()->GetNowAnimName() + 1);
+					ImGui::Text("PrevAnimationName :%s", pPlayer->GetModel()->GetPrevAnimName(), pPlayer->GetModel()->GetPrevAnimName() + 1);
 
+					ImGui::TreePop();
+				}
 
+				ImGui::Text("BlendRate:%f", *pPlayer->GetModel()->GetBlendRate());
 				ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
 
 				ImGui::TreePop();
