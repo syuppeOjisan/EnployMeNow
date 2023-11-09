@@ -25,43 +25,13 @@ using namespace DirectX::SimpleMath;
 void Player::Init()
 {
 	AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso");
-	//AddComponent<Shader>()->Load("shader\\vertexLightingVS.cso", "shader\\vertexLightingPS.cso");
 	m_Model = AddComponent<AnimationModel>();
-	//m_Model->Load("asset\\model\\Akai.fbx");									// animation ok
-	//m_Model->LoadAnimation("asset\\model\\Akai_Run.fbx", "Idle");
-	//m_Model->LoadAnimation("asset\\model\\Akai_Run.fbx", "Run");
 	
 	m_Model->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
 	m_Model->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
 	m_Model->LoadAnimation("asset\\model\\Player_Walk.fbx", "Run");
 	m_Model->LoadAnimation("asset\\model\\Player_Punching.fbx", "Punching");
 	m_Model->SetFirstAnimation("Idle");
-
-
-
-
-	{
-		//m_Model->Load("asset\\model\\Player_Tpose.fbx");						// animation ok
-		//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Idle");
-		//m_Model->LoadAnimation("asset\\model\\Player_Tpose.fbx", "Run");
-		
-		//m_Model->Load("asset\\model\\Akai2.fbx");								// animation ok
-		//m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Idle");
-		//m_Model->LoadAnimation("asset\\model\\Akai_Walk.fbx", "Run");
-		
-		//m_Model->Load("data\\model\\Walking\\Walking2.fbx");					// animation ok
-		//m_Model->LoadAnimation("data\\model\\Walking\\Walking2.fbx", "Idle");
-		//m_Model->LoadAnimation("data\\model\\Walking\\Walking2.fbx", "Run");
-		
-		//m_Model->Load("data\\model\\Walking\\Walking.fbx");					// animation ok
-		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.fbx", "Idle");
-		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.fbx", "Run");
-		
-		//m_Model->Load("data\\model\\Walking\\Walking.dae");					// animation ok
-		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.dae", "Idle");	// animation ok
-		//m_Model->LoadAnimation("data\\model\\Walking\\Walking.dae", "Run");	// animation ok
-	}
-
 
 	AddComponent<Shadow>()->SetSize(1.5f);
 
@@ -352,52 +322,60 @@ void Player::Update()
 		}
 	}
 
-	//TODO:ブレンドレートが初期化できてないからタイミングを見つける
-	//ブレンドレート自体をモデルの方に持たせてもいいかも
+	////TODO:ブレンドレートが初期化できてないからタイミングを見つける
+	////ブレンドレート自体をモデルの方に持たせてもいいかも
+	//if (Input::GetKeyPress('W'))
+	//{
+	//	m_Model->SetNextAnimation("Run");
+	//	m_BlendRate += 0.1f;
+
+	//}
+	//else if (Input::GetKeyPress('S'))
+	//{
+	//	m_Model->SetNextAnimation("Run");
+	//	m_BlendRate += 0.1f;
+	//}
+	//else if (Input::GetKeyPress('P'))
+	//{
+	//	//TODO: パンチ中は手の先に当たり判定を付けて殴れるようにする
+	//	m_Model->SetNextAnimation("Punching");
+	//	m_BlendRate += 0.1f;
+	//}
+	//else if(m_Model->GetIsAnimBlend())
+	//{
+	//	m_Model->SetNextAnimation("Idle");
+	//	m_Model->SetBlendSpeed(0.1f);
+	//	m_BlendRate += 0.1f;
+	//}
+	//m_Frame++;
+
 	if (Input::GetKeyPress('W'))
 	{
-		m_Model->SetNextAnimation("Run");
 		m_BlendRate += 0.1f;
 		m_Frame++;
 
 	}
 	else if (Input::GetKeyPress('S'))
 	{
-		m_Model->SetNextAnimation("Run");
 		m_BlendRate += 0.1f;
-		m_Frame++;
+		m_Frame--;
 	}
-	else if (Input::GetKeyPress('P'))
+	else
 	{
-		//TODO: パンチ中は手の先に当たり判定を付けて殴れるようにする
-		m_Model->SetNextAnimation("Punching");
-		m_BlendRate += 0.1f;
-		m_Frame++;
-	}
-	else if(m_Model->GetIsAnimBlend())
-	{
-		m_Model->SetNextAnimation("Idle");
-		m_Model->SetBlendSpeed(0.1f);
-		m_BlendRate += 0.1f;
+		m_BlendRate -= 0.1f;
 		m_Frame++;
 	}
 
-
-	//std::cout << "PayerPos X[" << GetPosition().x << "]Y[" << GetPosition().y << "]Z[" << GetPosition().z << "]" << std::endl;
-
-	//if (true)
-	//{
-	//	std::cout << "なんかのキーが離されました" << std::endl;
-	//}
+	if (m_BlendRate > 1.0f)
+		m_BlendRate = 1.0f;
+	if (m_BlendRate < 0.0f)
+		m_BlendRate = 0.0f;
 }
 
 
 void Player::PreDraw()
 {
-	m_Model->GPU_Update("Idle", m_Frame, "Run", m_Frame, m_BlendRate);
-
-	//m_Model->Update();
-	//m_Model->Update(m_Frame, m_Frame, m_BlendRate);
+	m_Model->Update("Idle", m_Frame, "Run", m_Frame, m_BlendRate);
 }
 
 void Player::SetCamera(PlayerCamera* _camera)

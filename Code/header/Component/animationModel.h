@@ -73,12 +73,7 @@ public:
 	void LoadAnimation( const char *FileName, const char *Name );
 	void Uninit() override;
 
-	void Update(const char *AnimationName1, int Frame1, const char *AnimationName2, int Frame2, float BlendRate);		// デフォルト
-	void Update(int Frame1, int Frame2, float BlendRate);																// 次のアニメーションを指定してブレンド
-	void Update();																										// ブレンドレートをメンバで持ったバージョン
-
-	void GPU_Update(const char* AnimationName1, int Frame1, const char* m_NowAnimation, int Frame2, float BlendRate);	// GPU計算デフォルト
-	void GPU_Update(int Frame1, int Frame2, float BlendRate);															// 色々テスト
+	void Update(const char *AnimationName1, int Frame1, const char *AnimationName2, int Frame2, float BlendRate);
 
 	void Draw() override;
 

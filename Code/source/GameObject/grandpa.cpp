@@ -62,5 +62,5 @@ void grandpa::Update()
 
 void grandpa::PreDraw()
 {
-	m_Model->Update();
+	m_Model->Update("Idle", m_Frame, "Run", m_Frame, m_BlendRate);
 }

@@ -100,7 +100,7 @@ void Renderer::Init(Application* ap)
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Flags = 0;
 	m_Device->CreateDepthStencilView(depthStencile, &depthStencilViewDesc, &m_DepthStencilView);
-
+	depthStencile->Release();
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
@@ -297,7 +297,7 @@ void Renderer::Begin()
 
 void Renderer::End()
 {
-	m_SwapChain->Present( 1, 0 );
+	m_SwapChain->Present( 0, 0 );
 }
 
 
@@ -338,27 +338,27 @@ void Renderer::SetWorldViewProjection2D()
 	m_DeviceContext->UpdateSubresource(m_ViewBuffer, 0, NULL, &view, 0, 0);
 
 	Matrix projection;
-/*
-// update 右手系＝＝＝＞左手系  （DIRECTXTKのメソッドは右手系だった） 20230511 update by tomoki.suzuki　
-	projection = projection.CreateOrthographicOffCenter(
-		static_cast<float>(m_Application->GetWidth() * -0.5f),			// ビューボリュームの最小Ｘ
-		static_cast<float>(m_Application->GetWidth() * 0.5f),			// ビューボリュームの最大Ｘ
-		static_cast<float>(m_Application->GetHeight() * 0.5f),			// ビューボリュームの最小Ｙ
-		static_cast<float>(m_Application->GetHeight() * -0.5f),			// ビューボリュームの最大Ｙ
-		0.0f,
-		1000.0f);
-*/
-
-/*
+	/*
 	// update 右手系＝＝＝＞左手系  （DIRECTXTKのメソッドは右手系だった） 20230511 update by tomoki.suzuki　
-	projection = DirectX::XMMatrixOrthographicOffCenterLH(
-		static_cast<float>(m_Application->GetWidth() * -0.5f),			// ビューボリュームの最小Ｘ
-		static_cast<float>(m_Application->GetWidth() * 0.5f),			// ビューボリュームの最大Ｘ
-		static_cast<float>(m_Application->GetHeight() * 0.5f),			// ビューボリュームの最小Ｙ
-		static_cast<float>(m_Application->GetHeight() * -0.5f),			// ビューボリュームの最大Ｙ
-		0.0f,
-		1000.0f);
-*/
+		projection = projection.CreateOrthographicOffCenter(
+			static_cast<float>(m_Application->GetWidth() * -0.5f),			// ビューボリュームの最小Ｘ
+			static_cast<float>(m_Application->GetWidth() * 0.5f),			// ビューボリュームの最大Ｘ
+			static_cast<float>(m_Application->GetHeight() * 0.5f),			// ビューボリュームの最小Ｙ
+			static_cast<float>(m_Application->GetHeight() * -0.5f),			// ビューボリュームの最大Ｙ
+			0.0f,
+			1000.0f);
+	*/
+
+	/*
+		// update 右手系＝＝＝＞左手系  （DIRECTXTKのメソッドは右手系だった） 20230511 update by tomoki.suzuki　
+		projection = DirectX::XMMatrixOrthographicOffCenterLH(
+			static_cast<float>(m_Application->GetWidth() * -0.5f),			// ビューボリュームの最小Ｘ
+			static_cast<float>(m_Application->GetWidth() * 0.5f),			// ビューボリュームの最大Ｘ
+			static_cast<float>(m_Application->GetHeight() * 0.5f),			// ビューボリュームの最小Ｙ
+			static_cast<float>(m_Application->GetHeight() * -0.5f),			// ビューボリュームの最大Ｙ
+			0.0f,
+			1000.0f);
+	*/
 
 	// 2D描画を左上原点にする  (20230512 update by tomoki.suzuki　
 	projection = DirectX::XMMatrixOrthographicOffCenterLH(
@@ -372,7 +372,7 @@ void Renderer::SetWorldViewProjection2D()
 
 	projection = projection.Transpose();
 
-	m_DeviceContext->UpdateSubresource( m_ProjectionBuffer, 0, NULL, &projection, 0, 0 );
+	m_DeviceContext->UpdateSubresource(m_ProjectionBuffer, 0, NULL, &projection, 0, 0);
 }
 
 
@@ -435,10 +435,12 @@ void Renderer::CreateVertexShader( ID3D11VertexShader** VertexShader, ID3D11Inpu
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0,	0,		D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,		0,	4 * 3,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0,	4 * 6,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,			0,	4 * 10, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",		0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",	0, DXGI_FORMAT_R32G32_FLOAT,		0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BONEINDEX",	0, DXGI_FORMAT_R32G32B32A32_SINT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BONEWEIGHT",	0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	UINT numElements = ARRAYSIZE(layout);
 

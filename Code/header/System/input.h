@@ -24,6 +24,7 @@ private:
 	static BYTE m_OldKeyState[KEYCOUNT];
 	static BYTE m_KeyState[KEYCOUNT];
 
+	static POINT	m_WindowCenter;
 	static POINT	m_NowMousePos;			// マウスポインタの位置 - 今
 	static POINT	m_OldMousePos;			// マウスポインタの位置	- １フレーム前
 	static bool		m_isMouseMove;			// マウスが移動しているかどうか
