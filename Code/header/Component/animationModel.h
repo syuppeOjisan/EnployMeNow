@@ -43,24 +43,28 @@ class AnimationModel : public Component
 {
 private:
 	const aiScene* m_AiScene = nullptr;
-	std::unordered_map<std::string, const aiScene*> m_Animation;	// アニメーションデータ格納用配列
-	const char* m_NowAnimation;		// 今再生中のアニメーション
-	const char* m_PrevAnimation;	// 前回再生中のアニメーション
-	bool m_isAnimBlendOver = false;	// アニメーションブレンドが終了したか
-	float m_BlendRate;				// ブレンドレート
+	std::unordered_map<std::string, const aiScene*> m_Animation;
 
-	ID3D11Buffer**	m_VertexBuffer;
-	ID3D11Buffer**	m_IndexBuffer;
+	ID3D11Buffer**	m_VertexBuffer;			// 頂点バッファ
+	ID3D11Buffer**	m_IndexBuffer;			// インデックスバッファ
+	ID3D11Buffer*	m_BoneCombMtxCBuffer;	// 定数バッファ　20230909-02
 
 	std::unordered_map<std::string, ID3D11ShaderResourceView*> m_Texture;
 
 	std::vector<DEFORM_VERTEX>* m_DeformVertex;				//変形後頂点データ
 	std::unordered_map<std::string, BONE> m_Bone;			//ボーンデータ（名前で参照）
 
+	const char*		m_NowAnimation;				// 再生中のアニメーション
+	const char*		m_PrevAnimation;			// 前回再生中のアニメーション
+	int				m_NowAnimationFrame = 0;	// 再生中のアニメーションフレーム
+	int				m_PrevAnimationFrame = 0;	// 前再生していたアニメーションフレーム
+	float			m_BlendRate;				// ブレンドレート
+	float			m_BlendSpeed = 0.1f;		// ブレンド速度
+	bool			m_isAnimBlendOver = false;	// アニメーションブレンドが終了したか
+
+
 	void CreateBone(aiNode* Node);
 	void UpdateBoneMatrix(aiNode* Node, aiMatrix4x4 Matrix);
-	
-	ID3D11Buffer* m_BoneCombMtxCBuffer;						// 定数バッファ　20230909-02
 
 public:
 	using Component::Component;
@@ -71,7 +75,7 @@ public:
 
 	void Update(const char *AnimationName1, int Frame1, const char *AnimationName2, int Frame2, float BlendRate);		// デフォルト
 	void Update(int Frame1, int Frame2, float BlendRate);																// 次のアニメーションを指定してブレンド
-	void Update(int Frame);																// ブレンドレートをメンバで持ったバージョン
+	void Update();																										// ブレンドレートをメンバで持ったバージョン
 
 	void GPU_Update(const char* AnimationName1, int Frame1, const char* m_NowAnimation, int Frame2, float BlendRate);	// GPU計算デフォルト
 	void GPU_Update(int Frame1, int Frame2, float BlendRate);															// 色々テスト
@@ -82,6 +86,8 @@ public:
 	bool SetNextAnimation(const char* _nextAnimation);		// 次のアニメーションを設定
 
 	bool GetIsAnimBlend(void) { return m_BlendRate; }		// アニメーションブレンドが終わったかどうかを取得
+
+	void SetBlendSpeed(float _speed) { this->m_BlendSpeed = _speed; }	// ブレンド速度を設定
 
 	const char* GetNowAnimName(void) { return m_NowAnimation; }
 	const char* GetPrevAnimName(void) { return m_PrevAnimation; }

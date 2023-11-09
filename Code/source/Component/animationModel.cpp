@@ -257,7 +257,6 @@ void AnimationModel::Load(const char* FileName)
 		&m_BoneCombMtxCBuffer);						// コンスタントバッファ			// 20230909 - 02
 
 	assert(m_BoneCombMtxCBuffer);
-
 }
 
 
@@ -772,7 +771,7 @@ void AnimationModel::Update(int Frame1, int Frame2, float BlendRate)
 
 }
 
-void AnimationModel::Update(int Frame)
+void AnimationModel::Update()
 {
 	// アニメーションありか？
 	if (m_Animation.count(m_PrevAnimation) == 0)
@@ -800,17 +799,17 @@ void AnimationModel::Update(int Frame)
 
 			int f;
 
-			f = Frame % nodeAnim->mNumRotationKeys;//簡易実装
+			f = m_NowAnimationFrame % nodeAnim->mNumRotationKeys;//簡易実装
 			aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
 
-			f = Frame % nodeAnim->mNumPositionKeys;//簡易実装
+			f = m_NowAnimationFrame % nodeAnim->mNumPositionKeys;//簡易実装
 			aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
 
 			bone->BlendPosFrom = pos;
 			bone->BlendRFrom = rot;
 		}
 
-		// 現在のアニメーション2について関連するボーンを全て更新
+		// 一つ前のアニメーションについて関連するボーンを全て更新
 		for (unsigned int c = 0; c < animation2->mNumChannels; c++)
 		{
 			aiNodeAnim* nodeAnim = animation2->mChannels[c];
@@ -819,10 +818,10 @@ void AnimationModel::Update(int Frame)
 
 			int f;
 
-			f = Frame % nodeAnim->mNumRotationKeys;//簡易実装
+			f = m_PrevAnimationFrame % nodeAnim->mNumRotationKeys;//簡易実装
 			aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
 
-			f = Frame % nodeAnim->mNumPositionKeys;//簡易実装
+			f = m_PrevAnimationFrame % nodeAnim->mNumPositionKeys;//簡易実装
 			aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
 
 			bone->BlendPosTo = pos;
@@ -1002,13 +1001,16 @@ void AnimationModel::Update(int Frame)
 	// ブレンドレートを加算
 	if (m_BlendRate < 1.0f)
 	{
-		m_BlendRate += 0.1f;
+		m_BlendRate += m_BlendSpeed;
 	}
 	else if (m_BlendRate >= 1.0f)
 	{
 		m_BlendRate = 1.0f;
 		m_isAnimBlendOver = true;
 	}
+
+	m_NowAnimationFrame++;
+	m_PrevAnimationFrame++;
 }
 
 void AnimationModel::GPU_Update(const char* AnimationName1, int Frame1, const char* AnimationName2, int Frame2, float BlendRate)
@@ -1202,10 +1204,13 @@ bool AnimationModel::SetNextAnimation(const char* _nextAnimation)
 	// 変更するアニメーションを設定
 	if (m_isAnimBlendOver && (m_NowAnimation != _nextAnimation))
 	{
-		m_PrevAnimation = m_NowAnimation;
-		m_NowAnimation = _nextAnimation;
-		m_isAnimBlendOver = false;
-		m_BlendRate = 0.0f;
+		m_PrevAnimation = m_NowAnimation;	// 実行していたアニメーションを前回のものに
+		m_NowAnimation = _nextAnimation;	// 新しく指定されたアニメーションと前回のものをブレンド
+		m_isAnimBlendOver = false;			// ここからブレンドを開始してほしいのでフラグと変数初期化
+		m_BlendRate = 0.0f;					
+
+		m_PrevAnimationFrame = m_NowAnimationFrame;
+		m_NowAnimationFrame = 0;
 	}
 
 	return true;

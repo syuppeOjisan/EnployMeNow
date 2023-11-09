@@ -27,7 +27,7 @@ void grandpa::Init()
 
 void grandpa::Update()
 {
-
+	// コリジョン情報更新
 	this->m_AABBCollision = SetAABB(this->m_Position, 1, 1, 1);
 
 
@@ -62,5 +62,5 @@ void grandpa::Update()
 
 void grandpa::PreDraw()
 {
-	m_Model->Update(m_Frame, m_Frame, m_BlendRate);
+	m_Model->Update();
 }

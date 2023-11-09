@@ -24,8 +24,8 @@ using namespace DirectX::SimpleMath;
 
 void Player::Init()
 {
-	//AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso");
-	AddComponent<Shader>()->Load("shader\\vertexLightingVS.cso", "shader\\vertexLightingPS.cso");
+	AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso");
+	//AddComponent<Shader>()->Load("shader\\vertexLightingVS.cso", "shader\\vertexLightingPS.cso");
 	m_Model = AddComponent<AnimationModel>();
 	//m_Model->Load("asset\\model\\Akai.fbx");									// animation ok
 	//m_Model->LoadAnimation("asset\\model\\Akai_Run.fbx", "Idle");
@@ -374,9 +374,10 @@ void Player::Update()
 		m_BlendRate += 0.1f;
 		m_Frame++;
 	}
-	else /*if(モーションブレンドが終わったら)*/
+	else if(m_Model->GetIsAnimBlend())
 	{
 		m_Model->SetNextAnimation("Idle");
+		m_Model->SetBlendSpeed(0.1f);
 		m_BlendRate += 0.1f;
 		m_Frame++;
 	}
@@ -393,7 +394,10 @@ void Player::Update()
 
 void Player::PreDraw()
 {
-	m_Model->Update(m_Frame);
+	m_Model->GPU_Update("Idle", m_Frame, "Run", m_Frame, m_BlendRate);
+
+	//m_Model->Update();
+	//m_Model->Update(m_Frame, m_Frame, m_BlendRate);
 }
 
 void Player::SetCamera(PlayerCamera* _camera)
