@@ -54,15 +54,6 @@ private:
 	std::vector<DEFORM_VERTEX>* m_DeformVertex;				//変形後頂点データ
 	std::unordered_map<std::string, BONE> m_Bone;			//ボーンデータ（名前で参照）
 
-	const char*		m_NowAnimation;				// 再生中のアニメーション
-	const char*		m_PrevAnimation;			// 前回再生中のアニメーション
-	int				m_NowAnimationFrame = 0;	// 再生中のアニメーションフレーム
-	int				m_PrevAnimationFrame = 0;	// 前再生していたアニメーションフレーム
-	float			m_BlendRate;				// ブレンドレート
-	float			m_BlendSpeed = 0.1f;		// ブレンド速度
-	bool			m_isAnimBlendOver = false;	// アニメーションブレンドが終了したか
-
-
 	void CreateBone(aiNode* Node);
 	void UpdateBoneMatrix(aiNode* Node, aiMatrix4x4 Matrix);
 
@@ -72,19 +63,11 @@ public:
 	void Load( const char *FileName );
 	void LoadAnimation( const char *FileName, const char *Name );
 	void Uninit() override;
+	void Update(const char *_prevAnimation, float prevAnimatonFrame, const char *_nowAnimation, float _nowAnimationFrame, float BlendRate);
 
-	void Update(const char *AnimationName1, int Frame1, const char *AnimationName2, int Frame2, float BlendRate);
 
 	void Draw() override;
 
-	void SetFirstAnimation(const char* _firstAnimation);
-	bool SetNextAnimation(const char* _nextAnimation);		// 次のアニメーションを設定
-
-	bool GetIsAnimBlend(void) { return m_BlendRate; }		// アニメーションブレンドが終わったかどうかを取得
-
-	void SetBlendSpeed(float _speed) { this->m_BlendSpeed = _speed; }	// ブレンド速度を設定
-
-	const char* GetNowAnimName(void) { return m_NowAnimation; }
-	const char* GetPrevAnimName(void) { return m_PrevAnimation; }
-	const float* GetBlendRate(void) { return &m_BlendRate; }
+	// 指定されたアニメーションがロードされているかをチェック
+	bool CheckIsAnimation(const char* _animName);
 };

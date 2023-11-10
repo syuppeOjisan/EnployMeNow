@@ -310,24 +310,25 @@ void AnimationModel::Uninit()
 	}
 }
 
-void AnimationModel::Update(const char* AnimationName1, int Frame1, const char* AnimationName2, int Frame2, float BlendRate)
+void AnimationModel::Update(const char* _prevAnimation, float _prevAnimationFrame, const char* _nowAnimation, float _nowAnimationFrame, float BlendRate)
 {
 	// アニメーションありか？
-	if (m_Animation.count(AnimationName1) == 0)
+	if (m_Animation.count(_prevAnimation) == 0)
 		return;
-	if (m_Animation.count(AnimationName2) == 0)
+	if (m_Animation.count(_nowAnimation) == 0)
 		return;
 
-	if (!m_Animation[AnimationName1]->HasAnimations())
+	if (!m_Animation[_prevAnimation]->HasAnimations())
 		return;
-	if (!m_Animation[AnimationName2]->HasAnimations())
+	if (!m_Animation[_nowAnimation]->HasAnimations())
 		return;
+
 
 	// CPUスキニングでのアニメーションブレンド処理
 	{
 		//アニメーションデータからボーンマトリクス算出
-		aiAnimation* animation1 = m_Animation[AnimationName1]->mAnimations[0];
-		aiAnimation* animation2 = m_Animation[AnimationName2]->mAnimations[0];
+		aiAnimation* animation1 = m_Animation[_prevAnimation]->mAnimations[0];
+		aiAnimation* animation2 = m_Animation[_nowAnimation]->mAnimations[0];
 
 		// 現在のアニメーションについて関連するボーンを全て更新
 		for (unsigned int c = 0; c < animation1->mNumChannels; c++)
@@ -338,10 +339,10 @@ void AnimationModel::Update(const char* AnimationName1, int Frame1, const char* 
 
 			int f;
 
-			f = Frame1 % nodeAnim->mNumRotationKeys;//簡易実装
+			f = (int)_prevAnimationFrame % nodeAnim->mNumRotationKeys;//簡易実装
 			aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
 
-			f = Frame1 % nodeAnim->mNumPositionKeys;//簡易実装
+			f = (int)_prevAnimationFrame % nodeAnim->mNumPositionKeys;//簡易実装
 			aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
 
 			bone->BlendPosFrom = pos;
@@ -357,10 +358,10 @@ void AnimationModel::Update(const char* AnimationName1, int Frame1, const char* 
 
 			int f;
 
-			f = Frame2 % nodeAnim->mNumRotationKeys;//簡易実装
+			f = (int)_nowAnimationFrame % nodeAnim->mNumRotationKeys;//簡易実装
 			aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
 
-			f = Frame2 % nodeAnim->mNumPositionKeys;//簡易実装
+			f = (int)_nowAnimationFrame % nodeAnim->mNumPositionKeys;//簡易実装
 			aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
 
 			bone->BlendPosTo = pos;
@@ -389,6 +390,7 @@ void AnimationModel::Update(const char* AnimationName1, int Frame1, const char* 
 
 			bone->AnimationMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), rot, pos);
 		}
+
 
 		//再帰的にボーンマトリクスを更新
 	//	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
@@ -455,31 +457,13 @@ void AnimationModel::UpdateBoneMatrix(aiNode* node, aiMatrix4x4 matrix)
 	}
 }
 
-void AnimationModel::SetFirstAnimation(const char* _firstAnimation)
-{
-	m_PrevAnimation = _firstAnimation;
-	m_NowAnimation = _firstAnimation;
-}
-
-bool AnimationModel::SetNextAnimation(const char* _nextAnimation)
+bool AnimationModel::CheckIsAnimation(const char* _animName)
 {
 	// 指定されたアニメーションがロードされているかをチェック
-	if (m_Animation.count(_nextAnimation) == 0)
+	if (m_Animation.count(_animName) == 0)
 		return false;
-	if (!m_Animation[_nextAnimation]->HasAnimations())
+	if (!m_Animation[_animName]->HasAnimations())
 		return false;
-
-	// 変更するアニメーションを設定
-	if (m_isAnimBlendOver && (m_NowAnimation != _nextAnimation))
-	{
-		m_PrevAnimation = m_NowAnimation;	// 実行していたアニメーションを前回のものに
-		m_NowAnimation = _nextAnimation;	// 新しく指定されたアニメーションと前回のものをブレンド
-		m_isAnimBlendOver = false;			// ここからブレンドを開始してほしいのでフラグと変数初期化
-		m_BlendRate = 0.0f;					
-
-		m_PrevAnimationFrame = m_NowAnimationFrame;
-		m_NowAnimationFrame = 0;
-	}
 
 	return true;
 }

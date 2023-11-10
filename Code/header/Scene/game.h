@@ -4,11 +4,6 @@
 
 class Game : public Scene
 {
-private:
-	class Transition*	m_Transition{};
-	class Audio*		m_BGM{};
-	bool m_Goal = false;
-
 public:
 	void Init() override;
 	void Uninit() override;
@@ -16,4 +11,9 @@ public:
 	void Draw() override;
 
 	void HitCheck() override;
+
+private:
+	class Transition* m_Transition{};
+	class Audio* m_BGM{};
+	bool m_Goal = false;
 };

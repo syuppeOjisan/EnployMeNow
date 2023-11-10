@@ -32,13 +32,6 @@ public:
 	void SetCamera(PlayerCamera* _camera);	// プレイヤーにカメラ情報を登録
 
 private:
-	class	PlayerCamera* m_pCamera;
-
-
-	BULLET_MODE									m_BulletMode;	// 現在装備中の弾のモード
-	BULLET_KIND									m_BulletEquip;	// 装備中の弾
-	float	m_BlendRate;
-	int		m_Frame;
-	char	m_NextAnim;		// 次に遷移するアニメーション
-	bool	m_isLanding;	// 一度しかジャンプできないようにする
+	class	PlayerCamera* m_pCamera;	// プレイヤー用カメラ
+	bool	m_isLanding;				// 一度しかジャンプできないようにする
 };

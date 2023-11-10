@@ -24,24 +24,27 @@ using namespace DirectX::SimpleMath;
 
 void Player::Init()
 {
+	CharacterBase::Init();
+
 	AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso");
-	m_Model = AddComponent<AnimationModel>();
+	m_pModel = AddComponent<AnimationModel>();
 	
-	m_Model->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
-	m_Model->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
-	m_Model->LoadAnimation("asset\\model\\Player_Walk.fbx", "Run");
-	m_Model->LoadAnimation("asset\\model\\Player_Punching.fbx", "Punching");
-	m_Model->SetFirstAnimation("Idle");
+	m_pModel->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
+	m_pModel->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
+	m_pModel->LoadAnimation("asset\\model\\Player_Walk.fbx", "Run");
+	m_pModel->LoadAnimation("asset\\model\\Player_Punching.fbx", "Punching");
 
 	AddComponent<Shadow>()->SetSize(1.5f);
-
-	m_BulletEquip = NONE;
 
 	// サイズ調整
 	m_Scale = Vector3(0.02f, 0.02f, 0.02f);
 
 	// 当たり判定設定
 	this->m_AABBCollision = SetAABB(this->m_Position, this->m_Scale.x, this->m_Scale.y, this->m_Scale.z);
+
+	// モーション変数初期化
+	m_NowAnimation = "Idle";
+	m_PrevAnimation = "Idle";
 }
 
 void Player::Update()
@@ -67,33 +70,36 @@ void Player::Update()
 
 	// 前方ベクトルを取得
 	Vector3 forward = m_pCamera->GetCameraFrontVec();
+	forward.Normalize();
 
+	forward.x *= 0.3;
+	forward.y = 0;
+	forward.z *= 0.3;
+
+	// 前後移動
 	if (Input::GetKeyPress('W'))
 	{
-		forward.y = 0;
-		m_Position += forward * 0.3f;
+		SetVelocity(forward);
+		SetNextAnimation("Run");
 	}
-	if (Input::GetKeyPress('S'))
+	else if (Input::GetKeyPress('S'))
 	{
-		forward.y = 0;
-		m_Position -= forward * 0.3f;
+		SetVelocity(-forward);
+		SetNextAnimation("Run");
+	}
+	else if (Input::GetKeyPress('P'))
+	{
+		SetNextAnimation("Punching");
+	}
+	else
+	{
+		SetNextAnimation("Idle");
 	}
 
 	//ジャンプ
 	if (Input::GetKeyTrigger(VK_SPACE))
 	{
 		m_Velocity.y = 0.2f;
-	}
-
-	// 弾のモード変更
-	if (Input::GetKeyTrigger('1'))
-	{
-		m_BulletMode = SIZE_UP;
-	}
-
-	if (Input::GetKeyTrigger('2'))
-	{
-		m_BulletMode = SIZE_DOWN;
 	}
 
 
@@ -108,8 +114,6 @@ void Player::Update()
 		Bullet* bullet = scene->AddGameObject<Bullet>(2);
 		bullet->SetPosition(m_Position + Vector3(0.0f,2.0f,0.0f));
 		bullet->SetVelocity(forward);
-		bullet->SetBulletMode(m_BulletMode);
-		bullet->SetBulletKind(m_BulletEquip);
 	}
 
 
@@ -119,8 +123,6 @@ void Player::Update()
 	//抵抗
 	m_Velocity.y -= m_Velocity.y * 0.01f;
 
-	//移動
-	m_Position += m_Velocity;
 
 	//接地
 	float groundHeight = 0.0f;
@@ -213,113 +215,12 @@ void Player::Update()
 		}
 	}
 
-	// アイテムとの当たり判定
-	{
-		// アイテムXのとの当たり判定
-		{
-			std::vector<Item_X*> itemXList = scene->GetGameObjects<Item_X>();
-			for (const auto& itemObj : itemXList)
-			{
-				Vector3 position = itemObj->GetPosition();
-				Vector3 scale = itemObj->GetScale();
-
-				AABB aabbBox;
-				AABB aabbPlayer;
-
-				aabbBox = SetAABB(position, fabs(2.0f * scale.x), fabs(2.0f * scale.y), fabs(2.0f * scale.z));
-				aabbPlayer = SetAABB(m_Position, fabs(1.0f * m_Scale.x), fabs(1.0f * m_Scale.y), fabs(1.0f * m_Scale.z));
-
-				bool sts = CollisionAABB(aabbBox, aabbPlayer);
-
-				if (sts)
-				{
-					m_BulletEquip = BULLET_KIND::CHANGE_X_AXSIS;
-				}
-				else
-				{
-				}
-			}
-		}
-
-		// アイテムYのとの当たり判定
-		{
-			std::vector<Item_Y*> itemYList = scene->GetGameObjects<Item_Y>();
-			for (const auto& itemObj : itemYList)
-			{
-				Vector3 position = itemObj->GetPosition();
-				Vector3 scale = itemObj->GetScale();
-
-				AABB aabbBox;
-				AABB aabbPlayer;
-
-				aabbBox = SetAABB(position, fabs(2.0f * scale.x), fabs(2.0f * scale.y), fabs(2.0f * scale.z));
-				aabbPlayer = SetAABB(m_Position, fabs(1.0f * m_Scale.x), fabs(1.0f * m_Scale.y), fabs(1.0f * m_Scale.z));
-
-				bool sts = CollisionAABB(aabbBox, aabbPlayer);
-
-				if (sts)
-				{
-					m_BulletEquip = BULLET_KIND::CHANGE_Y_AXSIS;
-				}
-				else
-				{
-				}
-			}
-		}
-
-		// アイテムZのとの当たり判定
-		{
-			std::vector<Item_Z*> itemZList = scene->GetGameObjects<Item_Z>();
-			for (const auto& itemObj : itemZList)
-			{
-				Vector3 position = itemObj->GetPosition();
-				Vector3 scale = itemObj->GetScale();
-
-				AABB aabbBox;
-				AABB aabbPlayer;
-
-				aabbBox = SetAABB(position, fabs(2.0f * scale.x), fabs(2.0f * scale.y), fabs(2.0f * scale.z));
-				aabbPlayer = SetAABB(m_Position, fabs(1.0f * m_Scale.x), fabs(1.0f * m_Scale.y), fabs(1.0f * m_Scale.z));
-
-				bool sts = CollisionAABB(aabbBox, aabbPlayer);
-
-				if (sts)
-				{
-					m_BulletEquip = BULLET_KIND::CHANGE_Z_AXSIS;
-				}
-			}
-		}
-	}
 
 	// 位置が０以下なら地面位置にセットする
 	if (m_Position.y < groundHeight && m_Velocity.y < 0.0f)
 	{
 		m_Position.y = groundHeight;
 		m_Velocity.y = 0.0f;
-	}
-
-	// ゴールとの当たり判定
-	{
-		Goal* goal = scene->GetGameObject<Goal>();
-
-		if (goal)
-		{
-			Vector3 position = goal->GetPosition();
-			Vector3 scale = goal->GetScale();
-
-			AABB aabbBox;
-			AABB aabbPlayer;
-
-			aabbBox = SetAABB(position, fabs(2.0f * scale.x), fabs(2.0f * scale.y), fabs(2.0f * scale.z));
-			aabbPlayer = SetAABB(m_Position, fabs(1.0f * m_Scale.x), fabs(1.0f * m_Scale.y), fabs(1.0f * m_Scale.z));
-
-			bool sts = CollisionAABB(aabbBox, aabbPlayer);
-
-			if (sts)
-			{
-				goal->SetDestroy();
-			}
-		}
 	}
 
 	////TODO:ブレンドレートが初期化できてないからタイミングを見つける
@@ -349,33 +250,13 @@ void Player::Update()
 	//}
 	//m_Frame++;
 
-	if (Input::GetKeyPress('W'))
-	{
-		m_BlendRate += 0.1f;
-		m_Frame++;
-
-	}
-	else if (Input::GetKeyPress('S'))
-	{
-		m_BlendRate += 0.1f;
-		m_Frame--;
-	}
-	else
-	{
-		m_BlendRate -= 0.1f;
-		m_Frame++;
-	}
-
-	if (m_BlendRate > 1.0f)
-		m_BlendRate = 1.0f;
-	if (m_BlendRate < 0.0f)
-		m_BlendRate = 0.0f;
+	CharacterBase::Update();
 }
 
 
 void Player::PreDraw()
 {
-	m_Model->Update("Idle", m_Frame, "Run", m_Frame, m_BlendRate);
+	m_pModel->Update(m_PrevAnimation, m_PrevAnimationFrame, m_NowAnimation, m_NowAnimationFrame, m_BlendRate);
 }
 
 void Player::SetCamera(PlayerCamera* _camera)

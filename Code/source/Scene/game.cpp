@@ -67,6 +67,7 @@ void Game::Init()
 		GetGameObject<Player>()->SetCamera(pCamera);
 	}
 
+
 	// チェック完了
 	{
 		grandpa* pGrandpa = GetGameObject<grandpa>();
@@ -242,6 +243,14 @@ void Game::Draw()
 
 					ImGui::TreePop();
 				}
+				if (ImGui::TreeNode("Velocity"))
+				{
+					ImGui::Text("X:%f", pPlayer->GetVelocity().x);
+					ImGui::Text("Y:%f", pPlayer->GetVelocity().y);
+					ImGui::Text("Z:%f", pPlayer->GetVelocity().z);
+
+					ImGui::TreePop();
+				}
 				if (ImGui::TreeNode("Collision"))
 				{
 					ImGui::Text("MAX - X:%f", pPlayer->GetAABBCollision().max.x);
@@ -251,65 +260,111 @@ void Game::Draw()
 					ImGui::Text("MIN - X:%f", pPlayer->GetAABBCollision().min.x);
 					ImGui::Text("MIN - Y:%f", pPlayer->GetAABBCollision().min.y);
 					ImGui::Text("MIN - Z:%f", pPlayer->GetAABBCollision().min.z);
-
+					ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
 					ImGui::TreePop();
 				}
-				if (ImGui::TreeNode("AnimationName"))
+				if (ImGui::TreeNode("Animation"))
 				{
-					ImGui::Text("NowAnimationName  :%s", pPlayer->GetModel()->GetNowAnimName(), pPlayer->GetModel()->GetNowAnimName() + 1);
-					ImGui::Text("PrevAnimationName :%s", pPlayer->GetModel()->GetPrevAnimName(), pPlayer->GetModel()->GetPrevAnimName() + 1);
+					ImGui::Text("NowAnimationName  :%s", pPlayer->GetNowAnimName(), pPlayer->GetNowAnimName() + 1);
+					ImGui::Text("NowAnimationFrame :%d", pPlayer->GetNowAnimationFrame());
+					ImGui::Text("---------------------------------------------");
+					ImGui::Text("PrevAnimationName :%s", pPlayer->GetPrevAnimName(), pPlayer->GetPrevAnimName() + 1);
+					ImGui::Text("PrevAnimationFrame :%d", pPlayer->GetPrevAnimationFrame());
+					ImGui::Text("---------------------------------------------");
 
 					ImGui::TreePop();
 				}
 
-				ImGui::Text("BlendRate:%f", *pPlayer->GetModel()->GetBlendRate());
-				ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
+				if (ImGui::Button("Slomo"))
+				{
+					pPlayer->SetTime(0.5f);
+				}
+				if (ImGui::Button("Normal"))
+				{
+					pPlayer->SetTime(1.0f);
+				}
+
+				ImGui::Text("Time:%f", pPlayer->GetTime());
 
 				ImGui::TreePop();
 			}
 		}
 
-		if (GetGameObject<grandpa>())
+		// grandpa GPU
 		{
-			grandpa* pPlayer = GetGameObject<grandpa>();
-			float test = 3.0f;
-
-			if (ImGui::TreeNode("grandpaInfo"))
+			if (GetGameObject<grandpa>())
 			{
-				if (ImGui::TreeNode("Position"))
+				grandpa* pPlayer = GetGameObject<grandpa>();
+				float test = 3.0f;
+
+				if (ImGui::TreeNode("grandpaInfo"))
 				{
-					ImGui::Text("X:%f", pPlayer->GetPosition().x);
-					ImGui::Text("Y:%f", pPlayer->GetPosition().y);
-					ImGui::Text("Z:%f", pPlayer->GetPosition().z);
+					if (ImGui::TreeNode("Position"))
+					{
+						Vector3 playerPos = pPlayer->GetPosition();
+						ImGui::InputFloat("X:%f", &playerPos.x);
+						ImGui::InputFloat("Y:%f", &playerPos.y);
+						ImGui::InputFloat("Z:%f", &playerPos.z);
+						pPlayer->SetPosition(playerPos);
+
+						ImGui::TreePop();
+					}
+					if (ImGui::TreeNode("Scale"))
+					{
+						ImGui::Text("X:%f", pPlayer->GetScale().x);
+						ImGui::Text("Y:%f", pPlayer->GetScale().y);
+						ImGui::Text("Z:%f", pPlayer->GetScale().z);
+
+						ImGui::TreePop();
+					}
+					if (ImGui::TreeNode("Velocity"))
+					{
+						ImGui::Text("X:%f", pPlayer->GetVelocity().x);
+						ImGui::Text("Y:%f", pPlayer->GetVelocity().y);
+						ImGui::Text("Z:%f", pPlayer->GetVelocity().z);
+
+						ImGui::TreePop();
+					}
+					if (ImGui::TreeNode("Collision"))
+					{
+						ImGui::Text("MAX - X:%f", pPlayer->GetAABBCollision().max.x);
+						ImGui::Text("MAX - Y:%f", pPlayer->GetAABBCollision().max.y);
+						ImGui::Text("MAX - Z:%f", pPlayer->GetAABBCollision().max.z);
+						ImGui::Text("---------------------------------------------");
+						ImGui::Text("MIN - X:%f", pPlayer->GetAABBCollision().min.x);
+						ImGui::Text("MIN - Y:%f", pPlayer->GetAABBCollision().min.y);
+						ImGui::Text("MIN - Z:%f", pPlayer->GetAABBCollision().min.z);
+						ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
+						ImGui::TreePop();
+					}
+					if (ImGui::TreeNode("Animation"))
+					{
+						ImGui::Text("NowAnimationName  :%s", pPlayer->GetNowAnimName(), pPlayer->GetNowAnimName() + 1);
+						ImGui::Text("NowAnimationFrame :%d", pPlayer->GetNowAnimationFrame());
+						ImGui::Text("---------------------------------------------");
+						ImGui::Text("PrevAnimationName :%s", pPlayer->GetPrevAnimName(), pPlayer->GetPrevAnimName() + 1);
+						ImGui::Text("PrevAnimationFrame :%d", pPlayer->GetPrevAnimationFrame());
+						ImGui::Text("---------------------------------------------");
+
+						ImGui::TreePop();
+					}
+
+					if (ImGui::Button("Slomo"))
+					{
+						pPlayer->SetTime(0.5f);
+					}
+					if (ImGui::Button("Normal"))
+					{
+						pPlayer->SetTime(1.0f);
+					}
+					
+					ImGui::Text("Time:%f", pPlayer->GetTime());
 
 					ImGui::TreePop();
 				}
-				if (ImGui::TreeNode("Scale"))
-				{
-					ImGui::Text("X:%f", pPlayer->GetScale().x);
-					ImGui::Text("Y:%f", pPlayer->GetScale().y);
-					ImGui::Text("Z:%f", pPlayer->GetScale().z);
-
-					ImGui::TreePop();
-				}
-				if (ImGui::TreeNode("Collision"))
-				{
-					ImGui::Text("MAX - X:%f", pPlayer->GetAABBCollision().max.x);
-					ImGui::Text("MAX - Y:%f", pPlayer->GetAABBCollision().max.y);
-					ImGui::Text("MAX - Z:%f", pPlayer->GetAABBCollision().max.z);
-					ImGui::Text("---------------------------------------------");
-					ImGui::Text("MIN - X:%f", pPlayer->GetAABBCollision().min.x);
-					ImGui::Text("MIN - Y:%f", pPlayer->GetAABBCollision().min.y);
-					ImGui::Text("MIN - Z:%f", pPlayer->GetAABBCollision().min.z);
-
-					ImGui::TreePop();
-				}
-
-				ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
-
-				ImGui::TreePop();
 			}
 		}
+
 
 		ImGui::End();
 	}
@@ -325,13 +380,15 @@ void Game::HitCheck()
 	if (CollisionAABB(pPlayer->GetAABBCollision(), pGrandpa->GetAABBCollision()))
 	{
 		pPlayer->SetIsHit(true);
+
 		pGrandpa->SetIsHit(true);
-		pGrandpa->GetModel()->SetNextAnimation("Die");
+		pGrandpa->SetNextAnimation("Die");
+		pGrandpa->CalcHitStop(26,71,0);
 	}
 	else
 	{
 		pPlayer->SetIsHit(false);
 		pGrandpa->SetIsHit(false);
-		pGrandpa->GetModel()->SetNextAnimation("Idle");
+		pGrandpa->SetNextAnimation("Idle");
 	}
 }

@@ -18,7 +18,6 @@ HWND Input::m_WindowInfo;
 
 void Input::Init(HWND hWnd)
 {
-	m_CursorTrap = true;
 
 	m_WindowInfo = hWnd;
 
@@ -53,8 +52,8 @@ void Input::Update()
 	memcpy( m_OldKeyState, m_KeyState, 256 );	// 1フレーム前のキー状態を転記して保存
 	GetKeyboardState( m_KeyState );				// 新しいキー状態を取得
 
-	//m_OldMousePos = m_NowMousePos;	// １フレーム前のマウス位置を保存
-	//GetCursorPos(&m_NowMousePos);	// 現在のマウス位置を取得/保存
+	m_OldMousePos = m_NowMousePos;	// １フレーム前のマウス位置を保存  
+	GetCursorPos(&m_NowMousePos);	// 現在のマウス位置を取得/保存
 
 	// カーソルがウィンドウから出ないようにする
 	if (m_CursorTrap)
@@ -121,8 +120,8 @@ DirectX::SimpleMath::Vector2 Input::GetMouseMove()
 {
 
 	DirectX::SimpleMath::Vector2 mouseMove;
-	mouseMove.x = m_NowMousePos.x;
-	mouseMove.y = m_NowMousePos.y;
+	mouseMove.x = m_NowMousePos.x - m_OldMousePos.x;
+	mouseMove.y = m_NowMousePos.y - m_OldMousePos.y;
 
 	return mouseMove;
 }

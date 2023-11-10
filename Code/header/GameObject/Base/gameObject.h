@@ -16,11 +16,13 @@ public:
 
 
 	DirectX::SimpleMath::Vector3 GetPosition() { return m_Position; }
-	DirectX::SimpleMath::Vector3* GetPositionAdress() { return &m_Position; }
-	DirectX::SimpleMath::Vector3 GetRotation() { return m_Rotation; }
-	DirectX::SimpleMath::Vector3 GetScale() { return m_Scale; }
 	void SetPosition(DirectX::SimpleMath::Vector3 Position) { m_Position = Position; }
+	DirectX::SimpleMath::Vector3* GetPositionAdress() { return &m_Position; }
+
+	DirectX::SimpleMath::Vector3 GetRotation() { return m_Rotation; }
 	void SetRotation(DirectX::SimpleMath::Vector3 Rotation) { m_Rotation = Rotation; }
+
+	DirectX::SimpleMath::Vector3 GetScale() { return m_Scale; }
 	void SetScale(DirectX::SimpleMath::Vector3 Scale) { m_Scale = Scale; }
 
 
