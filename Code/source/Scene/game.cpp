@@ -383,7 +383,7 @@ void Game::HitCheck()
 
 		pGrandpa->SetIsHit(true);
 		pGrandpa->SetNextAnimation("Die");
-		pGrandpa->CalcHitStop(26,71,0);
+		pGrandpa->CalcHitStop(26,71,0.5f);
 	}
 	else
 	{

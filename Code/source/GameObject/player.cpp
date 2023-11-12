@@ -26,13 +26,19 @@ void Player::Init()
 {
 	CharacterBase::Init();
 
+	// シェーダーの読み込み
 	AddComponent<Shader>()->Load("shader\\vertexLightingOneSkinVS.cso", "shader\\vertexLightingPS.cso");
 	m_pModel = AddComponent<AnimationModel>();
 	
-	m_pModel->Load("asset\\model\\Player_Tpose.fbx");							// animation ok
-	m_pModel->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
-	m_pModel->LoadAnimation("asset\\model\\Player_Walk.fbx", "Run");
-	m_pModel->LoadAnimation("asset\\model\\Player_Punching.fbx", "Punching");
+	// モーション読み込み
+	m_pModel->Load("asset\\model\\Player_Tpose.fbx");
+	//m_pModel->LoadAnimation("asset\\model\\Player_Idle.fbx", "Idle");
+	//m_pModel->LoadAnimation("asset\\model\\Player_Walk.fbx", "Walk");
+	//m_pModel->LoadAnimation("asset\\model\\Player_Punching.fbx", "Punching");
+
+	m_pModel->LoadAnimation("asset\\model\\Player_Idle.fbx", ANIMATION_ID_IDLE);
+	m_pModel->LoadAnimation("asset\\model\\Player_Walk.fbx", ANIMATION_ID_WALK);
+	m_pModel->LoadAnimation("asset\\model\\Player_Punching.fbx", ANIMATION_ID_PUNCHING);
 
 	AddComponent<Shadow>()->SetSize(1.5f);
 
@@ -45,6 +51,10 @@ void Player::Init()
 	// モーション変数初期化
 	m_NowAnimation = "Idle";
 	m_PrevAnimation = "Idle";
+
+	m_NowAnimationID = ANIMATION_ID_IDLE;
+	m_PrevAnimationID = ANIMATION_ID_IDLE;
+
 }
 
 void Player::Update()
@@ -71,29 +81,30 @@ void Player::Update()
 	// 前方ベクトルを取得
 	Vector3 forward = m_pCamera->GetCameraFrontVec();
 	forward.Normalize();
-
+	// 移動のスピードが早すぎたので値を補正
+	// 志望コード
 	forward.x *= 0.3;
 	forward.y = 0;
 	forward.z *= 0.3;
 
 	// 前後移動
-	if (Input::GetKeyPress('W'))
+	if (Input::GetUniversulPress(UNIVERSAL_INPUT_ID::FORWARD))
 	{
 		SetVelocity(forward);
-		SetNextAnimation("Run");
+		SetNextAnimation(ANIMATION_ID_WALK);
 	}
-	else if (Input::GetKeyPress('S'))
+	else if (Input::GetUniversulPress(UNIVERSAL_INPUT_ID::BACKWORD))
 	{
 		SetVelocity(-forward);
-		SetNextAnimation("Run");
+		SetNextAnimation(ANIMATION_ID_WALK);
 	}
-	else if (Input::GetKeyPress('P'))
+	else if (Input::GetUniversulPress(UNIVERSAL_INPUT_ID::PUNCHING))
 	{
-		SetNextAnimation("Punching");
+		SetNextAnimation(ANIMATION_ID_PUNCHING);
 	}
 	else
 	{
-		SetNextAnimation("Idle");
+		SetNextAnimation(ANIMATION_ID_IDLE);
 	}
 
 	//ジャンプ
@@ -223,40 +234,13 @@ void Player::Update()
 		m_Velocity.y = 0.0f;
 	}
 
-	////TODO:ブレンドレートが初期化できてないからタイミングを見つける
-	////ブレンドレート自体をモデルの方に持たせてもいいかも
-	//if (Input::GetKeyPress('W'))
-	//{
-	//	m_Model->SetNextAnimation("Run");
-	//	m_BlendRate += 0.1f;
-
-	//}
-	//else if (Input::GetKeyPress('S'))
-	//{
-	//	m_Model->SetNextAnimation("Run");
-	//	m_BlendRate += 0.1f;
-	//}
-	//else if (Input::GetKeyPress('P'))
-	//{
-	//	//TODO: パンチ中は手の先に当たり判定を付けて殴れるようにする
-	//	m_Model->SetNextAnimation("Punching");
-	//	m_BlendRate += 0.1f;
-	//}
-	//else if(m_Model->GetIsAnimBlend())
-	//{
-	//	m_Model->SetNextAnimation("Idle");
-	//	m_Model->SetBlendSpeed(0.1f);
-	//	m_BlendRate += 0.1f;
-	//}
-	//m_Frame++;
-
 	CharacterBase::Update();
 }
 
 
 void Player::PreDraw()
 {
-	m_pModel->Update(m_PrevAnimation, m_PrevAnimationFrame, m_NowAnimation, m_NowAnimationFrame, m_BlendRate);
+	m_pModel->Update(m_PrevAnimationID, m_PrevAnimationFrame, m_NowAnimationID, m_NowAnimationFrame, m_BlendRate);
 }
 
 void Player::SetCamera(PlayerCamera* _camera)

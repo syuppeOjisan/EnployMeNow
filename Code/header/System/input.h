@@ -4,17 +4,28 @@
 #pragma comment (lib, "xinput.lib")
 #include <Xinput.h>
 
-// コントローラーとキーボードの入力情報を一つにまとめたもの
-enum UNIVERSUL_INPUT_CODE
+// 入力状態用の構造体
+struct UNIVERSAL_INPUT_STATE
+{
+	bool Forward;
+	bool BackWord;
+	bool Right;
+	bool Left;
+
+	bool Jump;
+	bool Punching;
+};
+
+// 入力状態を取得するときのID
+enum UNIVERSAL_INPUT_ID
 {
 	FORWARD,
-	BACKWARD,
+	BACKWORD,
 	RIGHT,
 	LEFT,
 
 	JUMP,
-	BULLETMODE_01,
-	BULLETMODE_02,
+	PUNCHING,
 };
 
 class Input
@@ -23,6 +34,11 @@ private:
 	static const int KEYCOUNT = 256;
 	static BYTE m_OldKeyState[KEYCOUNT];
 	static BYTE m_KeyState[KEYCOUNT];
+
+
+	static UNIVERSAL_INPUT_STATE m_OldInputState;	// １フレーム前の入力状態
+	static UNIVERSAL_INPUT_STATE m_NowInputState;	// 現在の入力状態
+
 
 	static POINT	m_WindowCenter;
 	static POINT	m_NowMousePos;			// マウスポインタの位置 - 今
@@ -38,6 +54,8 @@ public:
 	static void Init(HWND hWnd);
 	static void Uninit();
 	static void Update();
+
+	static void UpdateUnivInput(void);
 	
 	// キーの押下状態を返す
 	static bool GetKeyPress( BYTE KeyCode );	
@@ -45,6 +63,11 @@ public:
 	static bool GetKeyTrigger( BYTE KeyCode );
 	// キーが離されたかどうかを返す
 	static bool GetKeyReleased( BYTE KeyCode );
+
+	// ユニバーサル入力状態を取得 - 押下
+	static bool GetUniversulPress(UNIVERSAL_INPUT_ID _inputID);
+	// ユニバーサル入力状態を取得 - トリガー
+	static bool GetUniversulTrigger(UNIVERSAL_INPUT_ID _inputID);
 
 	static POINT GetNowMoucePos();						// マウスの現在位置を返す - スクリーン座標
 	static POINT GetNowMoucePosClient();				// マウスの現在位置を返す - クライアント座標

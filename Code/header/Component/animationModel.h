@@ -44,6 +44,7 @@ class AnimationModel : public Component
 private:
 	const aiScene* m_AiScene = nullptr;
 	std::unordered_map<std::string, const aiScene*> m_Animation;
+	std::unordered_map<int, const aiScene*> m_AnimationNew;
 
 	ID3D11Buffer**	m_VertexBuffer;			// 頂点バッファ
 	ID3D11Buffer**	m_IndexBuffer;			// インデックスバッファ
@@ -62,12 +63,15 @@ public:
 
 	void Load( const char *FileName );
 	void LoadAnimation( const char *FileName, const char *Name );
+	void LoadAnimation(const char* _fileName, int _animID);
 	void Uninit() override;
-	void Update(const char *_prevAnimation, float prevAnimatonFrame, const char *_nowAnimation, float _nowAnimationFrame, float BlendRate);
+	void Update(const char *_prevAnimation, float _prevAnimationFrame, const char *_nowAnimation, float _nowAnimationFrame, float BlendRate);
+	void Update(int _prevAnimationID, float _prevAnimationFrame, int _nowAnimationID, float _nowAnimationFrame, float BlendRate);
 
 
 	void Draw() override;
 
 	// 指定されたアニメーションがロードされているかをチェック
 	bool CheckIsAnimation(const char* _animName);
+	bool CheckIsAnimation(int _animID);
 };

@@ -41,10 +41,10 @@ public:
 	// 時間管理変数をゲット
 	float GetTime(void) { return m_Time; }
 
-	// モーション変更 - モデルデータ指定なし
+	// モーション変更 - 文字列指定
 	bool SetNextAnimation(const char* _nextAnimation);
-	// モーション変更　- モデルデータ指定あり
-	bool SetNextAnimation(AnimationModel* _pModel, const char* _nextAnimation);
+	// モーション変更 - ID指定
+	bool SetNextAnimation(int _animID);
 
 	/// <summary>
 	/// ヒットストップの計算を行います
@@ -77,6 +77,8 @@ protected:
 	float				m_PrevAnimationFrame = 0;	// 前再生していたアニメーションフレーム
 	const char*			m_NowAnimation;				// 今のモーション名
 	const char*			m_PrevAnimation;			// 前回のモーション名
+	int					m_NowAnimationID;			// 今のモーションID
+	int					m_PrevAnimationID;			// 前回のモーションID
 
 	bool				m_IsHit;					// 当たり状態
 	bool				m_IsAnimBlendOver;		// アニメーションブレンドが終わったかどうか

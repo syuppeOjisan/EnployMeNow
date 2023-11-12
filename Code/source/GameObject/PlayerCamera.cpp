@@ -66,9 +66,6 @@ void PlayerCamera::Update()
 		CamFocus.y = TargetPos.y;
 		CamFocus.z = TargetPos.z;
 		this->m_Target = CamFocus;
-
-		// マウスの数値を表示
-		//std::cout << "m_BackVec X[" << m_BackVec.x << "] Y[" << m_BackVec.y << "]" << "Z[" << m_BackVec.z << "]" << std::endl;
 	}
 	else
 	{

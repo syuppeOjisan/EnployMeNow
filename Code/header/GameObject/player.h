@@ -34,4 +34,11 @@ public:
 private:
 	class	PlayerCamera* m_pCamera;	// プレイヤー用カメラ
 	bool	m_isLanding;				// 一度しかジャンプできないようにする
+
+	enum
+	{
+		ANIMATION_ID_IDLE = 0,
+		ANIMATION_ID_WALK,
+		ANIMATION_ID_PUNCHING,
+	};
 };

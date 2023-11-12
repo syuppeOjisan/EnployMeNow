@@ -267,6 +267,12 @@ void AnimationModel::LoadAnimation(const char* FileName, const char* Name)
 
 }
 
+void AnimationModel::LoadAnimation(const char* _fileName, int _animID)
+{
+	m_AnimationNew[_animID] = aiImportFile(_fileName, aiProcess_ConvertToLeftHanded);
+	assert(m_AnimationNew[_animID]);
+}
+
 void AnimationModel::CreateBone(aiNode* node)
 {
 	BONE bone;
@@ -393,7 +399,6 @@ void AnimationModel::Update(const char* _prevAnimation, float _prevAnimationFram
 
 
 		//再帰的にボーンマトリクスを更新
-	//	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
 		aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
 
 		UpdateBoneMatrix(m_AiScene->mRootNode, rootMatrix);
@@ -434,6 +439,128 @@ void AnimationModel::Update(const char* _prevAnimation, float _prevAnimationFram
 
 }
 
+void AnimationModel::Update(int _prevAnimationID, float _prevAnimationFrame, int _nowAnimationID, float _nowAnimationFrame, float BlendRate)
+{
+	// アニメーションありか？
+	if (m_AnimationNew.count(_prevAnimationID) == 0)
+		return;
+	if (m_AnimationNew.count(_nowAnimationID) == 0)
+		return;
+
+	if (!m_AnimationNew[_prevAnimationID]->HasAnimations())
+		return;
+	if (!m_AnimationNew[_nowAnimationID]->HasAnimations())
+		return;
+
+
+	// CPUスキニングでのアニメーションブレンド処理
+	{
+		//アニメーションデータからボーンマトリクス算出
+		aiAnimation* animation1 = m_AnimationNew[_prevAnimationID]->mAnimations[0];
+		aiAnimation* animation2 = m_AnimationNew[_nowAnimationID]->mAnimations[0];
+
+		// 現在のアニメーションについて関連するボーンを全て更新
+		for (unsigned int c = 0; c < animation1->mNumChannels; c++)
+		{
+			aiNodeAnim* nodeAnim = animation1->mChannels[c];
+
+			BONE* bone = &m_Bone[nodeAnim->mNodeName.C_Str()];
+
+			int f;
+
+			f = (int)_prevAnimationFrame % nodeAnim->mNumRotationKeys;//簡易実装
+			aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
+
+			f = (int)_prevAnimationFrame % nodeAnim->mNumPositionKeys;//簡易実装
+			aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
+
+			bone->BlendPosFrom = pos;
+			bone->BlendRFrom = rot;
+		}
+
+		// 現在のアニメーション2について関連するボーンを全て更新
+		for (unsigned int c = 0; c < animation2->mNumChannels; c++)
+		{
+			aiNodeAnim* nodeAnim = animation2->mChannels[c];
+
+			BONE* bone = &m_Bone[nodeAnim->mNodeName.C_Str()];
+
+			int f;
+
+			f = (int)_nowAnimationFrame % nodeAnim->mNumRotationKeys;//簡易実装
+			aiQuaternion rot = nodeAnim->mRotationKeys[f].mValue;
+
+			f = (int)_nowAnimationFrame % nodeAnim->mNumPositionKeys;//簡易実装
+			aiVector3D pos = nodeAnim->mPositionKeys[f].mValue;
+
+			bone->BlendPosTo = pos;
+			bone->BlendRTo = rot;
+		}
+
+		// ブレンド
+		for (unsigned int c = 0; c < animation2->mNumChannels; c++)
+		{
+			aiNodeAnim* nodeAnim = animation2->mChannels[c];
+
+			BONE* bone = &m_Bone[nodeAnim->mNodeName.C_Str()];
+
+			// 位置のブレンド
+			aiVector3D pos1 = bone->BlendPosFrom;
+			aiVector3D pos2 = bone->BlendPosTo;
+
+			aiVector3D pos = pos1 * (1.0f - BlendRate) + pos2 * BlendRate;//線形補間
+
+			// 姿勢のブレンド
+			aiQuaternion rot1 = bone->BlendRFrom;
+			aiQuaternion rot2 = bone->BlendRTo;
+
+			aiQuaternion rot;
+			aiQuaternion::Interpolate(rot, rot1, rot2, BlendRate);//球面線形補間
+
+			bone->AnimationMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), rot, pos);
+		}
+
+
+		//再帰的にボーンマトリクスを更新
+		aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), aiQuaternion(AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
+
+		UpdateBoneMatrix(m_AiScene->mRootNode, rootMatrix);
+
+		// 20230909 ボーンコンビネーション行列の配列を生成する
+		std::vector<aiMatrix4x4> bonecombmtxcontainer;					// 20230909
+		bonecombmtxcontainer.resize(m_Bone.size());						// 20230909
+		for (auto data : m_Bone) {										// 20230909
+			bonecombmtxcontainer[data.second.idx] = data.second.Matrix;	// 20230909
+		}																// 20230909
+
+		// 20230909 転置
+		for (auto& bcmtx : bonecombmtxcontainer)
+		{
+			// 転置する
+			bcmtx.Transpose();
+		}
+
+		// 20230909-02 定数バッファに反映させる
+		D3D11_MAPPED_SUBRESOURCE MappedResource;
+		CBBoneCombMatrx* pData = nullptr;
+
+		HRESULT hr = Renderer::GetDeviceContext()->Map(
+			m_BoneCombMtxCBuffer,
+			0,
+			D3D11_MAP_WRITE_DISCARD,
+			0,
+			&MappedResource);
+
+		if (SUCCEEDED(hr)) {
+			pData = (CBBoneCombMatrx*)MappedResource.pData;
+			memcpy(pData->BoneCombMtx,
+				bonecombmtxcontainer.data(),
+				sizeof(aiMatrix4x4) * bonecombmtxcontainer.size());
+			Renderer::GetDeviceContext()->Unmap(m_BoneCombMtxCBuffer, 0);
+		}
+	}
+}
+
 void AnimationModel::UpdateBoneMatrix(aiNode* node, aiMatrix4x4 matrix)
 {
 	// 引数で渡されたノード名をキーとしてボーン情報を取得する
@@ -463,6 +590,17 @@ bool AnimationModel::CheckIsAnimation(const char* _animName)
 	if (m_Animation.count(_animName) == 0)
 		return false;
 	if (!m_Animation[_animName]->HasAnimations())
+		return false;
+
+	return true;
+}
+
+bool AnimationModel::CheckIsAnimation(int _animID)
+{
+	// 指定されたアニメーションがロードされているかをチェック
+	if (m_AnimationNew.count(_animID) == 0)
+		return false;
+	if (!m_AnimationNew[_animID]->HasAnimations())
 		return false;
 
 	return true;

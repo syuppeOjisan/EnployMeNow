@@ -3,8 +3,12 @@
 #include "System/input.h"
 
 const int Input::KEYCOUNT;
+
 BYTE Input::m_OldKeyState[KEYCOUNT];
 BYTE Input::m_KeyState[KEYCOUNT];
+
+UNIVERSAL_INPUT_STATE Input::m_NowInputState;
+UNIVERSAL_INPUT_STATE Input::m_OldInputState;
 
 POINT Input::m_WindowCenter;
 POINT Input::m_NowMousePos;
@@ -23,6 +27,9 @@ void Input::Init(HWND hWnd)
 
 	memset( m_OldKeyState, 0, 256 );
 	memset( m_KeyState, 0, 256 );
+
+	m_NowInputState = { false };
+	m_OldInputState = { false };
 
 	// クライアントウィンドウのサイズを取得
 	RECT rc;
@@ -55,6 +62,8 @@ void Input::Update()
 	m_OldMousePos = m_NowMousePos;	// １フレーム前のマウス位置を保存  
 	GetCursorPos(&m_NowMousePos);	// 現在のマウス位置を取得/保存
 
+	UpdateUnivInput();	// ユニバーサル入力状態を更新
+
 	// カーソルがウィンドウから出ないようにする
 	if (m_CursorTrap)
 	{
@@ -83,6 +92,76 @@ void Input::Update()
 
 }
 
+void Input::UpdateUnivInput()
+{
+	// 前回のフレームの入力状態を保存
+	m_OldInputState = m_NowInputState;
+
+	// 入力状態を更新
+	{
+		// 前進
+		if (Input::GetKeyPress('W'))
+		{
+			m_NowInputState.Forward = true;
+		}
+		else
+		{
+			m_NowInputState.Forward = false;
+		}
+
+		// 後進
+		if (Input::GetKeyPress('S'))
+		{
+			m_NowInputState.BackWord = true;
+		}
+		else
+		{
+			m_NowInputState.BackWord = false;
+		}
+
+		// 左
+		if (Input::GetKeyPress('A'))
+		{
+			m_NowInputState.Left = true;
+		}
+		else
+		{
+			m_NowInputState.Left = false;
+		}
+
+		// 右
+		if (Input::GetKeyPress('D'))
+		{
+			m_NowInputState.Right = true;
+		}
+		else
+		{
+			m_NowInputState.Right = false;
+		}
+
+		// ジャンプ
+		if (Input::GetKeyPress(VK_SPACE))
+		{
+			m_NowInputState.Jump = true;
+		}
+		else
+		{
+			m_NowInputState.Jump = false;
+		}
+
+		// パンチ
+		if (Input::GetKeyPress('P'))
+		{
+			m_NowInputState.Punching = true;
+		}
+		else
+		{
+			m_NowInputState.Punching = false;
+		}
+	}
+
+}
+
 bool Input::GetKeyPress(BYTE KeyCode)
 {
 	return (m_KeyState[KeyCode] & 0x80);
@@ -96,6 +175,40 @@ bool Input::GetKeyTrigger(BYTE KeyCode)
 bool Input::GetKeyReleased(BYTE KeyCode)
 {
 	return (!(m_KeyState[KeyCode] & 0x80) && (m_OldKeyState[KeyCode] & 0x80));
+}
+
+bool Input::GetUniversulPress(UNIVERSAL_INPUT_ID _inputID)
+{
+	switch (_inputID)
+	{
+	case FORWARD:
+		return m_NowInputState.Forward;
+		break;
+
+	case BACKWORD:
+		return m_NowInputState.BackWord;
+		break;
+
+	case RIGHT:
+		return m_NowInputState.Right;
+		break;
+
+	case LEFT:
+		return m_NowInputState.Left;
+		break;
+
+	case JUMP:
+		return m_NowInputState.Jump;
+		break;
+
+	case PUNCHING:
+		return m_NowInputState.Punching;
+		break;
+
+	default:
+		return false;
+		break;
+	}
 }
 
 POINT Input::GetNowMoucePos()
