@@ -45,7 +45,6 @@ void Game::Init()
 
 	AddGameObject<Sky>(1);
 	AddGameObject<Field>(1);
-	AddGameObject<Player>(1);
 	AddGameObject<Score>(3);
 	AddGameObject<grandpa>(1);
 
@@ -57,6 +56,14 @@ void Game::Init()
 
 	//// 味方追加
 	//AddGameObject<Battery>(1)->SetPosition(Vector3(20.0f, 0.0f, 5.0f));
+
+	{
+		AddGameObject<Player>(1);
+		Player* pPlayer = GetGameObject<Player>();
+		InputIntarface* pInput = new KeyboardInput();	// キーボード入力デバイスを渡す
+		pPlayer->SetInput(pInput);
+	}
+
 
 	// チェック完了
 	{
@@ -235,6 +242,15 @@ void Game::Draw()
 
 					ImGui::TreePop();
 				}
+				if (ImGui::TreeNode("Rotate"))
+				{
+					Vector3 rotate = pPlayer->GetRotation();
+					ImGui::DragFloat("XAxsis", &rotate.x, 0.01f);
+					ImGui::DragFloat("YAxsis", &rotate.y, 0.01f);
+					ImGui::DragFloat("ZAxsis", &rotate.z, 0.01f);
+					pPlayer->SetRotation(rotate);
+					ImGui::TreePop();
+				}
 				if (ImGui::TreeNode("Scale"))
 				{
 					ImGui::Text("X:%f", pPlayer->GetScale().x);
@@ -359,6 +375,31 @@ void Game::Draw()
 					}
 					
 					ImGui::Text("Time:%f", pPlayer->GetTime());
+
+					ImGui::TreePop();
+				}
+			}
+		}
+
+		// Camera GUI
+		{
+			if (GetGameObject<PlayerCamera>())
+			{
+
+				if (ImGui::TreeNode("Camera"))
+				{
+					PlayerCamera* pCamera = GetGameObject<PlayerCamera>();
+					if (ImGui::TreeNode("Shake"))
+					{
+						ImGui::DragFloat("shake", pCamera->GetShake(), 0.01f);
+						ImGui::DragFloat("shakeWidth", pCamera->GetShakeWidth(), 0.01f);
+						ImGui::DragFloat("shakeSpeed", pCamera->GetShakeSpeed(), 0.01f);
+						ImGui::Checkbox("shakeDo", pCamera->GetShakeDO());
+
+						ImGui::TreePop();
+					}
+
+					ImGui::Checkbox("MouseMove", pCamera->GetCamMove());
 
 					ImGui::TreePop();
 				}

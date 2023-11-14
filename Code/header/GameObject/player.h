@@ -2,6 +2,7 @@
 
 #include "Base/CharacterBase.h"
 
+#include "System/KeyboardInput.h"
 #include "GameObject/PlayerCamera.h"
 #include "Component/animationModel.h"
 #include "Component/audio.h"
@@ -29,16 +30,26 @@ public:
 	void Update() override;
 	void PreDraw() override;
 
+	/// <summary>
+	/// プレイヤーに入力インターフェースをセット
+	/// </summary>
+	/// <param name="_input">入力インターフェース</param>
+	void SetInput(InputIntarface* _input) { m_pInput = _input; m_pInput->Init(); }
+
 	void SetCamera(PlayerCamera* _camera);	// プレイヤーにカメラ情報を登録
 
 private:
 	class	PlayerCamera* m_pCamera;	// プレイヤー用カメラ
 	bool	m_isLanding;				// 一度しかジャンプできないようにする
 
+	InputIntarface* m_pInput;			// 入力インターフェース
+
 	enum
 	{
 		ANIMATION_ID_IDLE = 0,
 		ANIMATION_ID_WALK,
+		ANIMATION_ID_WALKBACK,
+		ANIMATION_ID_RUN,
 		ANIMATION_ID_PUNCHING,
 	};
 };

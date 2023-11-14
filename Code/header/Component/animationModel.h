@@ -29,8 +29,8 @@ struct CBBoneCombMatrx {
 //ボーン構造体
 struct BONE
 {
-	aiMatrix4x4		Matrix;						// 座標変換に使用する行列
-	aiMatrix4x4		AnimationMatrix;			// 自分の事だけ考えた行列
+	aiMatrix4x4		Matrix;						// 親ボーンの行列
+	aiMatrix4x4		AnimationMatrix;			// モーション時に使うこのボーン固有の行列
 	aiMatrix4x4		OffsetMatrix;				// ボーンオフセット行列
 	aiQuaternion	BlendRFrom;					// モーションブレンドする際のFROM側
 	aiQuaternion	BlendRTo;					// モーションブレンドする際のTO側

@@ -2,7 +2,7 @@
 #include "GameObject/PlayerCamera.h"
 #include "../../header/System/input.h"
 
-PlayerCamera::PlayerCamera(GameObject *_pTarget)
+PlayerCamera::PlayerCamera(CharacterBase*_pTarget)
 {
 	// ターゲットを指定
 	m_pTargetObject = _pTarget;
@@ -23,6 +23,7 @@ void PlayerCamera::Init()
 	m_Position = Vector3(0.0f, 10.0f, -50.0f);
 	m_Target = Vector3(0.0f, 0.0f, 0.0f);
 
+	// 視点移動マウス感度調整
 	m_MouseSensitivity = 0.3f;
 }
 
@@ -36,7 +37,7 @@ void PlayerCamera::Update()
 
 		// 上で作ったオフセット付きの後ろ向きベクトルにマウスの移動を加える
 		// カメラをマウスで移動させる
-		if (Input::GetisMouceMove())
+		if (Input::GetisMouceMove() && camMove)
 		{
 			Matrix mxMouseRotationY = Matrix::CreateRotationY(DirectX::XMConvertToRadians(Input::GetMouseMove().x * m_MouseSensitivity));
 			Matrix mxMouseRotationX = Matrix::CreateRotationX(DirectX::XMConvertToRadians(Input::GetMouseMove().y * m_MouseSensitivity));
@@ -53,7 +54,7 @@ void PlayerCamera::Update()
 		Vector3 TargetPos = m_pTargetObject->GetPosition();
 		float CamDistance = 13.0f; // キャラとカメラの距離
 		CamPos.x = TargetPos.x + m_BackVec.x * CamDistance;
-		CamPos.y = TargetPos.y + m_BackVec.y * CamDistance + 5.0f;
+		CamPos.y = TargetPos.y + m_BackVec.y * CamDistance + 5.0f; // 少し上から見る
 		CamPos.z = TargetPos.z + m_BackVec.z * CamDistance;
 
 		// カメラ位置を設定
@@ -62,10 +63,37 @@ void PlayerCamera::Update()
 		
 		// カメラの注視点を設定
 		Vector3 CamFocus;
+		static bool shakePuls = true;
 		CamFocus.x = TargetPos.x;
-		CamFocus.y = TargetPos.y;
+		CamFocus.y = TargetPos.y + shake;
 		CamFocus.z = TargetPos.z;
 		this->m_Target = CamFocus;
+
+		// 歩きモーションのとき（いまはプレイヤーに依存したコードなので後で直す）
+		if (shakeDO && m_pTargetObject->GetNextAnimationID() == 1)
+		{
+			if (shakePuls)
+			{
+				shake += shakeSpeed;
+				if (shake > shakeWidth)
+				{
+					shakePuls = false;
+				}
+			}
+			else if (!shakePuls)
+			{
+				shake -= shakeSpeed;
+				if (shake < -shakeWidth)
+				{
+					shakePuls = true;
+				}
+			}
+		}
+		else
+		{
+			shake = 0.0f;
+		}
+
 	}
 	else
 	{
@@ -75,7 +103,7 @@ void PlayerCamera::Update()
 	}
 }
 
-void PlayerCamera::SetTarget(GameObject* _pTarget)
+void PlayerCamera::SetTarget(CharacterBase* _pTarget)
 {
 	// ターゲット指定
 	m_pTargetObject = _pTarget;

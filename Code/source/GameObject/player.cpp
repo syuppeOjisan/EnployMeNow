@@ -38,6 +38,8 @@ void Player::Init()
 
 	m_pModel->LoadAnimation("asset\\model\\Player_Idle.fbx", ANIMATION_ID_IDLE);
 	m_pModel->LoadAnimation("asset\\model\\Player_Walk.fbx", ANIMATION_ID_WALK);
+	m_pModel->LoadAnimation("asset\\model\\Player_WalkBack.fbx", ANIMATION_ID_WALKBACK);
+	m_pModel->LoadAnimation("asset\\model\\Player_Run.fbx", ANIMATION_ID_RUN);
 	m_pModel->LoadAnimation("asset\\model\\Player_Punching.fbx", ANIMATION_ID_PUNCHING);
 
 	AddComponent<Shadow>()->SetSize(1.5f);
@@ -83,34 +85,49 @@ void Player::Update()
 	forward.Normalize();
 	// 移動のスピードが早すぎたので値を補正
 	// 志望コード
-	forward.x *= 0.3;
+	forward.x *= 0.1;
 	forward.y = 0;
-	forward.z *= 0.3;
+	forward.z *= 0.1;
 
-	// 前後移動
-	if (Input::GetUniversulPress(UNIVERSAL_INPUT_ID::FORWARD))
-	{
-		SetVelocity(forward);
-		SetNextAnimation(ANIMATION_ID_WALK);
-	}
-	else if (Input::GetUniversulPress(UNIVERSAL_INPUT_ID::BACKWORD))
-	{
-		SetVelocity(-forward);
-		SetNextAnimation(ANIMATION_ID_WALK);
-	}
-	else if (Input::GetUniversulPress(UNIVERSAL_INPUT_ID::PUNCHING))
-	{
-		SetNextAnimation(ANIMATION_ID_PUNCHING);
-	}
-	else
-	{
-		SetNextAnimation(ANIMATION_ID_IDLE);
-	}
 
-	//ジャンプ
-	if (Input::GetKeyTrigger(VK_SPACE))
+	// インターフェースを更新して使用
+	if (m_pInput)
 	{
-		m_Velocity.y = 0.2f;
+		m_pInput->Update();
+
+		// 前後移動
+		if (m_pInput->GetPressed('W'))
+		{
+			if (m_pInput->GetPressed(VK_SHIFT))
+			{
+				SetVelocity(forward * 2);
+				SetNextAnimation(ANIMATION_ID_RUN);
+			}
+			else
+			{
+				SetVelocity(forward);
+				SetNextAnimation(ANIMATION_ID_WALK);
+			}
+		}
+		else if (m_pInput->GetPressed('S'))
+		{
+			SetVelocity(-forward);
+			SetNextAnimation(ANIMATION_ID_WALKBACK);
+		}
+		else if (m_pInput->GetPressed('P'))
+		{
+			SetNextAnimation(ANIMATION_ID_PUNCHING);
+		}
+		else
+		{
+			SetNextAnimation(ANIMATION_ID_IDLE);
+		}
+
+		//ジャンプ
+		if (m_pInput->GetPressed(VK_SPACE))
+		{
+			SetRotation(Vector3(0, 90, 0));
+		}
 	}
 
 

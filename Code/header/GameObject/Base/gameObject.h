@@ -7,6 +7,8 @@
 
 #include "../../Component/Base/component.h"
 
+// 度からラジアンへの変換
+#define DEGREE_TO_RADIAN(deg) ((deg) * M_PI / 180.0)
 
 class GameObject
 {
@@ -173,7 +175,7 @@ protected:
 	uint64_t	m_DeltaTime;
 
 	DirectX::SimpleMath::Vector3	m_Position = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
-	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
+	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f); // 回転　ラジアン
 	DirectX::SimpleMath::Vector3	m_Scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
 
 	std::list<Component*> m_Component;

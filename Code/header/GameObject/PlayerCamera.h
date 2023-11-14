@@ -1,6 +1,7 @@
 #pragma once
 
 #include "camera.h"
+#include "GameObject/Base/CharacterBase.h"
 #include <SimpleMath.h>
 using namespace DirectX::SimpleMath;
 
@@ -11,7 +12,7 @@ public:
 	// 初期化
 	//-----------------------
 	// コンストラクタ
-	PlayerCamera(GameObject *_pTarget);	
+	PlayerCamera(CharacterBase*_pTarget);
 	PlayerCamera() {};
 
 	// デストラクタ
@@ -25,17 +26,25 @@ public:
 	//-----------------------
 
 	// ターゲット設定
-	void SetTarget(GameObject* _pTarget);
+	void SetTarget(CharacterBase* _pTarget);
 
 	// カメラの前向き単位ベクトルを取得
 	Vector3 GetCameraFrontVec();
+
+
+	float* GetShake(void) { return &shake; }
+	float* GetShakeWidth(void) { return &shakeWidth; }
+	float* GetShakeSpeed(void) { return &shakeSpeed; }
+	bool* GetShakeDO(void) { return &shakeDO; }
+
+	bool* GetCamMove(void) { return &camMove; }
 
 	//-----------------------
 	// メンバ変数
 	//-----------------------
 private:
-	// 追従するゲームオブジェクト
-	GameObject* m_pTargetObject;
+	// 追従するキャラクタ
+	CharacterBase* m_pTargetObject;
 
 	// プレイヤーの後ろ向きベクトル
 	Vector3 m_BackVec;
@@ -43,4 +52,11 @@ private:
 	Vector3 m_LastCamPos;
 	// マウス感度
 	float m_MouseSensitivity;
+
+	float shake = 0.0f;
+	float shakeWidth = 0.2f;
+	float shakeSpeed = 0.1f;
+	bool shakeDO = false;
+
+	bool camMove = true;
 };

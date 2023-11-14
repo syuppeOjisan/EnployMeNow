@@ -46,18 +46,15 @@ public:
 	// モーション変更 - ID指定
 	bool SetNextAnimation(int _animID);
 
-	/// <summary>
-	/// ヒットストップの計算を行います
-	/// </summary>
-	/// <param name="_startFrame"> ヒットストップを開始するフレーム</param>
-	/// <param name="_endFrame"> ヒットストップを終了するフレーム</param>
-	/// <param name="difference"> ヒットストップ中の速度差</param>
-	void CalcHitStop(float _startFrame, float _endFrame, float difference);
-
-	// 現在のモーション取得
+	// 現在のモーション取得 - 文字列
 	const char* GetNowAnimName(void) { return m_NowAnimation; }
-	// 前回のモーションを取得
+	// 前回のモーションを取得 - 文字列
 	const char* GetPrevAnimName(void) { return m_PrevAnimation; }
+
+	// 現在のモーション取得 - ID
+	int GetNextAnimationID(void) { return m_NowAnimationID; }
+	// 前回のモーション取得 - ID
+	int GetPrevAnimationID(void) { return m_PrevAnimationID; }
 
 	// 現在のモーションフレームを取得
 	int GetNowAnimationFrame(void) { return m_NowAnimationFrame; }
@@ -66,6 +63,14 @@ public:
 
 	// アニメーションブレンドが終わったかどうかを取得
 	bool* GetIsAnimBlendOver(void) { return &m_IsAnimBlendOver; }
+
+	/// <summary>
+	/// ヒットストップの計算を行います
+	/// </summary>
+	/// <param name="_startFrame"> ヒットストップを開始するフレーム</param>
+	/// <param name="_endFrame"> ヒットストップを終了するフレーム</param>
+	/// <param name="difference"> ヒットストップ中の速度差</param>
+	void CalcHitStop(float _startFrame, float _endFrame, float difference);
 
 protected:
 	Vector3				m_Velocity{};				// ベロシティ
@@ -81,7 +86,7 @@ protected:
 	int					m_PrevAnimationID;			// 前回のモーションID
 
 	bool				m_IsHit;					// 当たり状態
-	bool				m_IsAnimBlendOver;		// アニメーションブレンドが終わったかどうか
+	bool				m_IsAnimBlendOver;			// アニメーションブレンドが終わったかどうか
 
 
 	// 当たり判定情報

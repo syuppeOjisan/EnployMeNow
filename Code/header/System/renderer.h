@@ -47,31 +47,6 @@ struct LIGHT
 // ƒŒƒ“ƒ_ƒ‰
 class Renderer
 {
-private:
-
-	static D3D_FEATURE_LEVEL       m_FeatureLevel;
-
-	static ID3D11Device*           m_Device;
-	static ID3D11DeviceContext*    m_DeviceContext;
-	static IDXGISwapChain*         m_SwapChain;
-	static ID3D11RenderTargetView* m_RenderTargetView;
-	static ID3D11DepthStencilView* m_DepthStencilView;
-
-	static ID3D11Buffer*			m_WorldBuffer;
-	static ID3D11Buffer*			m_ViewBuffer;
-	static ID3D11Buffer*			m_ProjectionBuffer;
-	static ID3D11Buffer*			m_MaterialBuffer;
-	static ID3D11Buffer*			m_LightBuffer;
-
-
-	static ID3D11DepthStencilState* m_DepthStateEnable;
-	static ID3D11DepthStencilState* m_DepthStateDisable;
-
-	static ID3D11BlendState*		m_BlendState;
-	static ID3D11BlendState*		m_BlendStateATC;
-
-	static Application* m_Application;
-
 public:
 	static void Init(Application* ap);
 	static void Uninit();
@@ -95,5 +70,28 @@ public:
 	static void CreateVertexShader(ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName);
 	static void CreatePixelShader(ID3D11PixelShader** PixelShader, const char* FileName);
 
+private:
 
+	static D3D_FEATURE_LEVEL       m_FeatureLevel;
+
+	static ID3D11Device* m_Device;
+	static ID3D11DeviceContext* m_DeviceContext;
+	static IDXGISwapChain* m_SwapChain;
+	static ID3D11RenderTargetView* m_RenderTargetView;
+	static ID3D11DepthStencilView* m_DepthStencilView;
+
+	static ID3D11Buffer* m_WorldBuffer;
+	static ID3D11Buffer* m_ViewBuffer;
+	static ID3D11Buffer* m_ProjectionBuffer;
+	static ID3D11Buffer* m_MaterialBuffer;
+	static ID3D11Buffer* m_LightBuffer;
+
+
+	static ID3D11DepthStencilState* m_DepthStateEnable;
+	static ID3D11DepthStencilState* m_DepthStateDisable;
+
+	static ID3D11BlendState* m_BlendState;
+	static ID3D11BlendState* m_BlendStateATC;
+
+	static Application* m_Application;
 };
