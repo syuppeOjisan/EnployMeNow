@@ -4,11 +4,10 @@
 
 #include <list>
 #include <SimpleMath.h>
+#include <corecrt_math_defines.h>
+#include "System/main.h"
 
 #include "../../Component/Base/component.h"
-
-// “x‚©‚çƒ‰ƒWƒAƒ“‚Ö‚Ì•ÏŠ·
-#define DEGREE_TO_RADIAN(deg) ((deg) * M_PI / 180.0)
 
 class GameObject
 {
@@ -22,7 +21,22 @@ public:
 	DirectX::SimpleMath::Vector3* GetPositionAdress() { return &m_Position; }
 
 	DirectX::SimpleMath::Vector3 GetRotation() { return m_Rotation; }
-	void SetRotation(DirectX::SimpleMath::Vector3 Rotation) { m_Rotation = Rotation; }
+	void SetRotation(DirectX::SimpleMath::Vector3 Rotation) 
+	{ 
+		float yAxsis = (float)RADIAN_TO_DEGREE(Rotation.y);
+		while (yAxsis > 360)
+		{
+			yAxsis -= 360;
+		}
+
+		while (yAxsis < 0)
+		{
+			yAxsis += 360;
+		}
+
+		Rotation.y = (float)DEGREE_TO_RADIAN(yAxsis);
+		m_Rotation = Rotation;
+	}
 
 	DirectX::SimpleMath::Vector3 GetScale() { return m_Scale; }
 	void SetScale(DirectX::SimpleMath::Vector3 Scale) { m_Scale = Scale; }

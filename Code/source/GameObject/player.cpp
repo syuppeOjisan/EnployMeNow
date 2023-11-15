@@ -106,6 +106,30 @@ void Player::Update()
 			else
 			{
 				SetVelocity(forward);
+				if (m_pInput->GetTregger('W'))
+				{
+					// ベクトルの角度を求める（ラジアン）
+					Vector3 playerforward = GetForward();
+					Vector3 camforward = m_pCamera->GetCameraFrontVec();
+					playerforward.Normalize();
+					camforward.Normalize();
+					Vector3 angle = DirectX::XMVector3AngleBetweenNormals(playerforward, camforward);
+					angle += GetRotation();
+					SetRotation(Vector3(0, angle.y, 0));
+
+					// モデルの正面ベクトルとカメラの方向ベクトルの間の角度を求める
+					Vector3 modelForward = this->GetForward();
+					Vector3 cameraDirection	= m_pCamera->GetForward();
+					modelForward.Normalize();
+					cameraDirection.Normalize();
+
+					float angleInRadians = std::acos(modelForward.Dot(cameraDirection));
+
+					// モデルがカメラの方向を向くために必要な回転角度を設定
+					SetRotation(Vector3(0, angleInRadians, 0));
+				}
+
+
 				SetNextAnimation(ANIMATION_ID_WALK);
 			}
 		}
@@ -126,7 +150,7 @@ void Player::Update()
 		//ジャンプ
 		if (m_pInput->GetPressed(VK_SPACE))
 		{
-			SetRotation(Vector3(0, 90, 0));
+			SetRotation(Vector3(0, DEGREE_TO_RADIAN(90), 0));
 		}
 	}
 

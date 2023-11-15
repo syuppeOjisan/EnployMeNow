@@ -245,9 +245,15 @@ void Game::Draw()
 				if (ImGui::TreeNode("Rotate"))
 				{
 					Vector3 rotate = pPlayer->GetRotation();
-					ImGui::DragFloat("XAxsis", &rotate.x, 0.01f);
-					ImGui::DragFloat("YAxsis", &rotate.y, 0.01f);
-					ImGui::DragFloat("ZAxsis", &rotate.z, 0.01f);
+					rotate.x = RADIAN_TO_DEGREE(rotate.x);
+					rotate.y = RADIAN_TO_DEGREE(rotate.y);
+					rotate.z = RADIAN_TO_DEGREE(rotate.z);
+					ImGui::DragFloat("XAxsis", &rotate.x, 1.0f);
+					ImGui::DragFloat("YAxsis", &rotate.y, 1.0f);
+					ImGui::DragFloat("ZAxsis", &rotate.z, 1.0f);
+					rotate.x = DEGREE_TO_RADIAN(rotate.x);
+					rotate.y = DEGREE_TO_RADIAN(rotate.y);
+					rotate.z = DEGREE_TO_RADIAN(rotate.z);
 					pPlayer->SetRotation(rotate);
 					ImGui::TreePop();
 				}

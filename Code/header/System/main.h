@@ -23,3 +23,8 @@
 constexpr uint32_t SCREEN_WIDTH = 1280;
 constexpr uint32_t SCREEN_HEIGHT = 720;
 
+// 度からラジアンへの変換
+#define DEGREE_TO_RADIAN(deg) ((deg) * M_PI / 180.0)
+
+// ラジアンから度への変換
+#define RADIAN_TO_DEGREE(rad) ((rad) * 180.0 / M_PI)
