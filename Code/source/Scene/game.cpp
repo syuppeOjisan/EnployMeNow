@@ -255,6 +255,12 @@ void Game::Draw()
 					rotate.y = DEGREE_TO_RADIAN(rotate.y);
 					rotate.z = DEGREE_TO_RADIAN(rotate.z);
 					pPlayer->SetRotation(rotate);
+
+					ImGui::Text("FrontVector");
+					ImGui::Text("X:%f", pPlayer->GetForward().x);
+					ImGui::Text("Y:%f", pPlayer->GetForward().y);
+					ImGui::Text("Z:%f", pPlayer->GetForward().z);
+
 					ImGui::TreePop();
 				}
 				if (ImGui::TreeNode("Scale"))
@@ -405,7 +411,26 @@ void Game::Draw()
 						ImGui::TreePop();
 					}
 
+					if (ImGui::TreeNode("CameraFrontVec"))
+					{
+						ImGui::Text("X:%f", pCamera->GetCameraFrontVec().x);
+						ImGui::Text("Y:%f", pCamera->GetCameraFrontVec().y);
+						ImGui::Text("Z:%f", pCamera->GetCameraFrontVec().z);
+
+						ImGui::TreePop();
+					}
+
 					ImGui::Checkbox("MouseMove", pCamera->GetCamMove());
+
+					//ì‡êœÇ©ÇÁäpìxÇãÅÇﬂÇÈ
+					Vector3 playerFront = GetGameObject<Player>()->GetForward();
+					Vector3 cameraFront = pCamera->GetCameraFrontVec();
+
+					Vector2 playerFront2 = { playerFront.x, playerFront.z };
+					Vector2 cameraFront2 = { cameraFront.x, cameraFront.z };
+
+					float rotateRadian = std::acos(playerFront2.Dot(cameraFront2));
+					ImGui::Text("Rotation:%lf", RADIAN_TO_DEGREE(rotateRadian));
 
 					ImGui::TreePop();
 				}

@@ -106,27 +106,22 @@ void Player::Update()
 			else
 			{
 				SetVelocity(forward);
-				if (m_pInput->GetTregger('W'))
+				
+				if(m_pInput->GetTregger('W'))
 				{
-					// ベクトルの角度を求める（ラジアン）
-					Vector3 playerforward = GetForward();
-					Vector3 camforward = m_pCamera->GetCameraFrontVec();
-					playerforward.Normalize();
-					camforward.Normalize();
-					Vector3 angle = DirectX::XMVector3AngleBetweenNormals(playerforward, camforward);
-					angle += GetRotation();
-					SetRotation(Vector3(0, angle.y, 0));
+					//内積から角度を求める
+					Vector3 playerFront = this->GetForward();
+					Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
 
-					// モデルの正面ベクトルとカメラの方向ベクトルの間の角度を求める
-					Vector3 modelForward = this->GetForward();
-					Vector3 cameraDirection	= m_pCamera->GetForward();
-					modelForward.Normalize();
-					cameraDirection.Normalize();
+					Vector2 playerFront2 = { playerFront.x, playerFront.z };
+					Vector2 cameraFront2 = { cameraFront.x, cameraFront.z };
 
-					float angleInRadians = std::acos(modelForward.Dot(cameraDirection));
+					float rotateRadian = std::acos(playerFront2.Dot(cameraFront2));
 
-					// モデルがカメラの方向を向くために必要な回転角度を設定
-					SetRotation(Vector3(0, angleInRadians, 0));
+					
+					{
+						SetRotation(Vector3(0, GetRotation().y + rotateRadian, 0));
+					}
 				}
 
 

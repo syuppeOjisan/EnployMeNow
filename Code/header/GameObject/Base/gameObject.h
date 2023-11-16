@@ -23,15 +23,15 @@ public:
 	DirectX::SimpleMath::Vector3 GetRotation() { return m_Rotation; }
 	void SetRotation(DirectX::SimpleMath::Vector3 Rotation) 
 	{ 
-		float yAxsis = (float)RADIAN_TO_DEGREE(Rotation.y);
-		while (yAxsis > 360)
+		float yAxsis = Rotation.y;
+		while (yAxsis > DEGREE_TO_RADIAN(360))
 		{
-			yAxsis -= 360;
+			yAxsis -= DEGREE_TO_RADIAN(360);
 		}
 
-		while (yAxsis < 0)
+		while (yAxsis < DEGREE_TO_RADIAN(0))
 		{
-			yAxsis += 360;
+			yAxsis += DEGREE_TO_RADIAN(360);
 		}
 
 		Rotation.y = (float)DEGREE_TO_RADIAN(yAxsis);
@@ -44,9 +44,11 @@ public:
 
 	DirectX::SimpleMath::Vector3 GetForward()//前方向ベクトル取得
 	{
+		// 回転行列を作成
 		DirectX::SimpleMath::Matrix rot;
 		rot = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(m_Rotation.y, m_Rotation.x, m_Rotation.z);
 
+		// 回転行列の3列目にある前方ベクトルを取得
 		DirectX::SimpleMath::Vector3 forward;
 		forward.x = rot._31;
 		forward.y = rot._32;
@@ -189,7 +191,7 @@ protected:
 	uint64_t	m_DeltaTime;
 
 	DirectX::SimpleMath::Vector3	m_Position = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
-	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f); // 回転　ラジアン
+	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f); // 回転
 	DirectX::SimpleMath::Vector3	m_Scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
 
 	std::list<Component*> m_Component;
