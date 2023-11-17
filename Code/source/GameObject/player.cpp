@@ -107,31 +107,42 @@ void Player::Update()
 			{
 				SetVelocity(forward);
 				
-				if(m_pInput->GetTregger('W'))
+				//if(m_pInput->GetTregger('W'))
 				{
-					//“àÏ‚©‚çŠp“x‚ğ‹‚ß‚é
+					
+					// ƒJƒƒ‰‚ÆƒvƒŒƒCƒ„[‚ÌƒxƒNƒgƒ‹‚Ì
 					Vector3 playerFront = this->GetForward();
 					Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
+					Vector3 direction = playerFront - cameraFront;
 
-					Vector2 playerFront2 = { playerFront.x, playerFront.z };
-					Vector2 cameraFront2 = { cameraFront.x, cameraFront.z };
+					// ƒJƒƒ‰‚ÆƒvƒŒƒCƒ„[‚Ì‘OŒü‚«ƒxƒNƒgƒ‹‚ÌŠp“x·‚ğ‹‚ß‚é
+					float rotateRadianDestination = atan2f(direction.x, direction.z);
 
-					float rotateRadian = std::acos(playerFront2.Dot(cameraFront2));
+					rotateRadianDestination = FixRadian(rotateRadianDestination);
 
+
+					float rotateRadian = rotateRadianDestination - GetRotation().y;
+
+					// •â³i|‚P‚W‚O`‚P‚W‚O‚Ì”ÍˆÍj
+					rotateRadian = FixRadian(rotateRadian);
 					
-					{
-						SetRotation(Vector3(0, GetRotation().y + rotateRadian, 0));
-					}
+					// ‰ñ“]Šp“xŒvZ
+					Vector3 pRotate = GetRotation();
+					pRotate.y += rotateRadian;
+					pRotate.y = FixRadian(pRotate.y);
+
+					// ‰ñ“]Šp“K—p
+					SetRotation(Vector3(0, pRotate.y, 0));
 				}
 
 
-				SetNextAnimation(ANIMATION_ID_WALK);
+				SetNextAnimation(ANIMATION_ID_WALKBACK);
 			}
 		}
 		else if (m_pInput->GetPressed('S'))
 		{
 			SetVelocity(-forward);
-			SetNextAnimation(ANIMATION_ID_WALKBACK);
+			SetNextAnimation(ANIMATION_ID_WALK);
 		}
 		else if (m_pInput->GetPressed('P'))
 		{

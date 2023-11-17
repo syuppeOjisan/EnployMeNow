@@ -24,17 +24,17 @@ public:
 	void SetRotation(DirectX::SimpleMath::Vector3 Rotation) 
 	{ 
 		float yAxsis = Rotation.y;
-		while (yAxsis > DEGREE_TO_RADIAN(360))
-		{
-			yAxsis -= DEGREE_TO_RADIAN(360);
-		}
+		//while (yAxsis > DEGREE_TO_RADIAN(360))
+		//{
+		//	yAxsis -= DEGREE_TO_RADIAN(360);
+		//}
 
-		while (yAxsis < DEGREE_TO_RADIAN(0))
-		{
-			yAxsis += DEGREE_TO_RADIAN(360);
-		}
+		//while (yAxsis < DEGREE_TO_RADIAN(0))
+		//{
+		//	yAxsis += DEGREE_TO_RADIAN(360);
+		//}
 
-		Rotation.y = (float)DEGREE_TO_RADIAN(yAxsis);
+		Rotation.y = yAxsis;
 		m_Rotation = Rotation;
 	}
 
@@ -55,6 +55,25 @@ public:
 		forward.z = rot._33;
 
 		return forward;
+	}
+
+	/// <summary>
+	/// ラジアンの値を補正する
+	/// </summary>
+	/// <param name="_radian">回転角度ラジアン</param>
+	/// <returns>補正後の値</returns>
+	float FixRadian(float _radian)
+	{
+		if (_radian > DirectX::XM_PI)
+		{
+			_radian -= DirectX::XM_PI * 2.0f;
+		}
+		if (_radian < -DirectX::XM_PI)
+		{
+			_radian += DirectX::XM_PI * 2.0f;
+		}
+
+		return _radian;
 	}
 
 	void SetDestroy() { m_Destroy = true; }

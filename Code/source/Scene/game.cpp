@@ -318,7 +318,7 @@ void Game::Draw()
 			}
 		}
 
-		// grandpa GPU
+		// grandpa GUI
 		{
 			if (GetGameObject<grandpa>())
 			{
@@ -424,13 +424,7 @@ void Game::Draw()
 
 					//ì‡êœÇ©ÇÁäpìxÇãÅÇﬂÇÈ
 					Vector3 playerFront = GetGameObject<Player>()->GetForward();
-					Vector3 cameraFront = pCamera->GetCameraFrontVec();
-
-					Vector2 playerFront2 = { playerFront.x, playerFront.z };
-					Vector2 cameraFront2 = { cameraFront.x, cameraFront.z };
-
-					float rotateRadian = std::acos(playerFront2.Dot(cameraFront2));
-					ImGui::Text("Rotation:%lf", RADIAN_TO_DEGREE(rotateRadian));
+					Vector3 cameraFront = GetGameObject<PlayerCamera>()->GetCameraFrontVec();
 
 					ImGui::TreePop();
 				}
