@@ -11,7 +11,7 @@ bool KeyboardInput::Init(void)
 void KeyboardInput::Update(void)
 {
 
-	// 1フレーム前のキー状態を転記して保存
+	// 1フレーム前の入力状態を転記して保存
 	memcpy(m_oldKeyState, m_nowKeyState, KEY_COUNT);
 	
 	// キー状態を更新

@@ -6,8 +6,11 @@
 #include <SimpleMath.h>
 #include <corecrt_math_defines.h>
 #include "System/main.h"
+#include "System/InputIntarface.h"
 
 #include "../../Component/Base/component.h"
+
+using namespace DirectX::SimpleMath;
 
 class GameObject
 {
@@ -15,34 +18,93 @@ public:
 	GameObject() {}//コンストラクタ
 	virtual ~GameObject() {}//デストラクタ（仮想関数）
 
-
+	/// <summary>
+	/// 座標を取得
+	/// </summary>
+	/// <returns>座標</returns>
 	DirectX::SimpleMath::Vector3 GetPosition() { return m_Position; }
+
+	/// <summary>
+	/// 座標をセット
+	/// </summary>
+	/// <param name="Position">セットしたい座標</param>
 	void SetPosition(DirectX::SimpleMath::Vector3 Position) { m_Position = Position; }
+
+	/// <summary>
+	/// 位置変数のアドレスを取得
+	/// </summary>
+	/// <returns>座標変数のアドレス</returns>
 	DirectX::SimpleMath::Vector3* GetPositionAdress() { return &m_Position; }
 
+	/// <summary>
+	/// 現在の回転角を取得(ラジアン)
+	/// </summary>
+	/// <returns>現在の回転角</returns>
 	DirectX::SimpleMath::Vector3 GetRotation() { return m_Rotation; }
+
+	/// <summary>
+	/// 回転角をセット(ラジアン)
+	/// </summary>
+	/// <param name="Rotation">セットしたい回転角</param>
 	void SetRotation(DirectX::SimpleMath::Vector3 Rotation) 
 	{ 
-		float yAxsis = Rotation.y;
-		//while (yAxsis > DEGREE_TO_RADIAN(360))
-		//{
-		//	yAxsis -= DEGREE_TO_RADIAN(360);
-		//}
+		// ラジアンを範囲内に収めるために補正
+		Rotation.x = FixRadian(Rotation.x);
+		Rotation.y = FixRadian(Rotation.y);
+		Rotation.z = FixRadian(Rotation.z);
 
-		//while (yAxsis < DEGREE_TO_RADIAN(0))
-		//{
-		//	yAxsis += DEGREE_TO_RADIAN(360);
-		//}
-
-		Rotation.y = yAxsis;
+		// 回転角として反映
 		m_Rotation = Rotation;
 	}
 
+	/// <summary>
+	/// スケールを取得
+	/// </summary>
+	/// <returns>現在のスケール</returns>
 	DirectX::SimpleMath::Vector3 GetScale() { return m_Scale; }
+
+	/// <summary>
+	/// スケールをセット
+	/// </summary>
+	/// <param name="Scale">セットしたいスケール</param>
 	void SetScale(DirectX::SimpleMath::Vector3 Scale) { m_Scale = Scale; }
 
 
-	DirectX::SimpleMath::Vector3 GetForward()//前方向ベクトル取得
+
+	/// <summary>
+	/// 入力インターフェースをセット
+	/// </summary>
+	/// <param name="_input">入力インターフェース</param>
+	void SetInput(InputIntarface* _input) { m_pInput = _input; m_pInput->Init(); }
+
+	/// <summary>
+	/// オブジェクトの向きをベクトルの方に向ける
+	/// </summary>
+	/// <param name="_vector">向いてほしい方向ベクトル</param>
+	void SetRotateToVector(Vector3 _vector)
+	{
+		// ベクトルが向いている角度を求める
+		float rotateRadianDestination = atan2f(_vector.x, _vector.z);
+		rotateRadianDestination = FixRadian(rotateRadianDestination);	// ラジアン補正
+
+		// 現在の回転角との角度差を求める
+		float rotateRadian = rotateRadianDestination - GetRotation().y;
+		rotateRadian = FixRadian(rotateRadian);	// ラジアン補正
+
+		// 角度差分回す
+		Vector3 pRotate = GetRotation();
+		pRotate.y += rotateRadian;
+		pRotate.y = FixRadian(pRotate.y);
+
+		// 回転角適用
+		SetRotation(Vector3(0, pRotate.y, 0));
+	}
+
+	/// <summary>
+	/// 前方ベクトルを取得
+	/// </summary>
+	/// <returns>前方ベクトル</returns>
+	DirectX::SimpleMath::Vector3 GetForward()
 	{
 		// 回転行列を作成
 		DirectX::SimpleMath::Matrix rot;
@@ -76,6 +138,9 @@ public:
 		return _radian;
 	}
 
+	/// <summary>
+	/// デストロイフラグをTrueにする
+	/// </summary>
 	void SetDestroy() { m_Destroy = true; }
 
 	bool Destroy()
@@ -91,6 +156,8 @@ public:
 			return false;
 		}
 	}
+
+
 
 	virtual void Init() {}
 	virtual void Uninit() {}
@@ -216,4 +283,6 @@ protected:
 	std::list<Component*> m_Component;
 
 	std::list<GameObject*> m_ChildGameObject;
+
+	InputIntarface* m_pInput;	// 入力インターフェース
 };

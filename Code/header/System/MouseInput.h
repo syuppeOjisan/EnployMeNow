@@ -40,7 +40,7 @@ public:
 	void GetMouseMove(int& _x, int& _y) override;
 
 	// このメソッドはこのクラスでは使用しない
-	void GetPadStick(float& _x, float& _y) override {};
+	void GetPadStick(DirectX::SimpleMath::Vector2& _left, DirectX::SimpleMath::Vector2& _right) override {};
 
 private:
 	POINT m_nowMousePosition;	// マウス位置 - 最新

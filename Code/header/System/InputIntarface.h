@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SimpleMath.h>
+
 /// <summary>
 /// 入力情報管理用インターフェース
 /// </summary>
@@ -42,10 +44,9 @@ public:
 	/// <summary>
 	/// コントローラースティック傾き取得
 	/// </summary>
-	/// <param name="_x">傾きX軸</param>
-	/// <param name="_y">傾きY軸</param>
-	virtual void GetPadStick(float& _x, float& _y) = 0;
-
+	/// <param name="_left">左スティック傾き</param>
+	/// <param name="_right">右スティック傾き</param>
+	virtual void GetPadStick(DirectX::SimpleMath::Vector2& _left, DirectX::SimpleMath::Vector2& _right) = 0;
 };
 
-// これらのメソッドは下位クラスに依存しており、SOLID原則的に良くない。けど仕方ないかな？
+// 下位クラスはこれらのメソッドすべてを使用するわけではないのでSOLID原則的に微妙

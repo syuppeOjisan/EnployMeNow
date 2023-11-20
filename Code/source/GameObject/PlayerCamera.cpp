@@ -37,13 +37,17 @@ void PlayerCamera::Update()
 
 		// 上で作ったオフセット付きの後ろ向きベクトルにマウスの移動を加える
 		// カメラをマウスで移動させる
-		if (Input::GetisMouceMove() && camMove)
+		if (m_pInput)
 		{
-			Matrix mxMouseRotationY = Matrix::CreateRotationY(DirectX::XMConvertToRadians(Input::GetMouseMove().x * m_MouseSensitivity));
-			Matrix mxMouseRotationX = Matrix::CreateRotationX(DirectX::XMConvertToRadians(Input::GetMouseMove().y * m_MouseSensitivity));
+			int mouseX, mouseY;
+			m_pInput->GetMouseMove(mouseX, mouseY);
+			Matrix mxMouseRotationY = Matrix::CreateRotationY(DirectX::XMConvertToRadians(mouseX * m_MouseSensitivity));
+			Matrix mxMouseRotationX = Matrix::CreateRotationX(DirectX::XMConvertToRadians(mouseY * m_MouseSensitivity));
 			m_BackVec = Vector3::Transform(m_BackVec, mxMouseRotationY);
 			m_BackVec = Vector3::Transform(m_BackVec, mxMouseRotationX);
+			
 		}
+
 
 		// TODO:カメラにも当たり判定を付けたい
 		// TODO:カメラから見た正面をプレイヤーの正面とする

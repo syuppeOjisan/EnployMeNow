@@ -2,6 +2,9 @@
 #include "System/manager.h"
 #include "System/renderer.h"
 #include "System/input.h"
+#include "System/KeyboardInput.h"
+#include "System/PadInput.h"
+#include "System/MouseInput.h"
 #include "System/manager.h"
 #include "System/utility.h"
 
@@ -60,7 +63,7 @@ void Game::Init()
 	{
 		AddGameObject<Player>(1);
 		Player* pPlayer = GetGameObject<Player>();
-		InputIntarface* pInput = new KeyboardInput();	// キーボード入力デバイスを渡す
+		InputIntarface* pInput = new PadInput();	// キーボード入力デバイスを渡す
 		pPlayer->SetInput(pInput);
 	}
 
@@ -70,6 +73,9 @@ void Game::Init()
 		// カメラを生成しゲームシーンに追加、プレイヤーをターゲットに指定
 		PlayerCamera* pCamera = AddGameObject<PlayerCamera>(0);
 		pCamera->SetTarget(GetGameObject<Player>());
+		// 入力インターフェースを渡す
+		InputIntarface* pInput = new MouseInput();
+		pCamera->SetInput(pInput);
 		// プレイヤーにもカメラの情報を渡す
 		GetGameObject<Player>()->SetCamera(pCamera);
 	}

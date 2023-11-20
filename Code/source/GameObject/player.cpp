@@ -94,6 +94,27 @@ void Player::Update()
 	if (m_pInput)
 	{
 		m_pInput->Update();
+		//Vector2 leftStick = {};
+		//Vector2 rightStick = {};
+		//m_pInput->GetPadStick(leftStick, rightStick);
+
+		//forward.x = rightStick.x;
+		//forward.y = rightStick.y;
+
+		////if (rightStick.y > 0.1f)
+		//{
+		//	SetVelocity(forward);
+
+		//	// カメラの前向きベクトルを取得
+		//	Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
+
+		//	// プレイヤーをカメラが向いている方に向ける
+		//	SetRotateToVector(cameraFront);
+
+
+		//	SetNextAnimation(ANIMATION_ID_WALK);
+		//}
+
 
 		// 前後移動
 		if (m_pInput->GetPressed('W'))
@@ -107,28 +128,11 @@ void Player::Update()
 			{
 				SetVelocity(forward);
 				
-				//if(m_pInput->GetTregger('W'))
-				{
-					
-					// カメラの前向きベクトルを取得
-					Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
+				// カメラの前向きベクトルを取得
+				Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
 
-					// カメラの前向きベクトルが向いている角度を求める
-					float rotateRadianDestination = atan2f(cameraFront.x, cameraFront.z);
-					rotateRadianDestination = FixRadian(rotateRadianDestination);	// ラジアン補正
-
-					// 現在の回転角との角度差を求める
-					float rotateRadian = rotateRadianDestination - GetRotation().y;
-					rotateRadian = FixRadian(rotateRadian);	// ラジアン補正
-					
-					// 角度差分回す
-					Vector3 pRotate = GetRotation();
-					pRotate.y += rotateRadian;
-					pRotate.y = FixRadian(pRotate.y);
-
-					// 回転角適用
-					SetRotation(Vector3(0, pRotate.y, 0));
-				}
+				// プレイヤーをカメラが向いている方に向ける
+				SetRotateToVector(cameraFront);
 
 
 				SetNextAnimation(ANIMATION_ID_WALK);
@@ -288,4 +292,23 @@ void Player::PreDraw()
 void Player::SetCamera(PlayerCamera* _camera)
 {
 	this->m_pCamera = _camera;
+}
+
+void Player::SetRotateToVector(Vector3 _vector)
+{
+	// ベクトルが向いている角度を求める
+	float rotateRadianDestination = atan2f(_vector.x, _vector.z);
+	rotateRadianDestination = FixRadian(rotateRadianDestination);	// ラジアン補正
+
+	// 現在の回転角との角度差を求める
+	float rotateRadian = rotateRadianDestination - GetRotation().y;
+	rotateRadian = FixRadian(rotateRadian);	// ラジアン補正
+
+	// 角度差分回す
+	Vector3 pRotate = GetRotation();
+	pRotate.y += rotateRadian;
+	pRotate.y = FixRadian(pRotate.y);
+
+	// 回転角適用
+	SetRotation(Vector3(0, pRotate.y, 0));
 }
