@@ -31,13 +31,9 @@ public:
 	/// <summary>
 	/// スティックの倒され度
 	/// </summary>
-	/// <param name="_x">スティックX軸</param>
-	/// <param name="_y">スティックY軸</param>
-	void GetPadStick(DirectX::SimpleMath::Vector2& _left, DirectX::SimpleMath::Vector2& _right) override;
-
-	// 以下２つのメソッドはこのクラスでは使用しない
-	void GetMousePosition(int& _x, int& _y) override {};
-	void GetMouseMove(int& _x, int& _y) override {};
+	/// <param name="_leftStick">スティックX軸</param>
+	/// <param name="_rightStick">スティックY軸</param>
+	void GetDeviceMovement(DirectX::SimpleMath::Vector2& _leftStick, DirectX::SimpleMath::Vector2& _rightStick) override;
 
 private:
 	XINPUT_GAMEPAD m_NowPadState;	// コントローラー入力状態 - 最新

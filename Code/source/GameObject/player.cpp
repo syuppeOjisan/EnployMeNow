@@ -94,63 +94,82 @@ void Player::Update()
 	if (m_pInput)
 	{
 		m_pInput->Update();
-		//Vector2 leftStick = {};
-		//Vector2 rightStick = {};
-		//m_pInput->GetPadStick(leftStick, rightStick);
+		Vector2 leftStick = {};
+		Vector2 rightStick = {};
+		m_pInput->GetDeviceMovement(leftStick, rightStick);
 
-		//forward.x = rightStick.x;
-		//forward.y = rightStick.y;
+
+		forward.x = leftStick.x;
+		forward.z = leftStick.y;
 
 		////if (rightStick.y > 0.1f)
-		//{
-		//	SetVelocity(forward);
-
-		//	// カメラの前向きベクトルを取得
-		//	Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
-
-		//	// プレイヤーをカメラが向いている方に向ける
-		//	SetRotateToVector(cameraFront);
-
-
-		//	SetNextAnimation(ANIMATION_ID_WALK);
-		//}
-
-
-		// 前後移動
-		if (m_pInput->GetPressed('W'))
 		{
-			if (m_pInput->GetPressed(VK_SHIFT))
+			Vector3 velo = forward * GetForward();
+			velo.Normalize();
+			SetVelocity(velo);
+
+			// カメラの前向きベクトルを取得
+			Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
+
+			// プレイヤーをカメラが向いている方に向ける
+			abs(forward.x) > abs(forward.z) ? m_NowAnimationSpeed = abs(forward.x) : m_NowAnimationSpeed = abs(forward.z);
+
+			
+			
+			if (abs(forward.x) > 0.5f || abs(forward.z) > 0.5f)
 			{
-				SetVelocity(forward * 2);
 				SetNextAnimation(ANIMATION_ID_RUN);
+				SetRotateToVector(m_pCamera->GetCameraFrontVec());
+			}
+			else if (abs(forward.x) < 0.5f && abs(forward.x) != 0.0f || abs(forward.z) < 0.5f && abs(forward.z) != 0.0f)
+			{
+				SetNextAnimation(ANIMATION_ID_WALK);
+				m_NowAnimationSpeed *= 2;
+				SetRotateToVector(m_pCamera->GetCameraFrontVec());
+
 			}
 			else
 			{
-				SetVelocity(forward);
-				
-				// カメラの前向きベクトルを取得
-				Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
-
-				// プレイヤーをカメラが向いている方に向ける
-				SetRotateToVector(cameraFront);
-
-
-				SetNextAnimation(ANIMATION_ID_WALK);
+				SetNextAnimation(ANIMATION_ID_IDLE);
 			}
 		}
-		else if (m_pInput->GetPressed('S'))
-		{
-			SetVelocity(-forward);
-			SetNextAnimation(ANIMATION_ID_WALKBACK);
-		}
-		else if (m_pInput->GetPressed('P'))
-		{
-			SetNextAnimation(ANIMATION_ID_PUNCHING);
-		}
-		else
-		{
-			SetNextAnimation(ANIMATION_ID_IDLE);
-		}
+
+
+		//// 前後移動
+		//if (m_pInput->GetPressed('W'))
+		//{
+		//	if (m_pInput->GetPressed(VK_SHIFT))
+		//	{
+		//		SetVelocity(forward * 2);
+		//		SetNextAnimation(ANIMATION_ID_RUN);
+		//	}
+		//	else
+		//	{
+		//		SetVelocity(forward);
+		//		
+		//		// カメラの前向きベクトルを取得
+		//		Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
+
+		//		// プレイヤーをカメラが向いている方に向ける
+		//		SetRotateToVector(cameraFront);
+
+
+		//		SetNextAnimation(ANIMATION_ID_WALK);
+		//	}
+		//}
+		//else if (m_pInput->GetPressed('S'))
+		//{
+		//	SetVelocity(-forward);
+		//	SetNextAnimation(ANIMATION_ID_WALKBACK);
+		//}
+		//else if (m_pInput->GetPressed('P'))
+		//{
+		//	SetNextAnimation(ANIMATION_ID_PUNCHING);
+		//}
+		//else
+		//{
+		//	SetNextAnimation(ANIMATION_ID_IDLE);
+		//}
 
 		//ジャンプ
 		if (m_pInput->GetPressed(VK_SPACE))

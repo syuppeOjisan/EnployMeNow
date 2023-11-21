@@ -4,6 +4,8 @@ void CharacterBase::Update()
 {		
 	// ベロシティを加算する
 	// * m_Timeをすることでスローモーションとかできる？	
+	m_Velocity.x *= cos(m_Rotation.y);
+	m_Velocity.z *= sin(m_Rotation.y);
 	SetPosition(GetPosition() + (m_Velocity * m_Time));
 	m_Velocity = { 0 }; // ベロシティを０に
 
@@ -13,8 +15,8 @@ void CharacterBase::Update()
 	{
 		m_BlendRate += 0.1f * m_Time;
 	}
-	m_NowAnimationFrame += 1 * m_Time;
-	m_PrevAnimationFrame += 1 * m_Time;
+	m_NowAnimationFrame += m_NowAnimationSpeed * m_Time;
+	m_PrevAnimationFrame += m_PrevAnimationFrame * m_Time;
 
 	if (m_BlendRate > 1.0f)
 	{
@@ -64,6 +66,8 @@ bool CharacterBase::SetNextAnimation(int _animID)
 		m_BlendRate = 0.0f;
 		m_PrevAnimationFrame = m_NowAnimationFrame;
 		m_NowAnimationFrame = 0;
+
+		m_PreAnimationSpeed = m_NowAnimationSpeed;
 	}
 
 	return true;

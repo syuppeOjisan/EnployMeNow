@@ -28,25 +28,11 @@ public:
 	virtual bool GetTregger(int _key) = 0;
 
 	/// <summary>
-	/// マウス座標取得
+	/// デバイスの移動度合いを取得
 	/// </summary>
-	/// <param name="_x">マウスX座標</param>
-	/// <param name="_y">マウスY座標</param>
-	virtual void GetMousePosition(int& _x, int& _y) = 0;
-
-	/// <summary>
-	/// マウスの移動距離を取得
-	/// </summary>
-	/// <param name="_x">マウスX移動距離</param>
-	/// <param name="_y">マウスY移動距離</param>
-	virtual void GetMouseMove(int& _x, int& _y) = 0;
-
-	/// <summary>
-	/// コントローラースティック傾き取得
-	/// </summary>
-	/// <param name="_left">左スティック傾き</param>
-	/// <param name="_right">右スティック傾き</param>
-	virtual void GetPadStick(DirectX::SimpleMath::Vector2& _left, DirectX::SimpleMath::Vector2& _right) = 0;
+	/// <param name="_leftStickOrMousemove">左スティック傾き OR マウス移動距離</param>
+	/// <param name="_rightStick">右スティック傾き</param>
+	virtual void GetDeviceMovement(DirectX::SimpleMath::Vector2& _leftStickOrMousemove, DirectX::SimpleMath::Vector2& _rightStick) = 0;
 };
 
 // 下位クラスはこれらのメソッドすべてを使用するわけではないのでSOLID原則的に微妙

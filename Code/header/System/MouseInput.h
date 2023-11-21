@@ -26,21 +26,11 @@ public:
 	bool GetTregger(int _key) override;
 
 	/// <summary>
-	/// マウス座標取得
-	/// </summary>
-	/// <param name="_x">マウスX座標</param>
-	/// <param name="_y">マウスY座標</param>
-	void GetMousePosition(int& _x, int& _y) override;
-
-	/// <summary>
 	/// マウスの移動距離を取得
 	/// </summary>
-	/// <param name="_x">マウスX移動距離</param>
-	/// <param name="_y">マウスY移動距離</param>
-	void GetMouseMove(int& _x, int& _y) override;
-
-	// このメソッドはこのクラスでは使用しない
-	void GetPadStick(DirectX::SimpleMath::Vector2& _left, DirectX::SimpleMath::Vector2& _right) override {};
+	/// <param name="_mouseMove">マウス座標</param>
+	/// <param name="_mousePosition">マウス移動距離</param>
+	void GetDeviceMovement(DirectX::SimpleMath::Vector2& _mouseMove, DirectX::SimpleMath::Vector2& _mousePosition) override;
 
 private:
 	POINT m_nowMousePosition;	// マウス位置 - 最新

@@ -29,19 +29,18 @@ bool PadInput::GetTregger(int _key)
 	return ((m_NowPadState.wButtons & _key) && (!(m_OldPadState.wButtons & _key)));
 }
 
-void PadInput::GetPadStick(DirectX::SimpleMath::Vector2& _left, DirectX::SimpleMath::Vector2& _right)
+void PadInput::GetDeviceMovement(DirectX::SimpleMath::Vector2& _leftStick, DirectX::SimpleMath::Vector2& _rightStick)
 {
 	// スティック情報を取得し、-1.0から1.0の範囲に収める
-	DirectX::SimpleMath::Vector2 leftStick = {};
-	leftStick.x = static_cast<float>(m_NowPadState.sThumbLX / SHORT_RANGE);
-	leftStick.y = static_cast<float>(m_NowPadState.sThumbLY / SHORT_RANGE);
+	DirectX::SimpleMath::Vector2 leftTmp = {};
+	leftTmp.x = static_cast<float>(m_NowPadState.sThumbLX / SHORT_RANGE);
+	leftTmp.y = static_cast<float>(m_NowPadState.sThumbLY / SHORT_RANGE);
 
-	DirectX::SimpleMath::Vector2 rightStick = {};
-	rightStick.x = static_cast<float>(m_NowPadState.sThumbRX / SHORT_RANGE);
-	rightStick.y = static_cast<float>(m_NowPadState.sThumbRY / SHORT_RANGE);
+	DirectX::SimpleMath::Vector2 rightTmp = {};
+	rightTmp.x = static_cast<float>(m_NowPadState.sThumbRX / SHORT_RANGE);
+	rightTmp.y = static_cast<float>(m_NowPadState.sThumbRY / SHORT_RANGE);
 
 	// スティック情報を転記
-	_left = leftStick;
-	_right = rightStick;
-
+	_leftStick = leftTmp;
+	_rightStick = rightTmp;
 }

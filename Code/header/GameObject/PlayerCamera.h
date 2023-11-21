@@ -31,6 +31,8 @@ public:
 	// カメラの前向き単位ベクトルを取得
 	Vector3 GetCameraFrontVec();
 
+	float getNowSensi(void) { return m_ViewControlSensitivity; }
+	void SetSensitivity(float _sensi) { m_ViewControlSensitivity = _sensi; }
 
 	float* GetShake(void) { return &shake; }
 	float* GetShakeWidth(void) { return &shakeWidth; }
@@ -50,8 +52,8 @@ private:
 	Vector3 m_BackVec;
 	// 前回フレームでのカメラ位置
 	Vector3 m_LastCamPos;
-	// マウス感度
-	float m_MouseSensitivity;
+	// 視点操作感度
+	float m_ViewControlSensitivity;
 
 	float shake = 0.0f;
 	float shakeWidth = 0.2f;

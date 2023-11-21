@@ -74,7 +74,7 @@ void Game::Init()
 		PlayerCamera* pCamera = AddGameObject<PlayerCamera>(0);
 		pCamera->SetTarget(GetGameObject<Player>());
 		// 入力インターフェースを渡す
-		InputIntarface* pInput = new MouseInput();
+		InputIntarface* pInput = new PadInput();
 		pCamera->SetInput(pInput);
 		// プレイヤーにもカメラの情報を渡す
 		GetGameObject<Player>()->SetCamera(pCamera);
@@ -431,6 +431,10 @@ void Game::Draw()
 					//内積から角度を求める
 					Vector3 playerFront = GetGameObject<Player>()->GetForward();
 					Vector3 cameraFront = GetGameObject<PlayerCamera>()->GetCameraFrontVec();
+
+					float sensi = pCamera->getNowSensi();
+					ImGui::DragFloat("CameraSensi", &sensi, 0.01f);
+					pCamera->SetSensitivity(sensi);
 
 					ImGui::TreePop();
 				}

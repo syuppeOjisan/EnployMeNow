@@ -24,7 +24,7 @@ void PlayerCamera::Init()
 	m_Target = Vector3(0.0f, 0.0f, 0.0f);
 
 	// 視点移動マウス感度調整
-	m_MouseSensitivity = 0.3f;
+	m_ViewControlSensitivity = 1.0f;
 }
 
 void PlayerCamera::Update()
@@ -39,13 +39,15 @@ void PlayerCamera::Update()
 		// カメラをマウスで移動させる
 		if (m_pInput)
 		{
-			int mouseX, mouseY;
-			m_pInput->GetMouseMove(mouseX, mouseY);
-			Matrix mxMouseRotationY = Matrix::CreateRotationY(DirectX::XMConvertToRadians(mouseX * m_MouseSensitivity));
-			Matrix mxMouseRotationX = Matrix::CreateRotationX(DirectX::XMConvertToRadians(mouseY * m_MouseSensitivity));
+			m_pInput->Update();
+
+			Vector2 leftStick, rightStick;
+			m_pInput->GetDeviceMovement(leftStick, rightStick);
+
+			Matrix mxMouseRotationY = Matrix::CreateRotationY(DirectX::XMConvertToRadians(rightStick.x * m_ViewControlSensitivity));
+			Matrix mxMouseRotationX = Matrix::CreateRotationX(DirectX::XMConvertToRadians(rightStick.y * m_ViewControlSensitivity));
 			m_BackVec = Vector3::Transform(m_BackVec, mxMouseRotationY);
 			m_BackVec = Vector3::Transform(m_BackVec, mxMouseRotationX);
-			
 		}
 
 

@@ -40,3 +40,65 @@ bool KeyboardInput::GetTregger(int _key)
 	// 前回フレームで押されていたら押下判定にはならない
 	return ((m_nowKeyState[_key] && !m_oldKeyState[_key]));
 }
+
+void KeyboardInput::GetDeviceMovement(DirectX::SimpleMath::Vector2& _wasdMove, DirectX::SimpleMath::Vector2& _arrowMove)
+{
+	// WASD移動
+	{
+		if (GetPressed('W'))
+		{
+			_wasdMove.y = 1.0f;
+		}
+		else if (GetPressed('S'))
+		{
+			_wasdMove.y = -1.0f;
+		}
+		else
+		{
+			_wasdMove.y = 0;
+		}
+
+		if (GetPressed('D'))
+		{
+			_wasdMove.x = 1.0f;
+		}
+		else if (GetPressed('A'))
+		{
+			_wasdMove.x = -1.0f;
+		}
+		else
+		{
+			_wasdMove.x = 0;
+		}
+	}
+
+	// 矢印キー移動
+	{
+		if (GetPressed(VK_UP))
+		{
+			_arrowMove.y = 1.0f;
+		}
+		else if (GetPressed(VK_DOWN))
+		{
+			_arrowMove.y = -1.0f;
+		}
+		else
+		{
+			_arrowMove.y = 0.0f;
+		}
+
+		if (GetPressed(VK_RIGHT))
+		{
+			_arrowMove.x = 1.0f;
+		}
+		else if (GetPressed(VK_LEFT))
+		{
+			_arrowMove.x -= 1.0f;
+		}
+		else
+		{
+			_arrowMove.x = 0.0f;
+		}
+	}
+
+}

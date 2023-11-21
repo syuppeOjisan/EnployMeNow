@@ -1,5 +1,7 @@
 #include "System/MouseInput.h"
 
+#include <iostream>
+
 bool MouseInput::Init(void)
 {
 	//　メンバ変数初期化
@@ -27,19 +29,18 @@ bool MouseInput::GetTregger(int _key)
 	return false;
 }
 
-void MouseInput::GetMousePosition(int& _x, int& _y)
-{
-	// マウスの現在位置を取得
-	POINT point = { 0 };
-	GetCursorPos(&point);
-	// 引数で指定さたアドレスに返す
-	_x = point.x;
-	_y = point.y;
-}
-
-void MouseInput::GetMouseMove(int& _x, int& _y)
+void MouseInput::GetDeviceMovement(DirectX::SimpleMath::Vector2& _mousePosition, DirectX::SimpleMath::Vector2& _mouseMove)
 {
 	// マウスの移動度合いを割り出して返す
-	_x = m_nowMousePosition.x - m_oldMousePosition.x;
-	_y = m_nowMousePosition.y - m_oldMousePosition.y;
+	_mouseMove.x = m_nowMousePosition.x - m_oldMousePosition.x;
+	_mouseMove.y = m_nowMousePosition.y - m_oldMousePosition.y;
+	_mouseMove.Normalize();
+
+	std::cout << "_mouseMove:" << std::endl;
+	std::cout << "X:" << _mouseMove.x << std::endl;
+	std::cout << "Y:" << _mouseMove.y << std::endl;
+
+	// マウスの位置を返す
+	_mousePosition.x = m_nowMousePosition.x;
+	_mousePosition.y = m_nowMousePosition.y;
 }

@@ -25,10 +25,12 @@ public:
 	/// <returns>押下状態</returns>
 	bool GetTregger(int _key) override;
 
-	// 以下２つのメソッドはこのクラスでは使用しない
-	void GetMousePosition(int& _x, int& _y) override {};
-	void GetMouseMove(int& _x, int& _y) override {};
-	void GetPadStick(DirectX::SimpleMath::Vector2& _left, DirectX::SimpleMath::Vector2& _right) override {};
+	/// <summary>
+	/// 移動キー入力値
+	/// </summary>
+	/// <param name="_leftStick">WASDキー入力値</param>
+	/// <param name="_rightStick">矢印キー入力値</param>
+	void GetDeviceMovement(DirectX::SimpleMath::Vector2& _wasdMove, DirectX::SimpleMath::Vector2& _arrowMove) override;
 
 private:
 	// キーの数を定義
