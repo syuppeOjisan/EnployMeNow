@@ -98,15 +98,13 @@ void Player::Update()
 		Vector2 rightStick = {};
 		m_pInput->GetDeviceMovement(leftStick, rightStick);
 
-
-		forward.x = leftStick.x;
-		forward.z = leftStick.y;
+		leftStick.Normalize();
+		forward.x *= leftStick.x;
+		forward.z *= leftStick.y;
 
 		////if (rightStick.y > 0.1f)
 		{
-			Vector3 velo = forward * GetForward();
-			velo.Normalize();
-			SetVelocity(velo);
+			SetVelocity(forward);
 
 			// カメラの前向きベクトルを取得
 			Vector3 cameraFront = m_pCamera->GetCameraFrontVec();

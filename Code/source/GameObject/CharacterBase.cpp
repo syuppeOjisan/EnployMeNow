@@ -4,8 +4,6 @@ void CharacterBase::Update()
 {		
 	// ベロシティを加算する
 	// * m_Timeをすることでスローモーションとかできる？	
-	m_Velocity.x *= cos(m_Rotation.y);
-	m_Velocity.z *= sin(m_Rotation.y);
 	SetPosition(GetPosition() + (m_Velocity * m_Time));
 	m_Velocity = { 0 }; // ベロシティを０に
 
