@@ -38,11 +38,11 @@ public:
 
 	void SetCamera(PlayerCamera* _camera);	// プレイヤーにカメラ情報を登録
 
-	/// <summary>
-	/// プレイヤーの向きをベクトルの方に向ける
-	/// </summary>
-	/// <param name="_vector">向いてほしい方向ベクトル</param>
-	void SetRotateToVector(Vector3 _vector);
+	///// <summary>
+	///// プレイヤーの向きをベクトルの方に向ける
+	///// </summary>
+	///// <param name="_vector">向いてほしい方向ベクトル</param>
+	//void SetRotateToVector(Vector3 _vector);
 
 private:
 	class	PlayerCamera* m_pCamera;	// プレイヤー用カメラ

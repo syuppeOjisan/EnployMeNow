@@ -54,6 +54,9 @@ void Player::Init()
 	m_NowAnimation = "Idle";
 	m_PrevAnimation = "Idle";
 
+	m_NowAnimationSpeed = 1;
+	m_PreAnimationSpeed = 1;
+
 	m_NowAnimationID = ANIMATION_ID_IDLE;
 	m_PrevAnimationID = ANIMATION_ID_IDLE;
 
@@ -80,16 +83,6 @@ void Player::Update()
 		m_Position += XAxis * 0.3f;
 	}
 
-	// 前方ベクトルを取得
-	Vector3 forward = m_pCamera->GetCameraFrontVec();
-	forward.Normalize();
-	// 移動のスピードが早すぎたので値を補正
-	// 志望コード
-	forward.x *= 0.1;
-	forward.y = 0;
-	forward.z *= 0.1;
-
-
 	// インターフェースを更新して使用
 	if (m_pInput)
 	{
@@ -98,22 +91,56 @@ void Player::Update()
 		Vector2 rightStick = {};
 		m_pInput->GetDeviceMovement(leftStick, rightStick);
 
-		leftStick.Normalize();
-		forward.x *= leftStick.x;
+		// カメラの前向きベクトル
+		Vector3 CamForward = m_pCamera->GetCameraFrontVec();
+
+		// Z軸の移動成分を作成
+		Vector3 forward{};
+		forward = CamForward;
+		forward.x *= leftStick.y;
 		forward.z *= leftStick.y;
 
-		////if (rightStick.y > 0.1f)
+		// X軸の移動成分を作成
+		Vector3 right{};
+		right.z = -CamForward.x;
+		right.x = CamForward.z;
+
+		right.x *= leftStick.x;
+		right.z *= leftStick.x;
+
+		// 作った2つの軸の移動成分を合成
+		forward += right;
+		//forward.Normalize();
+		//forward.x *= 0.1;
+		forward.y = 0;
+		//forward.z *= 0.1;
+
+		std::cout << "forward:" << std::endl;
+		std::cout << "X:" << forward.x << std::endl;
+		std::cout << "Y:" << forward.y << std::endl;
+		std::cout << "Z:" << forward.z << std::endl;
+		std::cout << "right:" << std::endl;
+		std::cout << "X:" << right.x << std::endl;
+		std::cout << "Y:" << right.y << std::endl;
+		std::cout << "Z:" << right.z << std::endl;
+
+
+		//if (rightStick.y > 0.1f)
 		{
 			SetVelocity(forward);
+
+			//std::cout << "forward:" << std::endl;
+			//std::cout << "X:" << forward.x << std::endl;
+			//std::cout << "Y:" << forward.y << std::endl;
+			//std::cout << "Z:" << forward.z << std::endl;
 
 			// カメラの前向きベクトルを取得
 			Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
 
-			// プレイヤーをカメラが向いている方に向ける
-			abs(forward.x) > abs(forward.z) ? m_NowAnimationSpeed = abs(forward.x) : m_NowAnimationSpeed = abs(forward.z);
+			//abs(forward.x) > abs(forward.z) ? m_NowAnimationSpeed = abs(forward.x) : m_NowAnimationSpeed = abs(forward.z);
 
 			
-			
+			// プレイヤーをカメラが向いている方に向ける
 			if (abs(forward.x) > 0.5f || abs(forward.z) > 0.5f)
 			{
 				SetNextAnimation(ANIMATION_ID_RUN);
@@ -180,15 +207,15 @@ void Player::Update()
 	// TODO:弾を見ている方向に撃つ
 	// 一応できた
 	//弾発射
-	if (Input::GetKeyTrigger('K'))
-	{
-		forward.y += 0.2f;
-		forward.Normalize();
-		Scene* scene = Manager::GetScene();
-		Bullet* bullet = scene->AddGameObject<Bullet>(2);
-		bullet->SetPosition(m_Position + Vector3(0.0f,2.0f,0.0f));
-		bullet->SetVelocity(forward);
-	}
+	//if (Input::GetKeyTrigger('K'))
+	//{
+	//	forward.y += 0.2f;
+	//	forward.Normalize();
+	//	Scene* scene = Manager::GetScene();
+	//	Bullet* bullet = scene->AddGameObject<Bullet>(2);
+	//	bullet->SetPosition(m_Position + Vector3(0.0f,2.0f,0.0f));
+	//	bullet->SetVelocity(forward);
+	//}
 
 
 	//重力
@@ -311,21 +338,21 @@ void Player::SetCamera(PlayerCamera* _camera)
 	this->m_pCamera = _camera;
 }
 
-void Player::SetRotateToVector(Vector3 _vector)
-{
-	// ベクトルが向いている角度を求める
-	float rotateRadianDestination = atan2f(_vector.x, _vector.z);
-	rotateRadianDestination = FixRadian(rotateRadianDestination);	// ラジアン補正
-
-	// 現在の回転角との角度差を求める
-	float rotateRadian = rotateRadianDestination - GetRotation().y;
-	rotateRadian = FixRadian(rotateRadian);	// ラジアン補正
-
-	// 角度差分回す
-	Vector3 pRotate = GetRotation();
-	pRotate.y += rotateRadian;
-	pRotate.y = FixRadian(pRotate.y);
-
-	// 回転角適用
-	SetRotation(Vector3(0, pRotate.y, 0));
-}
+//void Player::SetRotateToVector(Vector3 _vector)
+//{
+//	// ベクトルが向いている角度を求める
+//	float rotateRadianDestination = atan2f(_vector.x, _vector.z);
+//	rotateRadianDestination = FixRadian(rotateRadianDestination);	// ラジアン補正
+//
+//	// 現在の回転角との角度差を求める
+//	float rotateRadian = rotateRadianDestination - GetRotation().y;
+//	rotateRadian = FixRadian(rotateRadian);	// ラジアン補正
+//
+//	// 角度差分回す
+//	Vector3 pRotate = GetRotation();
+//	pRotate.y += rotateRadian;
+//	pRotate.y = FixRadian(pRotate.y);
+//
+//	// 回転角適用
+//	SetRotation(Vector3(0, pRotate.y, 0));
+//}

@@ -36,10 +36,6 @@ void MouseInput::GetDeviceMovement(DirectX::SimpleMath::Vector2& _mousePosition,
 	_mouseMove.y = m_nowMousePosition.y - m_oldMousePosition.y;
 	_mouseMove.Normalize();
 
-	std::cout << "_mouseMove:" << std::endl;
-	std::cout << "X:" << _mouseMove.x << std::endl;
-	std::cout << "Y:" << _mouseMove.y << std::endl;
-
 	// マウスの位置を返す
 	_mousePosition.x = m_nowMousePosition.x;
 	_mousePosition.y = m_nowMousePosition.y;

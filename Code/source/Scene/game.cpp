@@ -235,6 +235,14 @@ void Game::Draw()
 		if (GetGameObject<Player>())
 		{
 			Player* pPlayer = GetGameObject<Player>();
+			PlayerCamera* pCamera = GetGameObject<PlayerCamera>();
+			InputIntarface* pPad = new PadInput();
+			pPad->Update();
+			Vector2 StickInfo{};
+			Vector2 tmp{};
+			pPad->GetDeviceMovement(StickInfo, tmp);
+
+
 			float test = 3.0f;
 			if (ImGui::TreeNode("PlayerInfo"))
 			{
@@ -305,6 +313,33 @@ void Game::Draw()
 					ImGui::Text("PrevAnimationName :%s", pPlayer->GetPrevAnimName(), pPlayer->GetPrevAnimName() + 1);
 					ImGui::Text("PrevAnimationFrame :%d", pPlayer->GetPrevAnimationFrame());
 					ImGui::Text("---------------------------------------------");
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("MOVEING"))
+				{
+					ImGui::Text("CamFrontVec");
+					ImGui::Text("X:%f", pCamera->GetCameraFrontVec().x);
+					ImGui::Text("Y:%f", pCamera->GetCameraFrontVec().y);
+					ImGui::Text("Z:%f", pCamera->GetCameraFrontVec().z);
+					ImGui::Text("---------------------------------------------");
+					ImGui::Text("StickVec");
+					ImGui::Text("X:%f", StickInfo.x);
+					ImGui::Text("Y:%f", StickInfo.y);
+					ImGui::Text("---------------------------------------------");
+					Vector3 forward = pCamera->GetCameraFrontVec();
+					forward.x *= StickInfo.x;
+					forward.z *= StickInfo.y;
+					forward.Normalize();
+					forward.x *= 0.1;
+					forward.y = 0;
+					forward.z *= 0.1;
+					ImGui::Text("Forward");
+					ImGui::Text("X:%f", forward.x);
+					ImGui::Text("Y:%f", forward.y);
+					ImGui::Text("Z:%f", forward.z);
+
+					delete pPad;
 
 					ImGui::TreePop();
 				}

@@ -7,6 +7,7 @@ void CharacterBase::Update()
 	SetPosition(GetPosition() + (m_Velocity * m_Time));
 	m_Velocity = { 0 }; // ベロシティを０に
 
+	SetRotateToVector(GetForward());
 
 	// アニメーションさせる
 	if (!m_IsAnimBlendOver)
