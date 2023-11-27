@@ -2,12 +2,14 @@
 
 void CharacterBase::Update()
 {		
+
+	// １フレーム前の座標を保存
+	m_OldPosition = m_Position;
+
 	// ベロシティを加算する
 	// * m_Timeをすることでスローモーションとかできる？	
 	SetPosition(GetPosition() + (m_Velocity * m_Time));
 	m_Velocity = { 0 }; // ベロシティを０に
-
-	SetRotateToVector(GetForward());
 
 	// アニメーションさせる
 	if (!m_IsAnimBlendOver)

@@ -91,12 +91,36 @@ public:
 		float rotateRadian = rotateRadianDestination - GetRotation().y;
 		rotateRadian = FixRadian(rotateRadian);	// ラジアン補正
 
-		// 角度差分回す
+		// 現在の回転角との差を求めて回転後の値を求める
 		Vector3 pRotate = GetRotation();
 		pRotate.y += rotateRadian;
 		pRotate.y = FixRadian(pRotate.y);
 
-		// 回転角適用
+		// 回転を適用
+		SetRotation(Vector3(0, pRotate.y, 0));
+	}
+
+	/// <summary>
+	/// オブジェクトの向きをベクトルの方向にゆっくり回転させる
+	/// </summary>
+	/// <param name="_vector">向いてほしい方向ベクトル</param>
+	void SetRotateToVectorEaseIn(Vector3 _vector)
+	{
+		// ベクトルが向いている角度を求める
+		float rotateRadian = atan2f(_vector.x, _vector.z);
+		rotateRadian = FixRadian(rotateRadian);	// ラジアン補正
+
+		// 現在の回転角との角度差を求める
+		float rotateRadianDestination = rotateRadian - GetRotation().y;
+		rotateRadianDestination = FixRadian(rotateRadianDestination);	// ラジアン補正
+
+		// 回転後の値を求める ゆっくり回転
+		float easeInFactor = 0.5f;// 回転のスピード
+		Vector3 pRotate = GetRotation();
+		pRotate.y += rotateRadianDestination * easeInFactor;
+		pRotate.y = FixRadian(pRotate.y);
+
+		// 回転を適用
 		SetRotation(Vector3(0, pRotate.y, 0));
 	}
 

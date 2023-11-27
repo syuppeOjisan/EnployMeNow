@@ -20,8 +20,11 @@ public:
 	// ベロシティをセット
 	void SetVelocity(Vector3 _velocity) { m_Velocity = _velocity; }
 	void SetVelocity(float _x, float _y, float _z) { m_Velocity.x = _x; m_Velocity.y = _y; m_Velocity.z = _z;}
-
+	// ベロシティをゲット
 	Vector3 GetVelocity(void) { return m_Velocity; }
+
+	// １フレーム前の座標をゲット
+	Vector3 GetOldPosition(void) { return m_OldPosition; }
 
 	// 当たり判定情報を取得(AABB)
 	AABB GetAABBCollision() { return m_AABBCollision; }
@@ -74,6 +77,7 @@ public:
 
 protected:
 	Vector3				m_Velocity{};				// ベロシティ
+	Vector3				m_OldPosition{};			// １フレーム前の座標
 
 	AnimationModel*		m_pModel;					// モデル情報
 	float				m_Time;						// 時間管理変数

@@ -64,28 +64,13 @@ void Player::Init()
 
 void Player::Update()
 {
-	Vector3 oldPosition = m_Position;
-
 	Scene* nowscene = Manager::GetScene();
 	Camera* cameraobj = nowscene->GetGameObject<PlayerCamera>();
-
-	Matrix viewmtx = cameraobj->GetViewMatrix();
-	Vector3 ZAxis = Vector3(viewmtx._13, 0.0f, viewmtx._33);
-	Vector3 XAxis = Vector3(viewmtx._11, 0.0f, viewmtx._31);
-
-	// 左右に回転
-	if (Input::GetKeyPress('A'))
-	{
-		m_Position -= XAxis * 0.4f;
-	}
-	if (Input::GetKeyPress('D'))
-	{
-		m_Position += XAxis * 0.3f;
-	}
 
 	// インターフェースを更新して使用
 	if (m_pInput)
 	{
+		// スティックの情報を取得 - コントローラーの場合
 		m_pInput->Update();
 		Vector2 leftStick = {};
 		Vector2 rightStick = {};
@@ -110,113 +95,50 @@ void Player::Update()
 
 		// 作った2つの軸の移動成分を合成
 		forward += right;
-		//forward.Normalize();
-		//forward.x *= 0.1;
+		// Y成分を削除
 		forward.y = 0;
-		//forward.z *= 0.1;
+
+		//std::cout << "forward:" << std::endl;
+		//std::cout << "X:" << forward.x << std::endl;
+		//std::cout << "Y:" << forward.y << std::endl;
+		//std::cout << "Z:" << forward.z << std::endl;
+		//std::cout << "right:" << std::endl;
+		//std::cout << "X:" << right.x << std::endl;
+		//std::cout << "Y:" << right.y << std::endl;
+		//std::cout << "Z:" << right.z << std::endl;
+
+		// 常に進んでいる方向を向く
+		Vector3 forwardVecFromFunc = GetPosition() - GetOldPosition();	// 移動方向ベクトルを計算
+		forwardVecFromFunc.Normalize();	// 正規化しておく
 
 		std::cout << "forward:" << std::endl;
-		std::cout << "X:" << forward.x << std::endl;
-		std::cout << "Y:" << forward.y << std::endl;
-		std::cout << "Z:" << forward.z << std::endl;
-		std::cout << "right:" << std::endl;
-		std::cout << "X:" << right.x << std::endl;
-		std::cout << "Y:" << right.y << std::endl;
-		std::cout << "Z:" << right.z << std::endl;
+		std::cout << "X:" << forwardVecFromFunc.x << std::endl;
+		std::cout << "Y:" << forwardVecFromFunc.y << std::endl;
+		std::cout << "Z:" << forwardVecFromFunc.z << std::endl;
 
 
 		//if (rightStick.y > 0.1f)
 		{
 			SetVelocity(forward);
 
-			//std::cout << "forward:" << std::endl;
-			//std::cout << "X:" << forward.x << std::endl;
-			//std::cout << "Y:" << forward.y << std::endl;
-			//std::cout << "Z:" << forward.z << std::endl;
-
-			// カメラの前向きベクトルを取得
-			Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
-
-			//abs(forward.x) > abs(forward.z) ? m_NowAnimationSpeed = abs(forward.x) : m_NowAnimationSpeed = abs(forward.z);
-
 			
-			// プレイヤーをカメラが向いている方に向ける
-			if (abs(forward.x) > 0.5f || abs(forward.z) > 0.5f)
+			// スティックの倒され度合いに応じてモーションを変更
+			if (abs(forward.x) > 0.2f || abs(forward.z) > 0.2f)
 			{
-				SetNextAnimation(ANIMATION_ID_RUN);
-				SetRotateToVector(m_pCamera->GetCameraFrontVec());
+				SetNextAnimation(ANIMATION_ID_RUN);	// モーションを変更
+				SetRotateToVectorEaseIn(forwardVecFromFunc); // 進んでいる方向を向くように変更
 			}
-			else if (abs(forward.x) < 0.5f && abs(forward.x) != 0.0f || abs(forward.z) < 0.5f && abs(forward.z) != 0.0f)
+			else if (abs(forward.x) < 0.2f && abs(forward.x) != 0.0f || abs(forward.z) < 0.2f && abs(forward.z) != 0.0f)
 			{
 				SetNextAnimation(ANIMATION_ID_WALK);
-				m_NowAnimationSpeed *= 2;
-				SetRotateToVector(m_pCamera->GetCameraFrontVec());
-
+				SetRotateToVectorEaseIn(forwardVecFromFunc);
 			}
 			else
 			{
 				SetNextAnimation(ANIMATION_ID_IDLE);
 			}
 		}
-
-
-		//// 前後移動
-		//if (m_pInput->GetPressed('W'))
-		//{
-		//	if (m_pInput->GetPressed(VK_SHIFT))
-		//	{
-		//		SetVelocity(forward * 2);
-		//		SetNextAnimation(ANIMATION_ID_RUN);
-		//	}
-		//	else
-		//	{
-		//		SetVelocity(forward);
-		//		
-		//		// カメラの前向きベクトルを取得
-		//		Vector3 cameraFront = m_pCamera->GetCameraFrontVec();
-
-		//		// プレイヤーをカメラが向いている方に向ける
-		//		SetRotateToVector(cameraFront);
-
-
-		//		SetNextAnimation(ANIMATION_ID_WALK);
-		//	}
-		//}
-		//else if (m_pInput->GetPressed('S'))
-		//{
-		//	SetVelocity(-forward);
-		//	SetNextAnimation(ANIMATION_ID_WALKBACK);
-		//}
-		//else if (m_pInput->GetPressed('P'))
-		//{
-		//	SetNextAnimation(ANIMATION_ID_PUNCHING);
-		//}
-		//else
-		//{
-		//	SetNextAnimation(ANIMATION_ID_IDLE);
-		//}
-
-		//ジャンプ
-		if (m_pInput->GetPressed(VK_SPACE))
-		{
-			SetRotation(Vector3(0, DEGREE_TO_RADIAN(90), 0));
-		}
 	}
-
-
-	// TODO:弾を見ている方向に撃つ
-	// 一応できた
-	//弾発射
-	//if (Input::GetKeyTrigger('K'))
-	//{
-	//	forward.y += 0.2f;
-	//	forward.Normalize();
-	//	Scene* scene = Manager::GetScene();
-	//	Bullet* bullet = scene->AddGameObject<Bullet>(2);
-	//	bullet->SetPosition(m_Position + Vector3(0.0f,2.0f,0.0f));
-	//	bullet->SetVelocity(forward);
-	//}
-
 
 	//重力
 	m_Velocity.y -= 0.015f;
@@ -245,6 +167,8 @@ void Player::Update()
 
 	// TODO:当たり判定をいい感じに変える
 	// せめてゲームシーン内で判定を行いたい
+
+	Vector3 oldPosition = GetOldPosition();
 
 	// cylinderとの当たり判定
 	{
