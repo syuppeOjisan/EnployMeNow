@@ -18,6 +18,8 @@
 #include "GameObject/Item_Y.h"
 #include "GameObject/Item_Z.h"
 
+#include "imgui.h"
+
 #include <iostream>
 
 using namespace DirectX::SimpleMath;
@@ -41,6 +43,7 @@ void Player::Init()
 	m_pModel->LoadAnimation("asset\\model\\Player_WalkBack.fbx", ANIMATION_ID_WALKBACK);
 	m_pModel->LoadAnimation("asset\\model\\Player_Run.fbx", ANIMATION_ID_RUN);
 	m_pModel->LoadAnimation("asset\\model\\Player_Punching.fbx", ANIMATION_ID_PUNCHING);
+	m_pModel->LoadAnimation("asset\\model\\Player_Jump.fbx", ANIMATION_ID_JUMP);
 
 	AddComponent<Shadow>()->SetSize(1.5f);
 
@@ -55,11 +58,10 @@ void Player::Init()
 	m_PrevAnimation = "Idle";
 
 	m_NowAnimationSpeed = 1;
-	m_PreAnimationSpeed = 1;
+	m_PrevAnimationSpeed = 1;
 
 	m_NowAnimationID = ANIMATION_ID_IDLE;
 	m_PrevAnimationID = ANIMATION_ID_IDLE;
-
 }
 
 void Player::Update()
@@ -70,58 +72,45 @@ void Player::Update()
 	// インターフェースを更新して使用
 	if (m_pInput)
 	{
-		// スティックの情報を取得 - コントローラーの場合
-		m_pInput->Update();
-		Vector2 leftStick = {};
-		Vector2 rightStick = {};
-		m_pInput->GetDeviceMovement(leftStick, rightStick);
-
-		// カメラの前向きベクトル
-		Vector3 CamForward = m_pCamera->GetCameraFrontVec();
-
-		// Z軸の移動成分を作成
-		Vector3 forward{};
-		forward = CamForward;
-		forward.x *= leftStick.y;
-		forward.z *= leftStick.y;
-
-		// X軸の移動成分を作成
-		Vector3 right{};
-		right.z = -CamForward.x;
-		right.x = CamForward.z;
-
-		right.x *= leftStick.x;
-		right.z *= leftStick.x;
-
-		// 作った2つの軸の移動成分を合成
-		forward += right;
-		// Y成分を削除
-		forward.y = 0;
-
-		//std::cout << "forward:" << std::endl;
-		//std::cout << "X:" << forward.x << std::endl;
-		//std::cout << "Y:" << forward.y << std::endl;
-		//std::cout << "Z:" << forward.z << std::endl;
-		//std::cout << "right:" << std::endl;
-		//std::cout << "X:" << right.x << std::endl;
-		//std::cout << "Y:" << right.y << std::endl;
-		//std::cout << "Z:" << right.z << std::endl;
-
-		// 常に進んでいる方向を向く
-		Vector3 forwardVecFromFunc = GetPosition() - GetOldPosition();	// 移動方向ベクトルを計算
-		forwardVecFromFunc.Normalize();	// 正規化しておく
-
-		std::cout << "forward:" << std::endl;
-		std::cout << "X:" << forwardVecFromFunc.x << std::endl;
-		std::cout << "Y:" << forwardVecFromFunc.y << std::endl;
-		std::cout << "Z:" << forwardVecFromFunc.z << std::endl;
-
-
-		//if (rightStick.y > 0.1f)
+		// スティックでキャラクターを移動させる処理
 		{
+			// スティックの情報を取得 - コントローラーの場合
+			m_pInput->Update();
+			Vector2 leftStick = {};
+			Vector2 rightStick = {};
+			m_pInput->GetDeviceMovement(leftStick, rightStick);
+
+			// カメラの前向きベクトル
+			Vector3 CamForward = m_pCamera->GetCameraFrontVec();
+
+			// Z軸の移動成分を作成
+			Vector3 forward{};
+			forward = CamForward;
+			forward.x *= leftStick.y;
+			forward.z *= leftStick.y;
+
+			// X軸の移動成分を作成
+			Vector3 right{};
+			right.z = -CamForward.x;
+			right.x = CamForward.z;
+
+			right.x *= leftStick.x;
+			right.z *= leftStick.x;
+
+			// 作った2つの軸の移動成分を合成
+			forward += right;
+			// Y成分を削除
+			forward.y = 0;
+
+			// 常に進んでいる方向を向く
+			Vector3 forwardVecFromFunc = GetPosition() - GetOldPosition();	// 移動方向ベクトルを計算
+			forwardVecFromFunc.Normalize();	// 正規化しておく
+
+			// ゆっくり加速
 			SetVelocity(forward);
 
-			
+			// コントローラーの入力によって処理を変える
+
 			// スティックの倒され度合いに応じてモーションを変更
 			if (abs(forward.x) > 0.2f || abs(forward.z) > 0.2f)
 			{
@@ -133,10 +122,28 @@ void Player::Update()
 				SetNextAnimation(ANIMATION_ID_WALK);
 				SetRotateToVectorEaseIn(forwardVecFromFunc);
 			}
+			else if (m_pInput->GetTregger(XINPUT_GAMEPAD_A))
+			{
+				SetNextAnimation(ANIMATION_ID_PUNCHING);
+
+				XINPUT_VIBRATION vib{};
+				vib.wLeftMotorSpeed = 65535;
+				vib.wRightMotorSpeed = 65535;
+				XInputSetState(0, &vib);
+			}
+			else if(m_pInput->GetPressed(XINPUT_GAMEPAD_B))
+			{
+				SetNextAnimation(ANIMATION_ID_JUMP);
+
+				XINPUT_VIBRATION vib{};
+				vib.wLeftMotorSpeed = 0;
+				vib.wRightMotorSpeed = 0;
+				XInputSetState(0, &vib);
+			}
 			else
 			{
 				SetNextAnimation(ANIMATION_ID_IDLE);
-			}
+			}			
 		}
 	}
 

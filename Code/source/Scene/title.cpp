@@ -1,6 +1,8 @@
 #include "System/main.h"
 #include "System/manager.h"
 #include "System/input.h"
+#include "System/KeyboardInput.h"
+#include "System/PadInput.h"
 
 #include "Scene/title.h"
 #include "Scene/game.h"
@@ -12,6 +14,7 @@
 
 #include "GameObject/transition.h"
 
+#include <memory>
 #include "imgui.h"
 
 void Title::Init()
@@ -27,18 +30,25 @@ void Title::Init()
 
 void Title::Update()
 {
-	//  ‰æ–Ê‘JˆÚ
-	if (m_Transition->GetState() == Transition::State::Stop) {
-		if (Input::GetKeyTrigger(VK_RETURN))
-		{
-			m_Transition->FadeOut();
-		}
-	}
+	std::unique_ptr<InputIntarface> pInput = std::make_unique<PadInput>();
 
-	// ‰æ–Ê‘JˆÚ‚ªI—¹‚µ‚Ä‚é‚©H
-	if (m_Transition->GetState() == Transition::State::Finish)
+	if (pInput)
 	{
-		Manager::SetScene<Stage01>();
+		pInput->Update();
+
+		//  ‰æ–Ê‘JˆÚ
+		if (m_Transition->GetState() == Transition::State::Stop) {
+			if (pInput->GetPressed(VK_PAD_A))
+			{
+				m_Transition->FadeOut();
+			}
+		}
+
+		// ‰æ–Ê‘JˆÚ‚ªI—¹‚µ‚Ä‚é‚©H
+		if (m_Transition->GetState() == Transition::State::Finish)
+		{
+			Manager::SetScene<Game>();
+		}
 	}
 }
 

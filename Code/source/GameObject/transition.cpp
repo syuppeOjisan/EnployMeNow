@@ -31,7 +31,7 @@ void Transition::Update()
 
 		case State::In:								// フェードイン中（透明度を下げていく）
 		{
-			m_Alpha -= 2.0f / 60.0f;					// １秒間に２ずつ透明
+			m_Alpha -= 5.0f / 60.0f;					// １秒間に２ずつ透明
 
 			if (m_Alpha < 0.0f)							// 完全に透明になったらSTOP状態へ
 				m_State = State::Stop;

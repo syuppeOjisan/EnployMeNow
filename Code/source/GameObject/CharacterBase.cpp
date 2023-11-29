@@ -14,10 +14,10 @@ void CharacterBase::Update()
 	// アニメーションさせる
 	if (!m_IsAnimBlendOver)
 	{
-		m_BlendRate += 0.1f * m_Time;
+		m_BlendRate += 0.05f * m_Time;
 	}
 	m_NowAnimationFrame += m_NowAnimationSpeed * m_Time;
-	m_PrevAnimationFrame += m_PrevAnimationFrame * m_Time;
+	m_PrevAnimationFrame += m_PrevAnimationSpeed * m_Time;
 
 	if (m_BlendRate > 1.0f)
 	{
@@ -62,13 +62,11 @@ bool CharacterBase::SetNextAnimation(int _animID)
 	{
 		m_PrevAnimationID = m_NowAnimationID;	// 実行していたアニメーションを前回のものとして保存
 		m_NowAnimationID = _animID;				// 新しく指定されたアニメーションと前回のものをブレンド
-
 		m_IsAnimBlendOver = false;				// ここからブレンドを開始してほしいのでフラグと変数初期化
 		m_BlendRate = 0.0f;
+
 		m_PrevAnimationFrame = m_NowAnimationFrame;
 		m_NowAnimationFrame = 0;
-
-		m_PreAnimationSpeed = m_NowAnimationSpeed;
 	}
 
 	return true;

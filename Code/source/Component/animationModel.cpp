@@ -459,7 +459,7 @@ void AnimationModel::Update(int _prevAnimationID, float _prevAnimationFrame, int
 		aiAnimation* animation1 = m_AnimationNew[_prevAnimationID]->mAnimations[0];
 		aiAnimation* animation2 = m_AnimationNew[_nowAnimationID]->mAnimations[0];
 
-		// 現在のアニメーションについて関連するボーンを全て更新
+		// 前回のアニメーションについて関連するボーンを全て更新
 		for (unsigned int c = 0; c < animation1->mNumChannels; c++)
 		{
 			aiNodeAnim* nodeAnim = animation1->mChannels[c];
@@ -560,6 +560,7 @@ void AnimationModel::Update(int _prevAnimationID, float _prevAnimationFrame, int
 		}
 	}
 }
+
 
 void AnimationModel::UpdateBoneMatrix(aiNode* node, aiMatrix4x4 matrix)
 {

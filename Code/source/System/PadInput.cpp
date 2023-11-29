@@ -17,6 +17,16 @@ void PadInput::Update(void)
 	XINPUT_STATE inputStateTmp = {};
 	XInputGetState(0, &inputStateTmp);
 	m_NowPadState = inputStateTmp.Gamepad;
+
+	// バイブレーションの処理
+	if (m_isVib)
+	{
+		m_VibCount++;
+		if (m_VibCount > 10)
+		{
+			m_isVib = false;
+		}
+	}
 }
 
 bool PadInput::GetPressed(int _key)

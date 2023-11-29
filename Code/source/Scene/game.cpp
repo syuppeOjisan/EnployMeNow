@@ -313,6 +313,9 @@ void Game::Draw()
 					ImGui::Text("PrevAnimationName :%s", pPlayer->GetPrevAnimName(), pPlayer->GetPrevAnimName() + 1);
 					ImGui::Text("PrevAnimationFrame :%d", pPlayer->GetPrevAnimationFrame());
 					ImGui::Text("---------------------------------------------");
+					bool isEnd = pPlayer->GetIsAnimBlendOver();
+					ImGui::Checkbox("isAnimBlendOver", &isEnd);
+					ImGui::Text("BlendRate:%f", pPlayer->GetBlendRate());
 
 					ImGui::TreePop();
 				}

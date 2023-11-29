@@ -67,6 +67,9 @@ public:
 	// アニメーションブレンドが終わったかどうかを取得
 	bool* GetIsAnimBlendOver(void) { return &m_IsAnimBlendOver; }
 
+	// 現在のブレンドレートを取得
+	float GetBlendRate(void) { return m_BlendRate; }
+
 	/// <summary>
 	/// ヒットストップの計算を行います
 	/// </summary>
@@ -85,7 +88,7 @@ protected:
 	float				m_NowAnimationFrame = 0;	// 再生中のアニメーションフレーム
 	float				m_PrevAnimationFrame = 0;	// 前再生していたアニメーションフレーム
 	float				m_NowAnimationSpeed = 1.0f;	// 再生中のアニメーション速度
-	float				m_PreAnimationSpeed = 1.0f;	// 前再生していたアニメーション速度
+	float				m_PrevAnimationSpeed = 1.0f;	// 前再生していたアニメーション速度
 	const char*			m_NowAnimation;				// 今のモーション名
 	const char*			m_PrevAnimation;			// 前回のモーション名
 	int					m_NowAnimationID;			// 今のモーションID

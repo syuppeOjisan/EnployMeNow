@@ -10,6 +10,9 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 
+#pragma comment (lib, "xinput.lib")
+#include <Xinput.h>
+
 // シーンマネージャ内メンバ変数の実体
 Scene* Manager::m_Scene{};		// 現在シーン
 bool Manager::m_IsLoop;			// ループフラグ
