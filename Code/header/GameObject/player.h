@@ -27,6 +27,7 @@ class Player : public CharacterBase
 {
 public:
 	void Init() override;
+	void Uninit() override;
 	void Update() override;
 	void PreDraw() override;
 

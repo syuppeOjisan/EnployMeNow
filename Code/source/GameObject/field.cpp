@@ -65,9 +65,9 @@ void Field::Init()
 
 void Field::Uninit()
 {
-	for (auto& com : m_Component) {
-		com->Uninit();
-		delete com;
+	for (auto& component : m_Component) 
+	{
+		component->Uninit();
 	}
 
 	m_Component.clear();

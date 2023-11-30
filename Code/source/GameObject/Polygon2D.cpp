@@ -72,10 +72,9 @@ void Polygon2D::Init()
 
 void Polygon2D::Uninit()
 {
-
-	for (auto& cmpt : m_Component) {
-		cmpt->Uninit();
-		delete cmpt;
+	for (auto& component : m_Component) 
+	{
+		component->Uninit();
 	}
 	m_Component.clear();
 }

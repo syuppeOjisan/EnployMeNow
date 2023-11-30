@@ -189,37 +189,41 @@ public:
 	virtual void Draw() {}
 	virtual void PreDraw() {}
 
+	// コンポーネント追加
 	template <typename T>
 	T* AddComponent()
 	{
-		T* component = new T(this);
-		m_Component.push_back(component);
-		((Component*)component)->Init();
+		std::unique_ptr<T> component = std::make_unique<T>(this);	// ユニークポインタとしてコンポーネントを生成
+		m_Component.push_back(std::move(component));				// 所有権をリストに移行して追加
+		m_Component.back()->Init();									// リストから初期化を呼び出す
 
-		return component;
+		return dynamic_cast<T*>(m_Component.back().get());			// リストからコンポーネントの生ポを取り出して返す、一応dynamic_cast
 	}
 
+	// コンポーネント取得
 	template <typename T>
 	T* GetComponent()
 	{
-		for (Component* component : m_Component)
+		for (auto& component : m_Component)
 		{
-			if (typeid(*component) == typeid(T))
+			T* castedComponent = dynamic_cast<T*>(component.get());	// リストからコンポーネントを取得してT型にキャスト
+			if (castedComponent)									
 			{
-				return (T*)component;
+				return castedComponent;								// キャストが成功したらそのコンポーネントを返す
 			}
 		}
-		return nullptr;
+		return nullptr;												// キャストが成功しなかったらnullptrを返す
 	}
 
+	// 子オブジェクトを追加
 	template <typename T>
 	T* AddChild()
 	{
-		T* child = new T();
-		m_ChildGameObject.push_back(child);
-		child->InitBase();
+		std::unique_ptr<T> childObj = std::make_unique<T>();		// ユニークポインタとして子オブジェクトを生成
+		m_ChildGameObject.push_back(std::move(childObj));			// 所有権をリストに移行して追加
+		m_ChildGameObject.back()->Init();							// リストから初期化を呼び出す
 
-		return child;
+		return dynamic_cast<T*>(m_ChildGameObject.back().get());	// リストから子オブジェクトの生ポを取り出して返す
 	}
 
 	void InitBase()
@@ -230,28 +234,27 @@ public:
 	void UninitBase()
 	{
 		Uninit();
-		// ts 20230630（子供ゲームオブジェクトの終了処理忘れを追加）
-		for (auto* childgo : m_ChildGameObject)
+		
+		// 子オブジェクト関連の終了処理
+		for (auto& childObj : m_ChildGameObject)
 		{
-			childgo->Uninit();
+			childObj->Uninit();				// 子オブジェクトの終了処理
 
-			for (Component* component : childgo->m_Component)
+			for (auto& component : childObj->m_Component)
 			{
-				component->Uninit();
-				delete component;
+				component->Uninit();		// 子オブジェクトが持っているコンポーネントの終了処理
 			}
-			childgo->m_Component.clear();//リストのクリア
+			childObj->m_Component.clear();	// 子オブジェクトのコンポーネントリストをクリア
 
-			delete childgo;
 		}
-		m_ChildGameObject.clear();//リストのクリア
+		m_ChildGameObject.clear();			//子オブジェクトのリストをクリア
 
-		for (Component* component : m_Component)
+		// このオブジェクトの終了処理
+		for (auto& component : m_Component)
 		{
-			component->Uninit();
-			delete component;
+			component->Uninit();			// コンポーネントの終了処理s
 		}
-		m_Component.clear();//リストのクリア
+		m_Component.clear();				// コンポーネントリストのクリア
 	}
 
 	void UpdateBase(uint64_t _deltaTime)
@@ -260,7 +263,7 @@ public:
 		this->m_DeltaTime = _deltaTime;
 		
 		// コンポーネントを更新
-		for (Component* component : m_Component)
+		for (auto& component : m_Component)
 		{
 			component->Update();
 		}
@@ -280,7 +283,7 @@ public:
 
 		PreDraw();
 
-		for (GameObject* child : m_ChildGameObject)
+		for (auto& child : m_ChildGameObject)
 		{
 			child->DrawBase(world);
 		}
@@ -288,7 +291,7 @@ public:
 
 		Renderer::SetWorldMatrix(&world);
 
-		for (Component* component : m_Component)
+		for (auto& component : m_Component)
 		{
 			component->Draw();
 		}
@@ -304,9 +307,9 @@ protected:
 	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f); // 回転
 	DirectX::SimpleMath::Vector3	m_Scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
 
-	std::list<Component*> m_Component;
+	std::list<std::unique_ptr<Component>> m_Component;
 
-	std::list<GameObject*> m_ChildGameObject;
+	std::list<std::unique_ptr<GameObject>> m_ChildGameObject;
 
 	InputIntarface* m_pInput;	// 入力インターフェース
 };

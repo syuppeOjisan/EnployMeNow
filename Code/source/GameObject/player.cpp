@@ -64,6 +64,11 @@ void Player::Init()
 	m_PrevAnimationID = ANIMATION_ID_IDLE;
 }
 
+void Player::Uninit()
+{
+	delete m_pInput;
+}
+
 void Player::Update()
 {
 	Scene* nowscene = Manager::GetScene();
