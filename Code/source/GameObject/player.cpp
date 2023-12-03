@@ -77,79 +77,79 @@ void Player::Update()
 	// インターフェースを更新して使用
 	if (m_pInput)
 	{
-		// スティックでキャラクターを移動させる処理
+		// スティックもしくはコントローラーでキャラクター移動
+		
+		// スティックの情報を取得 - コントローラーの場合
+		// キーボード移動キーの取得 - キーボードの場合
+		m_pInput->Update();
+		Vector2 leftStick = {};
+		Vector2 rightStick = {};
+		m_pInput->GetDeviceMovement(leftStick, rightStick);
+
+		// カメラの前向きベクトル
+		Vector3 CamForward = m_pCamera->GetCameraFrontVec();
+
+		// Z軸の移動成分を作成
+		Vector3 forward{};
+		forward = CamForward;
+		forward.x *= leftStick.y;
+		forward.z *= leftStick.y;
+
+		// X軸の移動成分を作成
+		Vector3 right{};
+		right.z = -CamForward.x;
+		right.x = CamForward.z;
+		right.x *= leftStick.x;
+		right.z *= leftStick.x;
+
+		// 作った2つの軸の移動成分を合成
+		forward += right;
+		// Y成分を削除
+		forward.y = 0;
+
+		// 完成した移動成分を適応
+		SetVelocity(forward);
+
+
+		// 常に進んでいる方向を向く
+		Vector3 forwardVecFromFunc = GetPosition() - GetOldPosition();	// 移動方向ベクトルを計算
+		forwardVecFromFunc.Normalize();	// 正規化しておく
+
+		// コントローラーの入力によって処理を変える
+
+		// スティックの倒され度合いに応じてモーションを変更
+		if (abs(forward.x) > 0.2f || abs(forward.z) > 0.2f)
 		{
-			// スティックの情報を取得 - コントローラーの場合
-			m_pInput->Update();
-			Vector2 leftStick = {};
-			Vector2 rightStick = {};
-			m_pInput->GetDeviceMovement(leftStick, rightStick);
-
-			// カメラの前向きベクトル
-			Vector3 CamForward = m_pCamera->GetCameraFrontVec();
-
-			// Z軸の移動成分を作成
-			Vector3 forward{};
-			forward = CamForward;
-			forward.x *= leftStick.y;
-			forward.z *= leftStick.y;
-
-			// X軸の移動成分を作成
-			Vector3 right{};
-			right.z = -CamForward.x;
-			right.x = CamForward.z;
-
-			right.x *= leftStick.x;
-			right.z *= leftStick.x;
-
-			// 作った2つの軸の移動成分を合成
-			forward += right;
-			// Y成分を削除
-			forward.y = 0;
-
-			// 常に進んでいる方向を向く
-			Vector3 forwardVecFromFunc = GetPosition() - GetOldPosition();	// 移動方向ベクトルを計算
-			forwardVecFromFunc.Normalize();	// 正規化しておく
-
-			// ゆっくり加速
-			SetVelocity(forward);
-
-			// コントローラーの入力によって処理を変える
-
-			// スティックの倒され度合いに応じてモーションを変更
-			if (abs(forward.x) > 0.2f || abs(forward.z) > 0.2f)
-			{
-				SetNextAnimation(ANIMATION_ID_RUN);	// モーションを変更
-				SetRotateToVectorEaseIn(forwardVecFromFunc); // 進んでいる方向を向くように変更
-			}
-			else if (abs(forward.x) < 0.2f && abs(forward.x) != 0.0f || abs(forward.z) < 0.2f && abs(forward.z) != 0.0f)
-			{
-				SetNextAnimation(ANIMATION_ID_WALK);
-				SetRotateToVectorEaseIn(forwardVecFromFunc);
-			}
-			else if (m_pInput->GetTregger(XINPUT_GAMEPAD_A))
-			{
-				SetNextAnimation(ANIMATION_ID_PUNCHING);
-
-				XINPUT_VIBRATION vib{};
-				vib.wLeftMotorSpeed = 65535;
-				vib.wRightMotorSpeed = 65535;
-				XInputSetState(0, &vib);
-			}
-			else if(m_pInput->GetPressed(XINPUT_GAMEPAD_B))
-			{
-				SetNextAnimation(ANIMATION_ID_JUMP);
-
-				XINPUT_VIBRATION vib{};
-				vib.wLeftMotorSpeed = 0;
-				vib.wRightMotorSpeed = 0;
-				XInputSetState(0, &vib);
-			}
-			else
-			{
-				SetNextAnimation(ANIMATION_ID_IDLE);
-			}			
+			SetNextAnimation(ANIMATION_ID_RUN);	// モーションを変更
+			SetRotateToVectorEaseIn(forwardVecFromFunc); // 進んでいる方向を向くように変更
 		}
+		else if (abs(forward.x) < 0.2f && abs(forward.x) != 0.0f || abs(forward.z) < 0.2f && abs(forward.z) != 0.0f)
+		{
+			SetNextAnimation(ANIMATION_ID_WALK);
+			SetRotateToVectorEaseIn(forwardVecFromFunc);
+		}
+		else if (m_pInput->GetTregger(XINPUT_GAMEPAD_A))
+		{
+			SetNextAnimation(ANIMATION_ID_PUNCHING);
+
+			XINPUT_VIBRATION vib{};
+			vib.wLeftMotorSpeed = 65535;
+			vib.wRightMotorSpeed = 65535;
+			XInputSetState(0, &vib);
+		}
+		else if(m_pInput->GetPressed(XINPUT_GAMEPAD_B))
+		{
+			SetNextAnimation(ANIMATION_ID_JUMP);
+
+			XINPUT_VIBRATION vib{};
+			vib.wLeftMotorSpeed = 0;
+			vib.wRightMotorSpeed = 0;
+			XInputSetState(0, &vib);
+		}
+		else
+		{
+			SetNextAnimation(ANIMATION_ID_IDLE);
+		}			
 	}
 
 	//重力

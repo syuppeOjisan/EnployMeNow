@@ -69,6 +69,12 @@ public:
 	/// <param name="Scale">セットしたいスケール</param>
 	void SetScale(DirectX::SimpleMath::Vector3 Scale) { m_Scale = Scale; }
 
+	/// <summary>
+	/// ワールド行列を取得
+	/// </summary>
+	/// <returns>ワールド行列</returns>
+	DirectX::SimpleMath::Matrix GetWorldMatrix(void) { return m_WorldMatrix; }
+
 
 
 	/// <summary>
@@ -275,21 +281,20 @@ public:
 	void DrawBase(DirectX::SimpleMath::Matrix ParentMatrix)
 	{
 		// マトリクス設定
-		DirectX::SimpleMath::Matrix world, scale, rot, trans;
-		scale = DirectX::SimpleMath::Matrix::CreateScale(m_Scale.x, m_Scale.y, m_Scale.z);
-		rot = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(m_Rotation.y, m_Rotation.x, m_Rotation.z);
-		trans = DirectX::SimpleMath::Matrix::CreateTranslation(m_Position.x, m_Position.y, m_Position.z);
-		world = scale * rot * trans * ParentMatrix;
+		m_ScaleMatrix = DirectX::SimpleMath::Matrix::CreateScale(m_Scale.x, m_Scale.y, m_Scale.z);
+		m_RotateMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(m_Rotation.y, m_Rotation.x, m_Rotation.z);
+		m_TransMatrix = DirectX::SimpleMath::Matrix::CreateTranslation(m_Position.x, m_Position.y, m_Position.z);
+		m_WorldMatrix = m_ScaleMatrix * m_RotateMatrix * m_TransMatrix * ParentMatrix;
 
 		PreDraw();
 
 		for (auto& child : m_ChildGameObject)
 		{
-			child->DrawBase(world);
+			child->DrawBase(m_WorldMatrix);
 		}
 
 
-		Renderer::SetWorldMatrix(&world);
+		Renderer::SetWorldMatrix(&m_WorldMatrix);
 
 		for (auto& component : m_Component)
 		{
@@ -306,6 +311,11 @@ protected:
 	DirectX::SimpleMath::Vector3	m_Position = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
 	DirectX::SimpleMath::Vector3	m_Rotation = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f); // 回転
 	DirectX::SimpleMath::Vector3	m_Scale = DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f);
+
+	DirectX::SimpleMath::Matrix m_WorldMatrix;		// ワールド行列
+	DirectX::SimpleMath::Matrix m_ScaleMatrix;		// スケール行列
+	DirectX::SimpleMath::Matrix m_RotateMatrix;		// 回転行列
+	DirectX::SimpleMath::Matrix m_TransMatrix;		// トランス行列
 
 	std::list<std::unique_ptr<Component>> m_Component;
 
