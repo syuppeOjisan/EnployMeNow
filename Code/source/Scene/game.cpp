@@ -490,6 +490,13 @@ void Game::HitCheck()
 	Player* pPlayer = GetGameObject<Player>();
 	grandpa* pGrandpa = GetGameObject<grandpa>();
 
+	Matrix playerWorldMatrix = pPlayer->GetWorldMatrix();				// プレイヤーのワールド行列
+
+	AnimationModel* pPlayerModel = pPlayer->GetAnimationModel();	// プレイヤーのモデル
+	BONE pPlayerRightHandBoneInfo = pPlayerModel->GetBoneByIndex("mixamorig:RightHand");	// プレイヤーのモデルのボーン情報 右手の甲
+	BONE pPlayerLeftHandBoneInfo = pPlayerModel->GetBoneByIndex("mixamorig:LeftHand");		// プレイヤーのモデルのボーン情報 左手の甲 インデックスあってるかわからん
+	
+
 	// プレイヤーとグランパの当たり判定
 	if (CollisionAABB(pPlayer->GetAABBCollision(), pGrandpa->GetAABBCollision()))
 	{

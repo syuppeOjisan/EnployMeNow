@@ -74,4 +74,7 @@ public:
 	// 指定されたアニメーションがロードされているかをチェック
 	bool CheckIsAnimation(const char* _animName);
 	bool CheckIsAnimation(int _animID);
+
+	// ボーンデータを取得
+	const BONE& GetBoneByIndex(const std::string _boneIndex) const;
 };

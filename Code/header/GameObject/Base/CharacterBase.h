@@ -31,6 +31,9 @@ public:
 	// 当たり判定情報を取得(球)
 	BoundingSphere GetSphereCollision() { return m_SphereCollision; }
 
+	// モデルデータを取得
+	AnimationModel* GetAnimationModel(void) { return m_pModel; }
+
 	// 当たり状態をセット
 	void SetIsHit(bool _isHit) { m_IsHit = _isHit; }
 	// 当たり判定状態をゲット

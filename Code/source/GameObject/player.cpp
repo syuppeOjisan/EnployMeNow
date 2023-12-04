@@ -43,6 +43,7 @@ void Player::Init()
 	m_pModel->LoadAnimation("asset\\model\\Player_WalkBack.fbx", ANIMATION_ID_WALKBACK);
 	m_pModel->LoadAnimation("asset\\model\\Player_Run.fbx", ANIMATION_ID_RUN);
 	m_pModel->LoadAnimation("asset\\model\\Player_Punching.fbx", ANIMATION_ID_PUNCHING);
+	m_pModel->LoadAnimation("asset\\model\\Player_Punching_Charge.fbx", ANIMATION_ID_PUNCHI_CHARGE);
 	m_pModel->LoadAnimation("asset\\model\\Player_Jump.fbx", ANIMATION_ID_JUMP);
 
 	AddComponent<Shadow>()->SetSize(1.5f);
@@ -137,7 +138,11 @@ void Player::Update()
 			vib.wRightMotorSpeed = 65535;
 			XInputSetState(0, &vib);
 		}
-		else if(m_pInput->GetPressed(XINPUT_GAMEPAD_B))
+		else if (m_pInput->GetPressed(XINPUT_GAMEPAD_B))
+		{
+			SetNextAnimation(ANIMATION_ID_PUNCHI_CHARGE);
+		}
+		else if(m_pInput->GetPressed(XINPUT_GAMEPAD_Y))
 		{
 			SetNextAnimation(ANIMATION_ID_JUMP);
 

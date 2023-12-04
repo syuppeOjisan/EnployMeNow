@@ -17,6 +17,7 @@ void grandpa::Init()
 
 	m_pModel->Load("asset\\model\\Grandpa_Tpose.fbx");							// animation ok
 	m_pModel->LoadAnimation("asset\\model\\Grandpa_Idel.fbx", "Idle");
+	m_pModel->LoadAnimation("asset\\model\\Grandpa_HIt.fbx", "Hit");
 	m_pModel->LoadAnimation("asset\\model\\Grandpa_Die.fbx", "Die");
 
 	AddComponent<Shadow>()->SetSize(1.5f);

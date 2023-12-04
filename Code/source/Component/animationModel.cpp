@@ -606,3 +606,18 @@ bool AnimationModel::CheckIsAnimation(int _animID)
 
 	return true;
 }
+
+//　このチェックの方法だと、インデックスが正規のものでもそのデータがリストの末尾にあったらnullが返されてしまう
+const BONE& AnimationModel::GetBoneByIndex(const std::string _boneIndex) const
+{
+	BONE bone{};
+	auto listIterator = m_Bone.find(_boneIndex);
+	if (listIterator == m_Bone.end())
+	{
+		return bone;
+	}
+	else
+	{
+		return listIterator->second;
+	}
+}
