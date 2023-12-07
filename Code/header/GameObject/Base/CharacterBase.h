@@ -27,9 +27,11 @@ public:
 	Vector3 GetOldPosition(void) { return m_OldPosition; }
 
 	// 当たり判定情報を取得(AABB)
-	AABB GetAABBCollision() { return m_AABBCollision; }
+	AABB GetAABBCollision(void) { return m_AABBCollision; }
+	// 当たり判定情報を取得(OBB)
+	OBB GetOBBCollision(void) { return m_OBBCollision; }
 	// 当たり判定情報を取得(球)
-	BoundingSphere GetSphereCollision() { return m_SphereCollision; }
+	BoundingSphere GetSphereCollision(void) { return m_SphereCollision; }
 
 	// モデルデータを取得
 	AnimationModel* GetAnimationModel(void) { return m_pModel; }
@@ -103,5 +105,6 @@ protected:
 
 	// 当たり判定情報
 	AABB			m_AABBCollision{};		// AABBコリジョン情報
+	OBB				m_OBBCollision{};		// OBBコリジョン情報
 	BoundingSphere	m_SphereCollision{};	// 丸コリジョン情報
 };

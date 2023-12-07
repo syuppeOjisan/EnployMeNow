@@ -295,6 +295,7 @@ void Game::Draw()
 				}
 				if (ImGui::TreeNode("Collision"))
 				{
+					ImGui::Text("AABB-----------------------------------------");
 					ImGui::Text("MAX - X:%f", pPlayer->GetAABBCollision().max.x);
 					ImGui::Text("MAX - Y:%f", pPlayer->GetAABBCollision().max.y);
 					ImGui::Text("MAX - Z:%f", pPlayer->GetAABBCollision().max.z);
@@ -302,6 +303,10 @@ void Game::Draw()
 					ImGui::Text("MIN - X:%f", pPlayer->GetAABBCollision().min.x);
 					ImGui::Text("MIN - Y:%f", pPlayer->GetAABBCollision().min.y);
 					ImGui::Text("MIN - Z:%f", pPlayer->GetAABBCollision().min.z);
+					ImGui::Text("OBB------------------------------------------");
+					ImGui::Text("Center - X:%f", pPlayer->GetOBBCollision().center.x);
+					ImGui::Text("Center - Y:%f", pPlayer->GetOBBCollision().center.y);
+					ImGui::Text("Center - Z:%f", pPlayer->GetOBBCollision().center.z);
 					ImGui::Checkbox("IsHit", pPlayer->GetIsHit());
 					ImGui::TreePop();
 				}
@@ -495,16 +500,30 @@ void Game::HitCheck()
 	AnimationModel* pPlayerModel = pPlayer->GetAnimationModel();	// プレイヤーのモデル
 	BONE pPlayerRightHandBoneInfo = pPlayerModel->GetBoneByIndex("mixamorig:RightHand");	// プレイヤーのモデルのボーン情報 右手の甲
 	BONE pPlayerLeftHandBoneInfo = pPlayerModel->GetBoneByIndex("mixamorig:LeftHand");		// プレイヤーのモデルのボーン情報 左手の甲 インデックスあってるかわからん
-	
+	aiMatrix4x4 aiMat = pPlayerRightHandBoneInfo.OffsetMatrix;
+	Matrix boneMat(										// aiMatix4x4をMatrixに変換
+		aiMat.a1, aiMat.b1, aiMat.c1, aiMat.d1,
+		aiMat.a2, aiMat.b2, aiMat.c2, aiMat.d2,
+		aiMat.a3, aiMat.b3, aiMat.c3, aiMat.d3,
+		aiMat.a4, aiMat.b4, aiMat.c4, aiMat.d4
+	);
+	boneMat.Invert();	// 逆行列にする
+
+	// ボーンのワールド行列を作る
+	Matrix BoneWorldMatrix = playerWorldMatrix * boneMat;
+	// ワールド行列から座標情報を取得
+	Vector3 RightHandPosition = BoneWorldMatrix.Translation();
+
+	// 右手のAABBを作成
+	AABB RightHandAABB = MakeAABB(RightHandPosition, 1, 1, 1);
 
 	// プレイヤーとグランパの当たり判定
-	if (CollisionAABB(pPlayer->GetAABBCollision(), pGrandpa->GetAABBCollision()))
+	if (CollisionOBB(pPlayer->GetOBBCollision(), pGrandpa->GetOBBCollision()))
 	{
 		pPlayer->SetIsHit(true);
 
 		pGrandpa->SetIsHit(true);
 		pGrandpa->SetNextAnimation("Die");
-		pGrandpa->CalcHitStop(26,71,0.5f);
 	}
 	else
 	{
@@ -512,4 +531,31 @@ void Game::HitCheck()
 		pGrandpa->SetIsHit(false);
 		pGrandpa->SetNextAnimation("Idle");
 	}
+
+	//if (CollisionAABB(pPlayer->GetAABBCollision(), pGrandpa->GetAABBCollision()))
+	//{
+	//	pPlayer->SetIsHit(true);
+
+	//	pGrandpa->SetIsHit(true);
+	//	pGrandpa->SetNextAnimation("Die");
+	//	pGrandpa->CalcHitStop(26,71,0.5f);
+	//}
+	//else
+	//{
+	//	pPlayer->SetIsHit(false);
+	//	pGrandpa->SetIsHit(false);
+	//	pGrandpa->SetNextAnimation("Idle");
+	//}
+
+	//// プレイヤーの右手とグランパの当たり判定
+	//if (CollisionAABB(RightHandAABB, pGrandpa->GetAABBCollision()))
+	//{
+	//	pGrandpa->SetIsHit(true);
+	//	pGrandpa->SetNextAnimation("Hit");
+	//}
+	//else
+	//{
+	//	pGrandpa->SetIsHit(false);
+	//	pGrandpa->SetNextAnimation("Idle");
+	//}
 }

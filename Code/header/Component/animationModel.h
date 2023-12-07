@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <d3d11.h>
 
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
@@ -53,7 +54,7 @@ private:
 	std::unordered_map<std::string, ID3D11ShaderResourceView*> m_Texture;
 
 	std::vector<DEFORM_VERTEX>* m_DeformVertex;				//変形後頂点データ
-	std::unordered_map<std::string, BONE> m_Bone;			//ボーンデータ（名前で参照）
+	std::unordered_map<std::string, BONE> m_Bone;			//ボーンデータ（名前で参照
 
 	void CreateBone(aiNode* Node);
 	void UpdateBoneMatrix(aiNode* Node, aiMatrix4x4 Matrix);
@@ -77,4 +78,6 @@ public:
 
 	// ボーンデータを取得
 	const BONE& GetBoneByIndex(const std::string _boneIndex) const;
+	// モデルの頂点データを取得
+	const std::vector<DEFORM_VERTEX>& GetVertexData(void);
 };

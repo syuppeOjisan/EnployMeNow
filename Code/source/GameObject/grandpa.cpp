@@ -26,7 +26,8 @@ void grandpa::Init()
 	m_Scale = Vector3(0.02f, 0.02f, 0.02f);
 
 	// 当たり判定設定
-	this->m_AABBCollision = SetAABB(this->m_Position, this->m_Scale.x, this->m_Scale.y, this->m_Scale.z);
+	this->m_AABBCollision = MakeAABB(this->m_Position, this->m_Scale.x, this->m_Scale.y, this->m_Scale.z);
+	this->m_OBBCollision = MakeOBB(this->m_pModel->GetVertexData());
 
 	// モーション変数初期化
 	m_NowAnimation = "Idle";
@@ -36,7 +37,8 @@ void grandpa::Init()
 void grandpa::Update()
 {
 	// コリジョン情報更新
-	this->m_AABBCollision = SetAABB(this->m_Position, 1, 1, 1);
+	this->m_AABBCollision = MakeAABB(this->m_Position, 1, 1, 1);
+	this->m_OBBCollision = MakeOBB(this->m_pModel->GetVertexData());
 
 	CharacterBase::Update();
 }

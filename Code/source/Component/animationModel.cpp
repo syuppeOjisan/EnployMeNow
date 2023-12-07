@@ -621,3 +621,8 @@ const BONE& AnimationModel::GetBoneByIndex(const std::string _boneIndex) const
 		return listIterator->second;
 	}
 }
+
+const std::vector<DEFORM_VERTEX>& AnimationModel::GetVertexData(void)
+{
+	return *m_DeformVertex;
+}

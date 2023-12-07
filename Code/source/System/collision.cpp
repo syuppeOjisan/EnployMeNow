@@ -276,8 +276,88 @@ bool CollisionAABB(AABB p1, AABB p2){
 	return true;
 }
 
+bool CollisionOBB(const OBB& obbA, const OBB& obbB)
+{
+	//分離軸
+	Vector3 vecSeparate;
 
-AABB SetAABB(Vector3 centerposition,float width ,float height,float depth) {
+	// 2つのオブジェクトを結んだベクトルを計算
+	Vector3 vecDistance;
+	vecDistance = obbB.worldcenter - obbA.worldcenter;
+
+	bool sts;	// 戻り値
+
+	// OBB-A軸リスト
+	const Vector3* OBB_A_Axis[3] = 
+	{
+			&obbA.axisX,
+			&obbA.axisY,
+			&obbA.axisZ
+	};
+
+	// OBB-B軸リスト
+	const Vector3* OBB_B_Axis[3] = 
+	{
+			&obbB.axisX,
+			&obbB.axisY,
+			&obbB.axisZ
+	};
+
+	// OBB-Aの３軸を分離軸にしてチェック
+	for (int i = 0; i < 3; i++) {
+
+		Vector3 vecSeparate = *OBB_A_Axis[i];
+
+		sts = CompareLength(
+			obbA,				// OBB-A
+			obbB,				// OBB-B
+			vecSeparate,		// 分離軸
+			vecDistance);		// ２つのオブジェクトを結ぶベクトル
+		if (sts == false) {
+			return false;
+		}
+	}
+
+	// OBB-Bの３軸を分離軸にしてチェック
+	for (int i = 0; i < 3; i++) {
+		Vector3 vecSeparate = *OBB_B_Axis[i];
+
+		sts = CompareLength(
+			obbA,				// OBB-A
+			obbB,				// OBB-B
+			vecSeparate,		// 分離軸
+			vecDistance);		// ２つのオブジェクトを結ぶベクトル
+		if (sts == false) {
+			return false;
+		}
+	}
+
+	// 外積を分離軸として計算
+	for (int p1 = 0; p1 < 3; p1++) {
+		for (int p2 = 0; p2 < 3; p2++) {
+
+			Vector3 obbAaxis = *OBB_A_Axis[p1];
+			Vector3 obbBaxis = *OBB_B_Axis[p2];
+
+			Vector3	crossseparate;			// 外積ベクトル
+			crossseparate = obbAaxis.Cross(obbBaxis);
+
+			sts = CompareLength(
+				obbA,				// OBB-A
+				obbB,				// OBB-B
+				crossseparate,		// 分離軸
+				vecDistance);		// ２つのオブジェクトを結ぶベクトル
+			if (sts == false) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+
+AABB MakeAABB(Vector3 centerposition,float width ,float height,float depth) {
 
 	AABB aabb{};
 
@@ -300,3 +380,140 @@ AABB SetAABB(Vector3 centerposition,float width ,float height,float depth) {
 	return aabb;
 }
 
+OBB MakeOBB(const std::vector<DEFORM_VERTEX>& vertices)
+{
+	aiVector3D max;
+	aiVector3D min;
+	OBB obb;
+
+	// 最大値と最小値を求める
+	min = max = vertices[0].Position;
+	for (auto& v : vertices) {
+		if (min.x > v.Position.x) min.x = v.Position.x;
+		if (min.y > v.Position.y) min.y = v.Position.y;
+		if (min.z > v.Position.z) min.z = v.Position.z;
+
+		if (max.x < v.Position.x) max.x = v.Position.x;
+		if (max.y < v.Position.y) max.y = v.Position.y;
+		if (max.z < v.Position.z) max.z = v.Position.z;
+	}
+
+	obb.min = Vector3(min.x, min.y, min.z);
+	obb.max = Vector3(max.x, max.y, max.z);
+
+	// 中心を求める
+	obb.worldcenter = obb.center = (obb.max + obb.min) * 0.5f;
+
+	// 軸を設定
+	obb.axisX = Vector3(1, 0, 0);
+	obb.axisY = Vector3(0, 1, 0);
+	obb.axisZ = Vector3(0, 0, 1);
+
+	// 長さを設定
+	DirectX::SimpleMath::Vector3 len;
+	len = obb.max - obb.min;
+
+	obb.lengthx = fabs(len.x);
+	obb.lengthy = fabs(len.y);
+	obb.lengthz = fabs(len.z);
+
+	return obb;
+}
+
+// ローカル座標で生成したOBBをワールド空間に変換
+void UpdateOBB(Matrix worldmtx,Vector3 scale, OBB& obbIn) 
+{
+	// 出力用
+	OBB obbOut;
+
+	// 平行移動
+	obbOut.worldcenter = Vector3::Transform(obbIn.center, worldmtx);
+
+	// 移動成分カット
+	worldmtx._41 = 0.0f;
+	worldmtx._42 = 0.0f;
+	worldmtx._43 = 0.0f;
+
+	// 軸回転
+	obbOut.axisX = DirectX::SimpleMath::Vector3::Transform(obbIn.axisX, worldmtx);
+	obbOut.axisY = DirectX::SimpleMath::Vector3::Transform(obbIn.axisY, worldmtx);
+	obbOut.axisZ = DirectX::SimpleMath::Vector3::Transform(obbIn.axisZ, worldmtx);
+
+	// 軸を正規化
+	obbOut.axisX.Normalize();
+	obbOut.axisY.Normalize();
+	obbOut.axisZ.Normalize();
+
+	// 拡縮を考慮
+	obbOut.lengthx *= scale.x;
+	obbOut.lengthy *= scale.y;
+	obbOut.lengthz *= scale.z;
+
+	obbIn = obbOut;
+}
+
+// OBBの重なりを判定する
+bool CompareLength(
+	const OBB& ObbA,		// OBB-A
+	const OBB& ObbB,		// OBB-B
+	const Vector3& vecSeparate,		// 分離軸
+	const Vector3& vecDistance)		// 中心座標を結んだベクトル
+{
+	float fDistance{};
+
+	// 分離軸に射影した中心間を結ぶベクトル
+	fDistance = vecDistance.Dot(vecSeparate);	// 内積を計算
+	fDistance = fabsf(fDistance);				// プラスにする
+
+	//分離軸上にボックスAを射影した影の長さ
+	float fShadowA = 0;
+
+	//分離軸上にボックスＢを射影した影の長さ
+	float fShadowB = 0;
+
+	//ボックスAの”影”を算出
+	float fShadowAx{};
+	float fShadowAy{};
+	float fShadowAz{};
+
+	// X軸を分離軸に射影
+	fShadowAx = vecSeparate.Dot(ObbA.axisX);
+	fShadowAx = fabsf(fShadowAx * (ObbA.lengthx / 2.0f));
+
+	// Y軸を分離軸に射影
+	fShadowAy = vecSeparate.Dot(ObbA.axisY);
+	fShadowAy = fabsf(fShadowAy * (ObbA.lengthy / 2.0f));
+
+	// Z軸を分離軸に射影
+	fShadowAz = vecSeparate.Dot(ObbA.axisZ);
+	fShadowAz = fabsf(fShadowAz * (ObbA.lengthz / 2.0f));
+
+	// 分離軸に射影した影の長さを求める
+	fShadowA = fShadowAx + fShadowAy + fShadowAz;
+
+	//ボックスBの”影”を算出
+	float fShadowBx{};
+	float fShadowBy{};
+	float fShadowBz{};
+
+	// X軸を分離軸に射影
+	fShadowBx = vecSeparate.Dot(ObbB.axisX);
+	fShadowBx = fabsf(fShadowBx * (ObbB.lengthx / 2.0f));
+
+	// Y軸を分離軸に射影
+	fShadowBy = vecSeparate.Dot(ObbB.axisY);
+	fShadowBy = fabsf(fShadowBy * (ObbB.lengthy / 2.0f));
+
+	// Z軸を分離軸に射影
+	fShadowBz = vecSeparate.Dot(ObbB.axisZ);
+	fShadowBz = fabsf(fShadowBz * (ObbB.lengthz / 2.0f));
+
+	// 分離軸に射影した影の長さを求める
+	fShadowB = fShadowBx + fShadowBy + fShadowBz;
+
+	if (fDistance > fShadowA + fShadowB) {
+		return false;
+	}
+
+	return true;
+}
